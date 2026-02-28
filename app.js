@@ -20,7 +20,14 @@ let state = {
   mutedSfx: false,
   autoStart: false,
   notificationsEnabled: false,
-  darkMode: false
+  darkMode: false,
+  // Scoring
+  scoreCurrentDate: "",   // local date string YYYY-MM-DD for today's session
+  scoreCurrent: 0,        // points earned today
+  scoreYesterday: 0,
+  scoreAllTime: 0,
+  // Track which bingo lines have already been awarded a bonus to avoid double-counting
+  awardedLines: []
 };
 
 let timerInterval = null;
@@ -42,11 +49,118 @@ function loadState() {
     }
   }
   if (!Array.isArray(state.cells) || state.cells.length !== 16) {
-    state.cells = DEFAULT_CELLS.map(text => ({ text, completed: false }));
+    state.cells = DEFAULT_CELLS.map(text => ({ text, count: 0 }));
+  }
+  // Migrate old boolean `completed` cells to numeric `count`
+  state.cells = state.cells.map(c => {
+    if (typeof c.count !== "number") {
+      return { text: c.text, count: c.completed ? 1 : 0 };
+    }
+    return c;
+  });
+  if (!Array.isArray(state.awardedLines)) state.awardedLines = [];
+
+  // Daily score rollover using device local date
+  const todayStr = localDateString();
+  if (state.scoreCurrentDate !== todayStr) {
+    const yesterdayStr = localDateString(-1);
+    // If saved date was yesterday, promote it; otherwise it's older, just drop to 0
+    if (state.scoreCurrentDate === yesterdayStr) {
+      state.scoreYesterday = state.scoreCurrent;
+    } else if (state.scoreCurrentDate && state.scoreCurrentDate < todayStr) {
+      // Older than yesterday — preserve yesterday as-is, don't overwrite
+      // (yesterday was already set on its own day)
+    }
+    state.scoreCurrent = 0;
+    state.scoreCurrentDate = todayStr;
+    state.awardedLines = [];
+    // Reset cell counts for the new day
+    state.cells = state.cells.map(c => ({ ...c, count: 0 }));
+    state.bingoAcknowledged = false;
   }
 }
 
-// ===== AUDIO =====
+// ===== SCORING =====
+// Returns local date as YYYY-MM-DD string, offset by `dayOffset` days
+function localDateString(dayOffset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + dayOffset);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Multiplier for repeat completions: count 1=1.0, 2=1.2, 3=1.5, 4=1.8, 5=2.0
+const COUNT_MULTIPLIERS = [0, 1.0, 1.2, 1.5, 1.8, 2.0];
+
+function pointsForCell(count) {
+  if (count < 1 || count > 5) return 0;
+  return Math.round(5 * COUNT_MULTIPLIERS[count]);
+}
+
+function addScore(pts) {
+  state.scoreCurrent += pts;
+  if (state.scoreCurrent > state.scoreAllTime) {
+    state.scoreAllTime = state.scoreCurrent;
+  }
+  saveState();
+  updateScoreUI();
+}
+
+function updateScoreUI() {
+  const el = document.getElementById("score-current");
+  const elY = document.getElementById("score-yesterday");
+  const elA = document.getElementById("score-alltime");
+  if (el)  el.textContent  = state.scoreCurrent;
+  if (elY) elY.textContent = state.scoreYesterday;
+  if (elA) elA.textContent = state.scoreAllTime;
+}
+
+// All 10 winning lines (4 rows, 4 cols, 2 diagonals) as sorted index strings
+const BINGO_LINES = [
+  [0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15],   // rows
+  [0,4,8,12], [1,5,9,13], [2,6,10,14], [3,7,11,15],   // cols
+  [0,5,10,15], [3,6,9,12]                               // diagonals
+];
+
+function lineKey(line) { return line.join(","); }
+
+function checkAndAwardLines() {
+  let newLines = 0;
+  for (const line of BINGO_LINES) {
+    const key = lineKey(line);
+    if (state.awardedLines.includes(key)) continue;
+    if (line.every(i => state.cells[i].count >= 1)) {
+      state.awardedLines.push(key);
+      newLines++;
+    }
+  }
+  if (newLines > 0) {
+    const bonus = newLines * 20;
+    addScore(bonus);
+    showScorePopup(`+${bonus} Line Bonus! 🎯`);
+  }
+
+  // Blackout: all 16 cells completed at least once
+  if (!state.blackoutAwarded && state.cells.every(c => c.count >= 1)) {
+    state.blackoutAwarded = true;
+    addScore(100);
+    showScorePopup("+100 BLACKOUT! 🔥");
+  }
+}
+
+let popupTimeout = null;
+function showScorePopup(msg) {
+  let popup = document.getElementById("score-popup");
+  if (!popup) return;
+  popup.textContent = msg;
+  popup.classList.add("visible");
+  clearTimeout(popupTimeout);
+  popupTimeout = setTimeout(() => popup.classList.remove("visible"), 2200);
+}
+
+
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -512,7 +626,8 @@ function renderBingoGrid() {
 
   state.cells.forEach((cell, i) => {
     const div = document.createElement("div");
-    div.className = "bingo-cell" + (cell.completed ? " completed" : "");
+    const countClass = cell.count > 0 ? ` completed completed-${cell.count}` : "";
+    div.className = "bingo-cell" + countClass;
     div.dataset.index = i;
     div.draggable = true;
 
@@ -521,9 +636,29 @@ function renderBingoGrid() {
     span.textContent = cell.text || "Click to add...";
     div.appendChild(span);
 
+    // Count pip indicator
+    if (cell.count > 0) {
+      const pip = document.createElement("span");
+      pip.className = "cell-count-pip";
+      pip.textContent = "★".repeat(cell.count);
+      div.appendChild(pip);
+    }
+
     div.addEventListener("click", (e) => {
       if (e.target.tagName === "INPUT") return;
       toggleCell(i);
+    });
+
+    // Right-click to decrement/reset
+    div.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      if (state.cells[i].count > 0) {
+        state.cells[i].count--;
+        // Recalculate score from scratch on decrement to keep it honest
+        recalculateScore();
+        saveState();
+        renderBingoGrid();
+      }
     });
 
     div.addEventListener("dblclick", (e) => {
@@ -539,6 +674,21 @@ function renderBingoGrid() {
 
     grid.appendChild(div);
   });
+}
+
+function recalculateScore() {
+  // Recount points from current cell counts + awarded line bonuses
+  let pts = 0;
+  state.cells.forEach(c => {
+    for (let n = 1; n <= c.count; n++) {
+      pts += pointsForCell(n) - pointsForCell(n - 1);
+    }
+  });
+  pts += state.awardedLines.length * 20;
+  if (state.blackoutAwarded) pts += 100;
+  state.scoreCurrent = pts;
+  if (state.scoreCurrent > state.scoreAllTime) state.scoreAllTime = state.scoreCurrent;
+  updateScoreUI();
 }
 
 function startEditing(div, index) {
@@ -569,7 +719,23 @@ function startEditing(div, index) {
 }
 
 function toggleCell(index) {
-  state.cells[index].completed = !state.cells[index].completed;
+  const cell = state.cells[index];
+  const prevCount = cell.count;
+
+  if (prevCount < 5) {
+    cell.count = prevCount + 1;
+    // Award points for this increment: delta between new and old point value
+    const pts = pointsForCell(cell.count) - pointsForCell(prevCount);
+    addScore(pts);
+    const multiplierLabels = ["", "", "×1.2", "×1.5", "×1.8", "×2.0"];
+    if (cell.count >= 2) showScorePopup(`+${pts} pts ${multiplierLabels[cell.count]}`);
+    else showScorePopup(`+${pts} pts`);
+    checkAndAwardLines();
+  } else {
+    // Already at max — right-click resets, left-click does nothing more
+    return;
+  }
+
   state.bingoAcknowledged = false;
   saveState();
   renderBingoGrid();
@@ -579,7 +745,7 @@ function toggleCell(index) {
 function checkBingo() {
   if (state.bingoAcknowledged) return;
   const c = state.cells;
-  const done = (i) => c[i].completed;
+  const done = (i) => c[i].count >= 1;
 
   for (let r = 0; r < 4; r++) {
     if ([0,1,2,3].every(col => done(r * 4 + col))) { showBingoModal(); return; }
@@ -675,7 +841,7 @@ function saveCustomize() {
     [filled[i], filled[j]] = [filled[j], filled[i]];
   }
 
-  state.cells = filled.map(text => ({ text, completed: false }));
+  state.cells = filled.map(text => ({ text, count: 0 }));
   state.bingoAcknowledged = false;
   saveState();
   renderBingoGrid();
@@ -704,11 +870,15 @@ async function init() {
 
   // Bingo reset & reshuffle
   document.getElementById("btn-reset-bingo").addEventListener("click", () => {
-    if (confirm("Reset all marks and reshuffle the bingo card?")) {
+    if (confirm("Reset all marks and reshuffle the bingo card? Your score will also reset.")) {
       const texts = state.cells.map(c => c.text);
-      const shuffled = shuffleCells(texts.map(text => ({ text, completed: false })));
+      const shuffled = shuffleCells(texts.map(text => ({ text, count: 0 })));
       state.cells = shuffled;
       state.bingoAcknowledged = false;
+      state.awardedLines = [];
+      state.blackoutAwarded = false;
+      state.scoreCurrent = 0;
+      updateScoreUI();
       saveState();
       renderBingoGrid();
     }
@@ -735,6 +905,7 @@ async function init() {
 
   updateTimerUI();
   updatePomoCount();
+  updateScoreUI();
   renderBingoGrid();
 }
 

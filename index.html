@@ -137,7 +137,29 @@
     <!-- BINGO SECTION -->
     <section id="bingo-section">
       <h2>Break Bingo Card</h2>
-      <p class="bingo-instructions">Click a cell to mark complete/incomplete. Drag cells to rearrange. Double-click to edit text.</p>
+      <p class="bingo-instructions">Click to complete (up to ×5). Right-click to undo. Double-click to edit. Drag to rearrange.</p>
+
+      <!-- SCORE PANEL -->
+      <div id="score-panel-wrap" style="position:relative;">
+      <div id="score-panel">
+        <div class="score-block">
+          <span class="score-label">Today</span>
+          <span class="score-value" id="score-current">0</span>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-block">
+          <span class="score-label">Yesterday</span>
+          <span class="score-value score-value--dim" id="score-yesterday">0</span>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-block">
+          <span class="score-label">All Time</span>
+          <span class="score-value score-value--gold" id="score-alltime">0</span>
+        </div>
+      </div>
+      <div id="score-popup"></div>
+      </div>
+
       <div id="bingo-grid"></div>
       <div id="bingo-controls">
         <button id="btn-reset-bingo">Reset &amp; Reshuffle</button>
