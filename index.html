@@ -58,7 +58,6 @@
 
             <!-- Timer Mode -->
             <div class="setting-card">
-              <div class="setting-card-icon">⏱️</div>
               <div class="setting-card-label">Timer Mode</div>
               <div class="setting-card-body">
                 <label class="radio-label">
@@ -74,7 +73,6 @@
 
             <!-- Auto-start -->
             <div class="setting-card">
-              <div class="setting-card-icon">▶️</div>
               <div class="setting-card-label">Auto-Start</div>
               <div class="setting-card-body toggle-body">
                 <label class="toggle-switch">
@@ -87,7 +85,6 @@
 
             <!-- Notifications -->
             <div class="setting-card">
-              <div class="setting-card-icon">🔔</div>
               <div class="setting-card-label">Notifications</div>
               <div class="setting-card-body toggle-body">
                 <label class="toggle-switch">
@@ -98,45 +95,25 @@
               </div>
             </div>
 
-            <!-- Daily Goal -->
+            <!-- Volume Controls (Music + SFX combined) -->
             <div class="setting-card">
-              <div class="setting-card-icon">🎯</div>
-              <div class="setting-card-label">Daily Goal</div>
-              <div class="setting-card-body">
-                <div class="stepper">
-                  <button class="stepper-btn" id="btn-goal-dec">−</button>
-                  <span id="daily-goal-val">8</span>
-                  <span class="stepper-unit">pomos</span>
-                  <button class="stepper-btn" id="btn-goal-inc">+</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Music Volume -->
-            <div class="setting-card setting-card-wide">
-              <div class="setting-card-icon">🎵</div>
-              <div class="setting-card-label">Music Volume</div>
-              <div class="setting-card-body volume-body">
+              <div class="setting-card-label">Volume</div>
+              <div class="setting-card-body volume-body" style="margin-bottom:8px;">
+                <span class="vol-label">Music</span>
                 <input type="range" id="vol-music" min="0" max="100" value="60" />
                 <span class="vol-value" id="vol-music-val">60</span>
-                <button class="btn-mute" id="btn-mute-music" title="Mute music">🔊</button>
+                <button class="btn-mute" id="btn-mute-music" title="Mute music">On</button>
               </div>
-            </div>
-
-            <!-- SFX Volume -->
-            <div class="setting-card setting-card-wide">
-              <div class="setting-card-icon">🔔</div>
-              <div class="setting-card-label">Timer Sound</div>
               <div class="setting-card-body volume-body">
+                <span class="vol-label">Sound</span>
                 <input type="range" id="vol-sfx" min="0" max="100" value="80" />
                 <span class="vol-value" id="vol-sfx-val">80</span>
-                <button class="btn-mute" id="btn-mute-sfx" title="Mute timer sounds">🔊</button>
+                <button class="btn-mute" id="btn-mute-sfx" title="Mute timer sounds">On</button>
               </div>
             </div>
 
             <!-- Dark Mode -->
             <div class="setting-card">
-              <div class="setting-card-icon">🌙</div>
               <div class="setting-card-label">Dark Mode</div>
               <div class="setting-card-body toggle-body">
                 <label class="toggle-switch">
@@ -149,7 +126,6 @@
 
             <!-- Customize Bingo -->
             <div class="setting-card setting-card-action">
-              <div class="setting-card-icon">✏️</div>
               <div class="setting-card-label">Bingo Card</div>
               <div class="setting-card-body">
                 <button id="btn-open-customize" class="action-btn">Customize</button>

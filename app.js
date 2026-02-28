@@ -20,7 +20,6 @@ let state = {
   mutedSfx: false,
   autoStart: false,
   notificationsEnabled: false,
-  dailyGoal: 8,
   darkMode: false
 };
 
@@ -416,23 +415,6 @@ function initSettings() {
     saveState();
   });
 
-  // Daily goal stepper
-  document.getElementById("daily-goal-val").textContent = state.dailyGoal;
-  document.getElementById("btn-goal-dec").addEventListener("click", () => {
-    if (state.dailyGoal > 1) {
-      state.dailyGoal--;
-      document.getElementById("daily-goal-val").textContent = state.dailyGoal;
-      saveState();
-    }
-  });
-  document.getElementById("btn-goal-inc").addEventListener("click", () => {
-    if (state.dailyGoal < 20) {
-      state.dailyGoal++;
-      document.getElementById("daily-goal-val").textContent = state.dailyGoal;
-      saveState();
-    }
-  });
-
   // Dark mode toggle
   const toggleDark = document.getElementById("toggle-darkmode");
   toggleDark.checked = state.darkMode;
@@ -508,7 +490,7 @@ function initVolumeControls() {
 }
 
 function updateMuteButton(btn, muted) {
-  btn.textContent = muted ? "🔇" : "🔊";
+  btn.textContent = muted ? "Off" : "On";
   btn.classList.toggle("muted", muted);
 }
 
