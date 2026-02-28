@@ -56,7 +56,7 @@
 
           <div class="settings-grid">
 
-            <!-- Timer Mode -->
+            <!-- ROW 1: Timer Mode | Auto-Start | Notifications | Dark Mode -->
             <div class="setting-card">
               <div class="setting-card-label">Timer Mode</div>
               <div class="setting-card-body">
@@ -71,7 +71,6 @@
               </div>
             </div>
 
-            <!-- Auto-start -->
             <div class="setting-card">
               <div class="setting-card-label">Auto-Start</div>
               <div class="setting-card-body toggle-body">
@@ -83,7 +82,6 @@
               </div>
             </div>
 
-            <!-- Notifications -->
             <div class="setting-card">
               <div class="setting-card-label">Notifications</div>
               <div class="setting-card-body toggle-body">
@@ -95,8 +93,26 @@
               </div>
             </div>
 
-            <!-- Volume Controls (Music + SFX combined) -->
             <div class="setting-card">
+              <div class="setting-card-label">Dark Mode</div>
+              <div class="setting-card-body toggle-body">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-darkmode" />
+                  <span class="toggle-track"></span>
+                </label>
+                <span class="toggle-desc" id="darkmode-desc">Off</span>
+              </div>
+            </div>
+
+            <!-- ROW 2: Customize Bingo (50%) | Volume (50%) -->
+            <div class="setting-card settings-half">
+              <div class="setting-card-label">Bingo Card</div>
+              <div class="setting-card-body">
+                <button id="btn-open-customize" class="action-btn">Customize</button>
+              </div>
+            </div>
+
+            <div class="setting-card settings-half">
               <div class="setting-card-label">Volume</div>
               <div class="setting-card-body volume-body" style="margin-bottom:8px;">
                 <span class="vol-label">Music</span>
@@ -109,26 +125,6 @@
                 <input type="range" id="vol-sfx" min="0" max="100" value="80" />
                 <span class="vol-value" id="vol-sfx-val">80</span>
                 <button class="btn-mute" id="btn-mute-sfx" title="Mute timer sounds">On</button>
-              </div>
-            </div>
-
-            <!-- Dark Mode -->
-            <div class="setting-card">
-              <div class="setting-card-label">Dark Mode</div>
-              <div class="setting-card-body toggle-body">
-                <label class="toggle-switch">
-                  <input type="checkbox" id="toggle-darkmode" />
-                  <span class="toggle-track"></span>
-                </label>
-                <span class="toggle-desc" id="darkmode-desc">Off</span>
-              </div>
-            </div>
-
-            <!-- Customize Bingo -->
-            <div class="setting-card setting-card-action">
-              <div class="setting-card-label">Bingo Card</div>
-              <div class="setting-card-body">
-                <button id="btn-open-customize" class="action-btn">Customize</button>
               </div>
             </div>
 

@@ -1,4 +1,6 @@
 /* ===== RESET & BASE ===== */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
 *,
 *::before,
 *::after {
@@ -8,7 +10,7 @@
 }
 
 body {
-  font-family: Georgia, serif;
+  font-family: "Montserrat", sans-serif;
   background: #f5f0e8;
   color: #222;
   min-height: 100vh;
@@ -83,6 +85,24 @@ body.dark .customize-row input {
 
 body.dark section h2 {
   border-bottom-color: #2a2a4a;
+}
+
+body.dark .setting-card-label,
+body.dark .toggle-desc,
+body.dark .vol-label,
+body.dark .vol-value,
+body.dark #phase-label,
+body.dark #pomo-count,
+body.dark .bingo-instructions,
+body.dark .customize-instructions,
+body.dark .settings-back-btn,
+body.dark .np-license,
+body.dark #np-artist {
+  color: #ffffff;
+}
+
+body.dark .modal-content p {
+  color: #ffffff;
 }
 
 /* ===== HEADER ===== */
@@ -195,23 +215,20 @@ section h2 {
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 4px 8px;
-  font-size: 1.1rem;
-  border: 1px solid #ddd;
-  border-radius: 50%;
+  padding: 4px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
   line-height: 1;
-  transition:
-    transform 0.3s,
-    background 0.15s;
+  transition: transform 0.3s;
   z-index: 2;
 }
 
 .settings-gear:hover {
   transform: rotate(60deg);
-  background: #f0f0f0;
-  color: #222;
+  background: transparent;
 }
 
 /* ===== SETTINGS HEADER ===== */
@@ -249,7 +266,7 @@ section h2 {
 /* ===== SETTINGS GRID ===== */
 .settings-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
@@ -261,6 +278,10 @@ section h2 {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.settings-half {
+  grid-column: span 2;
 }
 
 .setting-card-wide {
@@ -277,12 +298,14 @@ section h2 {
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #888;
-  font-family: "Courier New", monospace;
+  font-family: "Montserrat", sans-serif;
+  text-align: center;
 }
 
 .setting-card-body {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -366,6 +389,7 @@ section h2 {
 .volume-body {
   flex-wrap: nowrap;
   gap: 8px;
+  justify-content: flex-start;
 }
 
 .volume-body input[type="range"] {
@@ -815,5 +839,9 @@ button:disabled {
   }
   .settings-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .settings-half {
+    grid-column: span 1;
   }
 }
