@@ -90,9 +90,36 @@ body.dark #pomo-count,
 body.dark .bingo-instructions,
 body.dark .customize-instructions,
 body.dark .settings-back-btn,
-body.dark .np-license,
+body.dark .np-license {
+  color: #ffffff;
+}
+
+/* Now-playing dark mode — restore box appearance, then target artist specifically */
+body.dark .now-playing {
+  background: #1a2535;
+  border-color: #2a3a52;
+}
+
+body.dark .now-playing-icon,
+body.dark #np-track {
+  color: #a8c4e0;
+}
+
 body.dark #np-artist {
   color: #ffffff;
+}
+
+body.dark .np-link {
+  color: #a8c4e0;
+  border-color: #a8c4e0;
+}
+
+body.dark .np-license {
+  color: #7a9ab8;
+}
+
+body.dark #timer-display:not(.running):not(.break-phase) {
+  color: #e0e0e0;
 }
 
 body.dark .modal-content p {
@@ -260,9 +287,30 @@ section h2 {
 
 /* ===== SETTINGS GRID ===== */
 .settings-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+}
+
+/* Each row is its own grid */
+.settings-row {
+  display: grid;
+  gap: 10px;
+}
+
+/* Row 1: 4 equal columns */
+.settings-row-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Row 2: Volume takes 3/4 width, Sound Theme 1/4 */
+.settings-row-vol {
+  grid-template-columns: 3fr 1fr;
+}
+
+/* Row 3: 3 equal columns */
+.settings-row-3 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .setting-card {
@@ -275,29 +323,37 @@ section h2 {
   gap: 6px;
 }
 
-.settings-half {
-  grid-column: span 2;
+/* ===== SOUND THEME (in setting card) ===== */
+.sound-theme-body {
+  flex-direction: column;
+  align-items: center;      /* center the block within the card */
+  gap: 5px;
+  width: 100%;
 }
 
-.settings-half.setting-card-action {
+.sound-theme-body .radio-label {
+  width: 70px;              /* fixed width so all labels left-align together */
   justify-content: flex-start;
 }
 
-.settings-half.setting-card-action .setting-card-body {
+/* ===== ACTION CARDS (row 3) ===== */
+.setting-action-body {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
-.setting-card-wide {
-  grid-column: 1 / -1;
+.setting-card-note {
+  font-size: 0.68rem;
+  color: #bbb;
+  text-align: center;
+  font-style: italic;
+  margin-top: 2px;
 }
 
-.setting-card-icon {
-  font-size: 1.1rem;
-  line-height: 1;
-}
+body.dark .setting-card-note { color: #666; }
 
 .setting-card-label {
   font-size: 0.72rem;
@@ -404,6 +460,10 @@ section h2 {
   cursor: pointer;
 }
 
+body.dark .volume-body input[type="range"] {
+  accent-color: #27ae60;
+}
+
 .vol-value {
   font-size: 0.8rem;
   color: #666;
@@ -454,6 +514,36 @@ section h2 {
 .action-btn:hover {
   background: #2c3e50;
   color: white;
+}
+
+.action-btn-danger {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.action-btn-danger:hover {
+  background: #c0392b !important;
+  color: white !important;
+  border-color: #c0392b !important;
+}
+
+body.dark .action-btn-danger {
+  border-color: #e07070;
+  color: #e07070;
+}
+
+body.dark .action-btn-danger:hover {
+  background: #c0392b !important;
+  color: white !important;
+}
+
+/* ===== NOW PLAYING idle state ===== */
+.now-playing-idle {
+  opacity: 0.45;
+}
+
+.now-playing-idle #np-icon {
+  animation: none;
 }
 
 /* ===== TIMER ===== */
@@ -525,10 +615,7 @@ section h2 {
   margin-top: 4px;
 }
 
-.now-playing.hidden {
-  display: none;
-}
-
+/* now-playing is always visible; idle class dims it when no track */
 .now-playing-icon {
   color: #2c3e50;
   font-size: 1rem;
@@ -667,16 +754,6 @@ button:disabled {
 .bingo-cell:hover {
   border-color: #888;
   background: #f0f0f0;
-}
-
-.bingo-cell.dragging {
-  opacity: 0.4;
-  border-style: dashed;
-}
-
-.bingo-cell.drag-over {
-  border-color: #2c3e50;
-  background: #eaf0fb;
 }
 
 .cell-text {

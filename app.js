@@ -25,9 +25,12 @@ let state = {
   scoreCurrentDate: "",   // local date string YYYY-MM-DD for today's session
   scoreCurrent: 0,        // points earned today
   scoreYesterday: 0,
-  scoreAllTime: 0,
+  scoreAllTime: 0,        // displayed all-time: max(scoreAllTimeBase, scoreCurrent)
+  scoreAllTimeBase: 0,    // all-time peak from previous days only, never decremented
   // Track which bingo lines have already been awarded a bonus to avoid double-counting
-  awardedLines: []
+  awardedLines: [],
+  // Track which lines have already triggered the bingo modal (separate from scoring)
+  celebratedLines: []
 };
 
 let timerInterval = null;
@@ -59,22 +62,22 @@ function loadState() {
     return c;
   });
   if (!Array.isArray(state.awardedLines)) state.awardedLines = [];
+  if (!Array.isArray(state.celebratedLines)) state.celebratedLines = [];
 
   // Daily score rollover using device local date
   const todayStr = localDateString();
   if (state.scoreCurrentDate !== todayStr) {
     const yesterdayStr = localDateString(-1);
-    // If saved date was yesterday, promote it; otherwise it's older, just drop to 0
     if (state.scoreCurrentDate === yesterdayStr) {
       state.scoreYesterday = state.scoreCurrent;
-    } else if (state.scoreCurrentDate && state.scoreCurrentDate < todayStr) {
-      // Older than yesterday — preserve yesterday as-is, don't overwrite
-      // (yesterday was already set on its own day)
     }
+    // Lock in yesterday's score as the permanent all-time base before resetting today
+    state.scoreAllTimeBase = Math.max(state.scoreAllTimeBase || 0, state.scoreCurrent);
+    state.scoreAllTime = state.scoreAllTimeBase;
     state.scoreCurrent = 0;
     state.scoreCurrentDate = todayStr;
     state.awardedLines = [];
-    // Reset cell counts for the new day
+    state.celebratedLines = [];
     state.cells = state.cells.map(c => ({ ...c, count: 0 }));
     state.bingoAcknowledged = false;
   }
@@ -101,9 +104,7 @@ function pointsForCell(count) {
 
 function addScore(pts) {
   state.scoreCurrent += pts;
-  if (state.scoreCurrent > state.scoreAllTime) {
-    state.scoreAllTime = state.scoreCurrent;
-  }
+  state.scoreAllTime = Math.max(state.scoreAllTimeBase || 0, state.scoreCurrent);
   saveState();
   updateScoreUI();
 }
@@ -174,50 +175,108 @@ function sfxVolume() {
   return state.mutedSfx ? 0 : state.volSfx / 100;
 }
 
-function playStartClick() {
-  const ctx = getAudioCtx();
-  const osc = ctx.createOscillator();
+// ===== SOUND ENGINE =====
+// Three themes × three events (start, pause, done)
+// All synthesized via Web Audio API — no file loads.
+
+function theme() { return state.soundTheme || "chime"; }
+
+// --- helpers ---
+function makeOsc(ctx, type, freq, startT, stopT, vol, freqEnd) {
+  const osc  = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.connect(gain);
   gain.connect(ctx.destination);
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(880, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.06);
-  gain.gain.setValueAtTime(sfxVolume() * 0.4, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-  osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 0.12);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, startT);
+  if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, stopT);
+  gain.gain.setValueAtTime(vol, startT);
+  gain.gain.exponentialRampToValueAtTime(0.001, stopT);
+  osc.start(startT);
+  osc.stop(stopT + 0.01);
+}
+
+// ── CHIME ──
+function chimeStart(ctx, vol, t) {
+  // Warm descending sine — the original start click
+  makeOsc(ctx, 'sine', 880, t, t + 0.12, vol * 0.4, 440);
+}
+function chimePause(ctx, vol, t) {
+  // Two soft descending tones, gentle and understated
+  makeOsc(ctx, 'sine', 660, t,        t + 0.18, vol * 0.35, 440);
+  makeOsc(ctx, 'sine', 440, t + 0.14, t + 0.32, vol * 0.25, 330);
+}
+function chimeDone(ctx, vol, t) {
+  // Original triple-ring chime
+  [0, 0.35, 0.70].forEach(offset => {
+    makeOsc(ctx, 'sine', 1318, t + offset, t + offset + 0.5,  vol * 0.6);
+    makeOsc(ctx, 'sine', 1975, t + offset, t + offset + 0.4,  vol * 0.3);
+  });
+}
+
+// ── BEEP ──
+function beepStart(ctx, vol, t) {
+  // Short crisp square pulse, rising
+  makeOsc(ctx, 'square', 440, t, t + 0.08, vol * 0.25, 660);
+}
+function beepPause(ctx, vol, t) {
+  // Two descending square pulses
+  makeOsc(ctx, 'square', 660, t,        t + 0.08, vol * 0.2);
+  makeOsc(ctx, 'square', 440, t + 0.12, t + 0.20, vol * 0.2);
+}
+function beepDone(ctx, vol, t) {
+  // Three evenly-spaced square beeps at fixed pitch
+  [0, 0.22, 0.44].forEach(offset => {
+    makeOsc(ctx, 'square', 880, t + offset, t + offset + 0.14, vol * 0.3);
+  });
+}
+
+// ── BELL ──
+function bellStart(ctx, vol, t) {
+  // Triangle wave with long decay — single struck note
+  makeOsc(ctx, 'triangle', 740, t, t + 0.55, vol * 0.5, 600);
+}
+function bellPause(ctx, vol, t) {
+  // Two slightly flat triangle tones trailing off
+  makeOsc(ctx, 'triangle', 600, t,        t + 0.5,  vol * 0.4, 500);
+  makeOsc(ctx, 'triangle', 500, t + 0.28, t + 0.75, vol * 0.25, 420);
+}
+function bellDone(ctx, vol, t) {
+  // Three struck bell tones in ascending pitch
+  makeOsc(ctx, 'triangle', 523, t,        t + 0.8,  vol * 0.5, 440);
+  makeOsc(ctx, 'triangle', 659, t + 0.35, t + 1.1,  vol * 0.5, 587);
+  makeOsc(ctx, 'triangle', 784, t + 0.70, t + 1.45, vol * 0.5, 698);
+}
+
+// ── Public dispatchers ──
+function playStartClick() {
+  const ctx = getAudioCtx();
+  const vol = sfxVolume();
+  if (vol === 0) return;
+  const t = ctx.currentTime;
+  if (theme() === 'beep') beepStart(ctx, vol, t);
+  else if (theme() === 'bell') bellStart(ctx, vol, t);
+  else chimeStart(ctx, vol, t);
+}
+
+function playPause() {
+  const ctx = getAudioCtx();
+  const vol = sfxVolume();
+  if (vol === 0) return;
+  const t = ctx.currentTime;
+  if (theme() === 'beep') beepPause(ctx, vol, t);
+  else if (theme() === 'bell') bellPause(ctx, vol, t);
+  else chimePause(ctx, vol, t);
 }
 
 function playTimerDone() {
   const ctx = getAudioCtx();
   const vol = sfxVolume();
   if (vol === 0) return;
-
-  const ringTimes = [0, 0.35, 0.70];
-  ringTimes.forEach(offset => {
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(1318, ctx.currentTime + offset);
-    gain1.gain.setValueAtTime(vol * 0.6, ctx.currentTime + offset);
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.5);
-    osc1.start(ctx.currentTime + offset);
-    osc1.stop(ctx.currentTime + offset + 0.55);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(1975, ctx.currentTime + offset);
-    gain2.gain.setValueAtTime(vol * 0.3, ctx.currentTime + offset);
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.4);
-    osc2.start(ctx.currentTime + offset);
-    osc2.stop(ctx.currentTime + offset + 0.45);
-  });
+  const t = ctx.currentTime;
+  if (theme() === 'beep') beepDone(ctx, vol, t);
+  else if (theme() === 'bell') bellDone(ctx, vol, t);
+  else chimeDone(ctx, vol, t);
 }
 
 // ===== BACKGROUND MUSIC =====
@@ -250,16 +309,26 @@ function pickRandomTrack() {
 
 function updateNowPlaying(track) {
   const npEl      = document.getElementById("now-playing");
+  const npIcon    = document.getElementById("np-icon");
   const npTrack   = document.getElementById("np-track");
   const npArtist  = document.getElementById("np-artist");
   const npUrl     = document.getElementById("np-url");
   const npLicense = document.getElementById("np-license");
 
   if (!track) {
-    npEl.classList.add("hidden");
+    // Idle state — always visible but dimmed
+    npEl.classList.add("now-playing-idle");
+    npIcon.style.animation = "none";
+    npTrack.textContent  = "No music playing";
+    npArtist.textContent = "Music plays during work sessions";
+    npUrl.classList.add("hidden");
+    npLicense.textContent = "";
     return;
   }
 
+  // Active state
+  npEl.classList.remove("now-playing-idle");
+  npIcon.style.animation = "";
   npTrack.textContent  = track.title  || "Unknown Track";
   npArtist.textContent = track.artist || "";
 
@@ -272,7 +341,6 @@ function updateNowPlaying(track) {
   }
 
   npLicense.textContent = track.license || "";
-  npEl.classList.remove("hidden");
 }
 
 function startMusic() {
@@ -361,6 +429,7 @@ function pauseTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
   stopMusic();
+  playPause();
   updateTimerUI();
   saveState();
 }
@@ -490,11 +559,9 @@ function initSettings() {
   });
   document.getElementById("btn-close-settings").addEventListener("click", () => {
     flipCard.classList.remove("flipped");
-    // After the flip-back animation completes, clear the forced height
-    // so the card returns to its natural (front-face) height
     setTimeout(() => {
       document.querySelector(".flip-card-inner").style.height = "";
-    }, 680); // matches transition duration (650ms + small buffer)
+    }, 680);
   });
 
   // Timer mode radios
@@ -502,6 +569,18 @@ function initSettings() {
     if (radio.value === state.mode) radio.checked = true;
     radio.addEventListener("change", (e) => {
       if (e.target.checked) applyMode(e.target.value);
+    });
+  });
+
+  // Sound theme radios — save selection and play a preview start sound
+  document.querySelectorAll("input[name='sound-theme']").forEach(radio => {
+    if (radio.value === (state.soundTheme || "chime")) radio.checked = true;
+    radio.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        state.soundTheme = e.target.value;
+        saveState();
+        playStartClick(); // preview the start sound for the chosen theme
+      }
     });
   });
 
@@ -537,6 +616,35 @@ function initSettings() {
     state.darkMode = toggleDark.checked;
     applyDarkMode(state.darkMode);
     saveState();
+  });
+
+  // Reset board (settings panel button)
+  document.getElementById("btn-reset-bingo-settings").addEventListener("click", () => {
+    if (confirm("Reshuffle the bingo card and clear all marks? Today's score will also reset.")) {
+      const texts = state.cells.map(c => c.text);
+      const shuffled = shuffleCells(texts.map(text => ({ text, count: 0 })));
+      state.cells = shuffled;
+      state.bingoAcknowledged = false;
+      state.awardedLines = [];
+      state.celebratedLines = [];
+      state.blackoutAwarded = false;
+      state.scoreCurrent = 0;
+      updateScoreUI();
+      saveState();
+      renderBingoGrid();
+    }
+  });
+
+  // Reset all scores
+  document.getElementById("btn-reset-scores").addEventListener("click", () => {
+    if (confirm("Wipe all scores — today, yesterday, and all-time? This cannot be undone.")) {
+      state.scoreCurrent   = 0;
+      state.scoreYesterday = 0;
+      state.scoreAllTime   = 0;
+      state.scoreAllTimeBase = 0;
+      saveState();
+      updateScoreUI();
+    }
   });
 }
 
@@ -609,8 +717,6 @@ function updateMuteButton(btn, muted) {
 }
 
 // ===== BINGO GRID =====
-let dragSrcIndex = null;
-
 function shuffleCells(cells) {
   const arr = [...cells];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -629,14 +735,12 @@ function renderBingoGrid() {
     const countClass = cell.count > 0 ? ` completed completed-${cell.count}` : "";
     div.className = "bingo-cell" + countClass;
     div.dataset.index = i;
-    div.draggable = true;
 
     const span = document.createElement("span");
     span.className = "cell-text" + (cell.text ? "" : " placeholder");
     span.textContent = cell.text || "Click to add...";
     div.appendChild(span);
 
-    // Count pip indicator
     if (cell.count > 0) {
       const pip = document.createElement("span");
       pip.className = "cell-count-pip";
@@ -649,35 +753,21 @@ function renderBingoGrid() {
       toggleCell(i);
     });
 
-    // Right-click to decrement/reset
     div.addEventListener("contextmenu", (e) => {
       e.preventDefault();
       if (state.cells[i].count > 0) {
         state.cells[i].count--;
-        // Recalculate score from scratch on decrement to keep it honest
         recalculateScore();
         saveState();
         renderBingoGrid();
       }
     });
 
-    div.addEventListener("dblclick", (e) => {
-      if (e.target.tagName === "INPUT") return;
-      startEditing(div, i);
-    });
-
-    div.addEventListener("dragstart", onDragStart);
-    div.addEventListener("dragover", onDragOver);
-    div.addEventListener("dragleave", onDragLeave);
-    div.addEventListener("drop", onDrop);
-    div.addEventListener("dragend", onDragEnd);
-
     grid.appendChild(div);
   });
 }
 
 function recalculateScore() {
-  // Recount points from current cell counts + awarded line bonuses
   let pts = 0;
   state.cells.forEach(c => {
     for (let n = 1; n <= c.count; n++) {
@@ -687,35 +777,9 @@ function recalculateScore() {
   pts += state.awardedLines.length * 20;
   if (state.blackoutAwarded) pts += 100;
   state.scoreCurrent = pts;
-  if (state.scoreCurrent > state.scoreAllTime) state.scoreAllTime = state.scoreCurrent;
+  // All-time is always the max of the locked base (previous days) and today's live score
+  state.scoreAllTime = Math.max(state.scoreAllTimeBase || 0, state.scoreCurrent);
   updateScoreUI();
-}
-
-function startEditing(div, index) {
-  const span = div.querySelector(".cell-text");
-  const input = document.createElement("input");
-  input.type = "text";
-  input.className = "cell-edit";
-  input.maxLength = 40;
-  input.value = state.cells[index].text;
-  input.placeholder = "Break idea...";
-
-  div.replaceChild(input, span);
-  input.focus();
-  input.select();
-
-  function finishEdit() {
-    state.cells[index].text = input.value.trim();
-    saveState();
-    renderBingoGrid();
-  }
-
-  input.addEventListener("blur", finishEdit);
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") input.blur();
-    if (e.key === "Escape") { input.value = state.cells[index].text; input.blur(); }
-    e.stopPropagation();
-  });
 }
 
 function toggleCell(index) {
@@ -724,7 +788,6 @@ function toggleCell(index) {
 
   if (prevCount < 5) {
     cell.count = prevCount + 1;
-    // Award points for this increment: delta between new and old point value
     const pts = pointsForCell(cell.count) - pointsForCell(prevCount);
     addScore(pts);
     const multiplierLabels = ["", "", "×1.2", "×1.5", "×1.8", "×2.0"];
@@ -732,63 +795,31 @@ function toggleCell(index) {
     else showScorePopup(`+${pts} pts`);
     checkAndAwardLines();
   } else {
-    // Already at max — right-click resets, left-click does nothing more
     return;
   }
 
-  state.bingoAcknowledged = false;
   saveState();
   renderBingoGrid();
   checkBingo();
 }
 
 function checkBingo() {
-  if (state.bingoAcknowledged) return;
   const c = state.cells;
   const done = (i) => c[i].count >= 1;
 
-  for (let r = 0; r < 4; r++) {
-    if ([0,1,2,3].every(col => done(r * 4 + col))) { showBingoModal(); return; }
+  for (const line of BINGO_LINES) {
+    const key = lineKey(line);
+    if (state.celebratedLines.includes(key)) continue; // modal already shown for this line
+    if (line.every(done)) {
+      state.celebratedLines.push(key);
+      showBingoModal();
+      return; // one modal at a time; next new line fires on next click
+    }
   }
-  for (let col = 0; col < 4; col++) {
-    if ([0,1,2,3].every(r => done(r * 4 + col))) { showBingoModal(); return; }
-  }
-  if ([0,5,10,15].every(done)) { showBingoModal(); return; }
-  if ([3,6,9,12].every(done))  { showBingoModal(); return; }
 }
 
 function showBingoModal() {
-  state.bingoAcknowledged = true;
   document.getElementById("bingo-modal").classList.remove("hidden");
-}
-
-// ===== DRAG & DROP =====
-function onDragStart(e) {
-  dragSrcIndex = parseInt(e.currentTarget.dataset.index);
-  e.currentTarget.classList.add("dragging");
-  e.dataTransfer.effectAllowed = "move";
-}
-function onDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
-  e.currentTarget.classList.add("drag-over");
-}
-function onDragLeave(e) { e.currentTarget.classList.remove("drag-over"); }
-function onDrop(e) {
-  e.preventDefault();
-  const targetIndex = parseInt(e.currentTarget.dataset.index);
-  e.currentTarget.classList.remove("drag-over");
-  if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
-  const tmp = state.cells[dragSrcIndex];
-  state.cells[dragSrcIndex] = state.cells[targetIndex];
-  state.cells[targetIndex] = tmp;
-  saveState();
-  renderBingoGrid();
-}
-function onDragEnd(e) {
-  e.currentTarget.classList.remove("dragging");
-  document.querySelectorAll(".bingo-cell").forEach(c => c.classList.remove("drag-over"));
-  dragSrcIndex = null;
 }
 
 // ===== CUSTOMIZE MODAL =====
@@ -865,24 +896,8 @@ async function init() {
   document.getElementById("btn-pause").addEventListener("click", pauseTimer);
   document.getElementById("btn-reset").addEventListener("click", () => resetTimer(true));
 
-  // Settings (includes flip card, all toggles, volume)
+  // Settings (includes flip card, all toggles, volume, reset buttons)
   initSettings();
-
-  // Bingo reset & reshuffle
-  document.getElementById("btn-reset-bingo").addEventListener("click", () => {
-    if (confirm("Reset all marks and reshuffle the bingo card? Your score will also reset.")) {
-      const texts = state.cells.map(c => c.text);
-      const shuffled = shuffleCells(texts.map(text => ({ text, count: 0 })));
-      state.cells = shuffled;
-      state.bingoAcknowledged = false;
-      state.awardedLines = [];
-      state.blackoutAwarded = false;
-      state.scoreCurrent = 0;
-      updateScoreUI();
-      saveState();
-      renderBingoGrid();
-    }
-  });
 
   // Customize modal
   document.getElementById("btn-open-customize").addEventListener("click", openCustomizeModal);
