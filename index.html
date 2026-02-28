@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bingo Break</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header id="main-header">
+    <h1>🎯 Bingo Break</h1>
+    <p class="tagline">Pomodoro + Break Bingo</p>
+  </header>
+
+  <main>
+
+    <!-- TIMER / SETTINGS FLIP CARD -->
+    <div id="timer-flip-card" class="flip-card">
+      <div class="flip-card-inner">
+
+        <!-- FRONT: Timer -->
+        <section class="flip-card-front" id="timer-section">
+          <button id="btn-open-settings" class="settings-gear" title="Settings">⚙️</button>
+          <div id="phase-label">Work Session</div>
+          <div id="timer-display">25:00</div>
+
+          <div id="timer-controls">
+            <button id="btn-start">Start</button>
+            <button id="btn-pause" disabled>Pause</button>
+            <button id="btn-reset">Reset</button>
+          </div>
+
+          <div id="pomo-count">Pomos completed: <span id="pomo-number">0</span></div>
+
+          <!-- NOW PLAYING -->
+          <div id="now-playing" class="now-playing hidden">
+            <span class="now-playing-icon">♫</span>
+            <div class="np-info">
+              <span id="np-track"></span>
+              <span id="np-artist"></span>
+            </div>
+            <div class="np-right">
+              <a id="np-url" href="#" target="_blank" rel="noopener" class="np-link hidden"></a>
+              <span id="np-license" class="np-license"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- BACK: Settings -->
+        <section class="flip-card-back" id="settings-section">
+          <div class="settings-header">
+            <h2>Settings</h2>
+            <button id="btn-close-settings" class="settings-back-btn" title="Back to timer">✕</button>
+          </div>
+
+          <div class="settings-grid">
+
+            <!-- Timer Mode -->
+            <div class="setting-card">
+              <div class="setting-card-icon">⏱️</div>
+              <div class="setting-card-label">Timer Mode</div>
+              <div class="setting-card-body">
+                <label class="radio-label">
+                  <input type="radio" name="pomo-mode" value="25/5" checked />
+                  <span>25 / 5</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="pomo-mode" value="50/10" />
+                  <span>50 / 10</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Auto-start -->
+            <div class="setting-card">
+              <div class="setting-card-icon">▶️</div>
+              <div class="setting-card-label">Auto-Start</div>
+              <div class="setting-card-body toggle-body">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-autostart" />
+                  <span class="toggle-track"></span>
+                </label>
+                <span class="toggle-desc" id="autostart-desc">Off</span>
+              </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="setting-card">
+              <div class="setting-card-icon">🔔</div>
+              <div class="setting-card-label">Notifications</div>
+              <div class="setting-card-body toggle-body">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-notifs" />
+                  <span class="toggle-track"></span>
+                </label>
+                <span class="toggle-desc" id="notifs-desc">Off</span>
+              </div>
+            </div>
+
+            <!-- Daily Goal -->
+            <div class="setting-card">
+              <div class="setting-card-icon">🎯</div>
+              <div class="setting-card-label">Daily Goal</div>
+              <div class="setting-card-body">
+                <div class="stepper">
+                  <button class="stepper-btn" id="btn-goal-dec">−</button>
+                  <span id="daily-goal-val">8</span>
+                  <span class="stepper-unit">pomos</span>
+                  <button class="stepper-btn" id="btn-goal-inc">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Music Volume -->
+            <div class="setting-card setting-card-wide">
+              <div class="setting-card-icon">🎵</div>
+              <div class="setting-card-label">Music Volume</div>
+              <div class="setting-card-body volume-body">
+                <input type="range" id="vol-music" min="0" max="100" value="60" />
+                <span class="vol-value" id="vol-music-val">60</span>
+                <button class="btn-mute" id="btn-mute-music" title="Mute music">🔊</button>
+              </div>
+            </div>
+
+            <!-- SFX Volume -->
+            <div class="setting-card setting-card-wide">
+              <div class="setting-card-icon">🔔</div>
+              <div class="setting-card-label">Timer Sound</div>
+              <div class="setting-card-body volume-body">
+                <input type="range" id="vol-sfx" min="0" max="100" value="80" />
+                <span class="vol-value" id="vol-sfx-val">80</span>
+                <button class="btn-mute" id="btn-mute-sfx" title="Mute timer sounds">🔊</button>
+              </div>
+            </div>
+
+            <!-- Dark Mode -->
+            <div class="setting-card">
+              <div class="setting-card-icon">🌙</div>
+              <div class="setting-card-label">Dark Mode</div>
+              <div class="setting-card-body toggle-body">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-darkmode" />
+                  <span class="toggle-track"></span>
+                </label>
+                <span class="toggle-desc" id="darkmode-desc">Off</span>
+              </div>
+            </div>
+
+            <!-- Customize Bingo -->
+            <div class="setting-card setting-card-action">
+              <div class="setting-card-icon">✏️</div>
+              <div class="setting-card-label">Bingo Card</div>
+              <div class="setting-card-body">
+                <button id="btn-open-customize" class="action-btn">Customize</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- BINGO SECTION -->
+    <section id="bingo-section">
+      <h2>Break Bingo Card</h2>
+      <p class="bingo-instructions">Click a cell to mark complete/incomplete. Drag cells to rearrange. Double-click to edit text.</p>
+      <div id="bingo-grid"></div>
+      <div id="bingo-controls">
+        <button id="btn-reset-bingo">Reset &amp; Reshuffle</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Customize break items -->
+  <div id="customize-modal" class="modal hidden">
+    <div class="modal-content customize-modal-content">
+      <h2>✏️ Customize Break Items</h2>
+      <p class="customize-instructions">Fill in your 16 break ideas. Blank lines will use the default text. When you save, items are randomly shuffled into the bingo card.</p>
+      <div id="customize-list"></div>
+      <div class="customize-actions">
+        <button id="btn-customize-save">🔀 Save &amp; Shuffle</button>
+        <button id="btn-customize-cancel">Cancel</button>
+        <button id="btn-customize-defaults">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Bingo winner -->
+  <div id="bingo-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>🎉 BINGO!</h2>
+      <button id="btn-close-modal">Awesome!</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Phase complete notification -->
+  <div id="phase-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="phase-modal-emoji"></h2>
+      <p id="phase-modal-msg"></p>
+      <button id="btn-close-phase-modal">Let's go!</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
