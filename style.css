@@ -599,32 +599,6 @@ body.dark .bingo-cell.completed-5 .cell-text { color: #f0fff4; }
 .toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); }
 .toggle-desc { font-size: 0.75rem; color: var(--muted); min-width: 20px; }
 
-/* Inline sound row */
-.s-sound-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  width: 100%;
-}
-.s-sound-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-.s-sound-theme {
-  flex: 1;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.s-sound-divider {
-  width: 1px;
-  height: 22px;
-  background: var(--rule);
-  margin: 0 10px;
-  flex-shrink: 0;
-}
-
 /* Action buttons */
 .action-btn {
   padding: 5px 10px;
