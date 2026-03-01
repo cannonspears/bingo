@@ -102,12 +102,11 @@ header.header-break .tagline { color: white; }
 
 
 /* ===== DECK STAGE ===== */
+/* Height accommodates top card + max 3 peeking layers — fixed regardless of total card count */
 #deck-stage {
   position: relative;
   width:    calc(var(--card-w) + var(--peek-x) * 3);
   height:   calc(var(--card-h) + var(--peek-y) * 3);
-  padding-bottom: calc(var(--peek-y) * 3);
-  box-sizing: content-box;
 }
 
 /* ===== CARD BASE ===== */
@@ -116,17 +115,47 @@ header.header-break .tagline { color: white; }
   width:  var(--card-w);
   height: var(--card-h);
   border-radius: 18px;
+  cursor: grab;
+  touch-action: pan-y;
+  transition: box-shadow 0.3s;
+  perspective: 1200px;
+  /* overflow must be visible for the flipper to work */
+}
+.card:active { cursor: grabbing; }
+
+/* The flipper rotates; front and back are faces */
+.card-flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+  border-radius: 18px;
+}
+.card.flipped .card-flipper {
+  transform: rotateY(180deg);
+}
+/* Cards not on top: no flip transition so background unflip is invisible */
+.card:not(.depth-0) .card-flipper {
+  transition: none;
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
   background: var(--card-bg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  cursor: grab;
-  touch-action: pan-y;
-  transition: box-shadow 0.3s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-.card:active { cursor: grabbing; }
+.card-back {
+  transform: rotateY(180deg);
+}
 
-/* Depth shadows */
+/* Depth shadows on the .card wrapper */
 .card.depth-0 {
   box-shadow: 0 2px 4px rgba(0,0,0,.07), 0 12px 32px rgba(0,0,0,.13), 0 32px 56px rgba(0,0,0,.09);
   z-index: 4;
@@ -140,11 +169,36 @@ header.header-break .tagline { color: white; }
   transition: transform 0.42s cubic-bezier(.32,.72,0,1), box-shadow 0.3s ease;
 }
 
+/* Shadow fades out at mid-flip (edge-on point) then restores */
+@keyframes flip-shadow-out {
+  0%   { box-shadow: 0 2px 4px rgba(0,0,0,.07), 0 12px 32px rgba(0,0,0,.13), 0 32px 56px rgba(0,0,0,.09); }
+  45%  { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  55%  { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  100% { box-shadow: 0 2px 4px rgba(0,0,0,.07), 0 12px 32px rgba(0,0,0,.13), 0 32px 56px rgba(0,0,0,.09); }
+}
+.card.depth-0.flipping {
+  animation: flip-shadow-out 0.55s cubic-bezier(.4,0,.2,1);
+}
+/* Once flipped (and settled), restore normal shadow via depth-0 rule */
+
+/* card-nav left column (title + sub) */
+.card-nav-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.card-sub {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
 /* Non-top cards: content not interactive */
 .card:not(.depth-0) .card-body { pointer-events: none; }
 .card:not(.depth-0) { cursor: pointer; }
 
-/* Colored top stripe */
+/* Colored top stripe — on each face */
 .card-stripe { height: 5px; flex-shrink: 0; }
 .card-work  .card-stripe { background: var(--c-work); }
 .card-bingo .card-stripe { background: var(--c-bingo); }
@@ -201,6 +255,77 @@ header.header-break .tagline { color: white; }
   color: var(--muted);
   letter-spacing: 1.5px;
   text-transform: uppercase;
+}
+
+/* ── Flip corner trigger ── */
+.flip-corner {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-family: var(--font-sans);
+  transition: color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.flip-corner:hover { color: var(--ink); }
+.flip-corner-back  { color: var(--muted); }
+
+/* ── Settings card back — decorative logo ── */
+.card-back-set {
+  background: var(--c-set);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-back-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: rgba(255,255,255,0.9);
+  user-select: none;
+  padding: 32px;
+  text-align: center;
+}
+.cbl-back-btn {
+  color: rgba(255,255,255,0.45);
+}
+.cbl-back-btn:hover { color: rgba(255,255,255,0.9); }
+
+.cbl-wordmark {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  letter-spacing: -0.5px;
+  color: white;
+  line-height: 1.1;
+}
+.cbl-tagline {
+  font-size: 0.62rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+/* Layout for the brand back */
+.cbl-body {
+  display: flex;
+  flex-direction: column;
+}
+.cbl-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
 }
 
 /* Dark mode card */

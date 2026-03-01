@@ -785,6 +785,7 @@ function loadDefaultsIntoModal() {
 // CARD DECK ENGINE
 // =================================================================
 const CARD_COUNT = 4;
+const MAX_VISIBLE_DEPTH = 3; // peek capped regardless of total card count
 
 // Read CSS custom properties for peek offsets
 function getPeek(prop) {
@@ -794,7 +795,6 @@ function getPeek(prop) {
 const cards   = () => Array.from(document.querySelectorAll(".card"));
 const navBtns = () => Array.from(document.querySelectorAll(".bnav"));
 
-// order[depth] = card DOM index (which .card[data-card="X"] sits at that depth)
 let deckOrder  = [0, 1, 2, 3];
 let activeCard = 0;
 
@@ -802,7 +802,8 @@ function transformForDepth(depth) {
   if (depth === 0) return "translate(0px, 0px)";
   const px = getPeek("--peek-x");
   const py = getPeek("--peek-y");
-  return `translate(${px * depth}px, ${py * depth}px)`;
+  const capped = Math.min(depth, MAX_VISIBLE_DEPTH);
+  return `translate(${px * capped}px, ${py * capped}px)`;
 }
 
 function layoutDeck(animate = true) {
@@ -814,7 +815,7 @@ function layoutDeck(animate = true) {
     else         card.classList.remove("animating");
 
     card.classList.remove("depth-0","depth-1","depth-2","depth-3");
-    card.classList.add(`depth-${depth}`);
+    card.classList.add(`depth-${Math.min(depth, MAX_VISIBLE_DEPTH)}`);
     card.style.transform = transformForDepth(depth);
     card.style.zIndex    = CARD_COUNT - depth;
   });
@@ -828,6 +829,13 @@ function layoutDeck(animate = true) {
 function goTo(targetIdx, direction) {
   if (targetIdx === activeCard) return;
   if (direction === undefined) direction = targetIdx > activeCard ? 1 : -1;
+
+  // Unflip the card we're leaving (no animation, instant reset)
+  const leavingCard = document.querySelector(`.card[data-card="${activeCard}"]`);
+  if (leavingCard && flippedCards.has(activeCard)) {
+    flippedCards.delete(activeCard);
+    leavingCard.classList.remove("flipped", "flipping");
+  }
 
   let steps = 0;
   while (deckOrder[0] !== targetIdx && steps < CARD_COUNT) {
@@ -872,12 +880,48 @@ function initCardClicks() {
   });
 }
 
+// =================================================================
+// CARD FLIP ENGINE
+// =================================================================
+const flippedCards = new Set();
+
+function flipCard(cardIdx) {
+  const card = document.querySelector(`.card[data-card="${cardIdx}"]`);
+  if (!card) return;
+
+  // Force animation re-trigger by removing class, forcing reflow, then re-adding
+  card.classList.remove("flipping");
+  void card.offsetWidth; // reflow
+  card.classList.add("flipping");
+  setTimeout(() => card.classList.remove("flipping"), 580);
+
+  if (flippedCards.has(cardIdx)) {
+    flippedCards.delete(cardIdx);
+    card.classList.remove("flipped");
+  } else {
+    flippedCards.add(cardIdx);
+    card.classList.add("flipped");
+  }
+}
+
+function initFlipCorners() {
+  document.querySelectorAll(".flip-corner").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cardIdx = parseInt(btn.dataset.card);
+      flipCard(cardIdx);
+    });
+  });
+}
+
 // ── Drag / swipe ──
 let drag = null;
 
 function onPointerDown(e) {
   const card = e.currentTarget;
   if (!card.classList.contains("depth-0")) return;
+  // Don't start drag if clicking the flip corner area
+  if (e.target.closest(".flip-corner")) return;
 
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -993,6 +1037,7 @@ async function init() {
   initBottomNav();
   initKeyboard();
   initCardClicks();
+  initFlipCorners();
   initDrag();
 
   // Initial UI state
