@@ -1,213 +1,320 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bingo Break</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bingo Break</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header id="main-header">
+      <h1>Bingo Break</h1>
+      <p class="tagline">A Pomodoro Method Productivity Game</p>
+    </header>
 
-  <header id="main-header">
-    <h1>🎯 Bingo Break</h1>
-    <p class="tagline">Pomodoro + Break Bingo</p>
-  </header>
+    <main>
+      <!-- TIMER / SETTINGS FLIP CARD -->
+      <div id="timer-flip-card" class="flip-card">
+        <div class="flip-card-inner">
+          <!-- FRONT: Timer -->
+          <section class="flip-card-front" id="timer-section">
+            <button
+              id="btn-open-settings"
+              class="settings-gear"
+              title="Settings"
+            >
+              ⚙️
+            </button>
+            <div id="phase-label">Work Session</div>
+            <div id="timer-display">25:00</div>
 
-  <main>
-
-    <!-- TIMER / SETTINGS FLIP CARD -->
-    <div id="timer-flip-card" class="flip-card">
-      <div class="flip-card-inner">
-
-        <!-- FRONT: Timer -->
-        <section class="flip-card-front" id="timer-section">
-          <button id="btn-open-settings" class="settings-gear" title="Settings">⚙️</button>
-          <div id="phase-label">Work Session</div>
-          <div id="timer-display">25:00</div>
-
-          <div id="timer-controls">
-            <button id="btn-start">Start</button>
-            <button id="btn-pause" disabled>Pause</button>
-            <button id="btn-reset">Reset</button>
-          </div>
-
-          <div id="pomo-count">Pomos completed: <span id="pomo-number">0</span></div>
-
-          <!-- NOW PLAYING — always visible; idle state when no music -->
-          <div id="now-playing" class="now-playing now-playing-idle">
-            <span class="now-playing-icon" id="np-icon">♫</span>
-            <div class="np-info">
-              <span id="np-track">No music playing</span>
-              <span id="np-artist">Music plays during work sessions</span>
-            </div>
-            <div class="np-right">
-              <a id="np-url" href="#" target="_blank" rel="noopener" class="np-link hidden"></a>
-              <span id="np-license" class="np-license"></span>
-            </div>
-          </div>
-        </section>
-
-        <!-- BACK: Settings -->
-        <section class="flip-card-back" id="settings-section">
-          <div class="settings-header">
-            <h2>Settings</h2>
-            <button id="btn-close-settings" class="settings-back-btn" title="Back to timer">✕</button>
-          </div>
-
-          <div class="settings-grid">
-
-            <!-- ROW 1: Timer Mode | Auto-Start | Notifications | Dark Mode -->
-            <div class="settings-row settings-row-4">
-              <div class="setting-card">
-                <div class="setting-card-label">Timer Mode</div>
-                <div class="setting-card-body">
-                  <label class="radio-label"><input type="radio" name="pomo-mode" value="25/5" checked /><span>25 / 5</span></label>
-                  <label class="radio-label"><input type="radio" name="pomo-mode" value="50/10" /><span>50 / 10</span></label>
-                </div>
-              </div>
-              <div class="setting-card">
-                <div class="setting-card-label">Auto-Start</div>
-                <div class="setting-card-body toggle-body">
-                  <label class="toggle-switch"><input type="checkbox" id="toggle-autostart" /><span class="toggle-track"></span></label>
-                  <span class="toggle-desc" id="autostart-desc">Off</span>
-                </div>
-              </div>
-              <div class="setting-card">
-                <div class="setting-card-label">Notifications</div>
-                <div class="setting-card-body toggle-body">
-                  <label class="toggle-switch"><input type="checkbox" id="toggle-notifs" /><span class="toggle-track"></span></label>
-                  <span class="toggle-desc" id="notifs-desc">Off</span>
-                </div>
-              </div>
-              <div class="setting-card">
-                <div class="setting-card-label">Dark Mode</div>
-                <div class="setting-card-body toggle-body">
-                  <label class="toggle-switch"><input type="checkbox" id="toggle-darkmode" /><span class="toggle-track"></span></label>
-                  <span class="toggle-desc" id="darkmode-desc">Off</span>
-                </div>
-              </div>
+            <div id="timer-controls">
+              <button id="btn-start">Start</button>
+              <button id="btn-pause" disabled>Pause</button>
+              <button id="btn-reset">Reset</button>
             </div>
 
-            <!-- ROW 2: Volume (wider) | Sound Theme -->
-            <div class="settings-row settings-row-vol">
-              <div class="setting-card">
-                <div class="setting-card-label">Volume</div>
-                <div class="setting-card-body volume-body" style="margin-bottom:8px;">
-                  <span class="vol-label">Music</span>
-                  <input type="range" id="vol-music" min="0" max="100" value="60" />
-                  <span class="vol-value" id="vol-music-val">60</span>
-                  <button class="btn-mute" id="btn-mute-music" title="Mute music">On</button>
+            <div id="pomo-count">
+              Pomos completed: <span id="pomo-number">0</span>
+            </div>
+
+            <!-- NOW PLAYING — always visible; idle state when no music -->
+            <div id="now-playing" class="now-playing now-playing-idle">
+              <span class="now-playing-icon" id="np-icon">♫</span>
+              <div class="np-info">
+                <span id="np-track">No music playing</span>
+                <span id="np-artist">Music plays during work sessions</span>
+              </div>
+              <div class="np-right">
+                <a
+                  id="np-url"
+                  href="#"
+                  target="_blank"
+                  rel="noopener"
+                  class="np-link hidden"
+                ></a>
+                <span id="np-license" class="np-license"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- BACK: Settings -->
+          <section class="flip-card-back" id="settings-section">
+            <div class="settings-header">
+              <h2>Settings</h2>
+              <button
+                id="btn-close-settings"
+                class="settings-back-btn"
+                title="Back to timer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div class="settings-grid">
+              <!-- ROW 1: Timer Mode | Auto-Start | Notifications | Dark Mode -->
+              <div class="settings-row settings-row-4">
+                <div class="setting-card">
+                  <div class="setting-card-label">Timer Mode</div>
+                  <div class="setting-card-body">
+                    <label class="radio-label"
+                      ><input
+                        type="radio"
+                        name="pomo-mode"
+                        value="25/5"
+                        checked
+                      /><span>25 / 5</span></label
+                    >
+                    <label class="radio-label"
+                      ><input
+                        type="radio"
+                        name="pomo-mode"
+                        value="50/10"
+                      /><span>50 / 10</span></label
+                    >
+                  </div>
                 </div>
-                <div class="setting-card-body volume-body">
-                  <span class="vol-label">Sound</span>
-                  <input type="range" id="vol-sfx" min="0" max="100" value="80" />
-                  <span class="vol-value" id="vol-sfx-val">80</span>
-                  <button class="btn-mute" id="btn-mute-sfx" title="Mute timer sounds">On</button>
+                <div class="setting-card">
+                  <div class="setting-card-label">Auto-Start</div>
+                  <div class="setting-card-body toggle-body">
+                    <label class="toggle-switch"
+                      ><input type="checkbox" id="toggle-autostart" /><span
+                        class="toggle-track"
+                      ></span
+                    ></label>
+                    <span class="toggle-desc" id="autostart-desc">Off</span>
+                  </div>
+                </div>
+                <div class="setting-card">
+                  <div class="setting-card-label">Notifications</div>
+                  <div class="setting-card-body toggle-body">
+                    <label class="toggle-switch"
+                      ><input type="checkbox" id="toggle-notifs" /><span
+                        class="toggle-track"
+                      ></span
+                    ></label>
+                    <span class="toggle-desc" id="notifs-desc">Off</span>
+                  </div>
+                </div>
+                <div class="setting-card">
+                  <div class="setting-card-label">Dark Mode</div>
+                  <div class="setting-card-body toggle-body">
+                    <label class="toggle-switch"
+                      ><input type="checkbox" id="toggle-darkmode" /><span
+                        class="toggle-track"
+                      ></span
+                    ></label>
+                    <span class="toggle-desc" id="darkmode-desc">Off</span>
+                  </div>
                 </div>
               </div>
-              <div class="setting-card">
-                <div class="setting-card-label">Sound Theme</div>
-                <div class="setting-card-body sound-theme-body">
-                  <label class="radio-label"><input type="radio" name="sound-theme" value="chime" checked /><span>Chime</span></label>
-                  <label class="radio-label"><input type="radio" name="sound-theme" value="beep" /><span>Beep</span></label>
-                  <label class="radio-label"><input type="radio" name="sound-theme" value="bell" /><span>Bell</span></label>
+
+              <!-- ROW 2: Volume (wider) | Sound Theme -->
+              <div class="settings-row settings-row-vol">
+                <div class="setting-card">
+                  <div class="setting-card-label">Volume</div>
+                  <div
+                    class="setting-card-body volume-body"
+                    style="margin-bottom: 8px"
+                  >
+                    <span class="vol-label">Music</span>
+                    <input
+                      type="range"
+                      id="vol-music"
+                      min="0"
+                      max="100"
+                      value="60"
+                    />
+                    <span class="vol-value" id="vol-music-val">60</span>
+                    <button
+                      class="btn-mute"
+                      id="btn-mute-music"
+                      title="Mute music"
+                    >
+                      On
+                    </button>
+                  </div>
+                  <div class="setting-card-body volume-body">
+                    <span class="vol-label">Sound</span>
+                    <input
+                      type="range"
+                      id="vol-sfx"
+                      min="0"
+                      max="100"
+                      value="80"
+                    />
+                    <span class="vol-value" id="vol-sfx-val">80</span>
+                    <button
+                      class="btn-mute"
+                      id="btn-mute-sfx"
+                      title="Mute timer sounds"
+                    >
+                      On
+                    </button>
+                  </div>
+                </div>
+                <div class="setting-card">
+                  <div class="setting-card-label">Sound Theme</div>
+                  <div class="setting-card-body sound-theme-body">
+                    <label class="radio-label"
+                      ><input
+                        type="radio"
+                        name="sound-theme"
+                        value="chime"
+                        checked
+                      /><span>Chime</span></label
+                    >
+                    <label class="radio-label"
+                      ><input
+                        type="radio"
+                        name="sound-theme"
+                        value="beep"
+                      /><span>Beep</span></label
+                    >
+                    <label class="radio-label"
+                      ><input
+                        type="radio"
+                        name="sound-theme"
+                        value="bell"
+                      /><span>Bell</span></label
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- ROW 3: Customize | Reset Board | Reset Scores -->
+              <div class="settings-row settings-row-3">
+                <div class="setting-card">
+                  <div class="setting-card-label">Bingo Card</div>
+                  <div class="setting-card-body setting-action-body">
+                    <button id="btn-open-customize" class="action-btn">
+                      ✏️ Customize Items
+                    </button>
+                  </div>
+                  <p class="setting-card-note">Edit your 16 break items</p>
+                </div>
+                <div class="setting-card">
+                  <div class="setting-card-label">Reset Board</div>
+                  <div class="setting-card-body setting-action-body">
+                    <button
+                      id="btn-reset-bingo-settings"
+                      class="action-btn action-btn-danger"
+                    >
+                      🔀 Reshuffle &amp; Reset
+                    </button>
+                  </div>
+                  <p class="setting-card-note">Clears board &amp; reshuffles</p>
+                </div>
+                <div class="setting-card">
+                  <div class="setting-card-label">Reset Scores</div>
+                  <div class="setting-card-body setting-action-body">
+                    <button
+                      id="btn-reset-scores"
+                      class="action-btn action-btn-danger"
+                    >
+                      🗑 Reset All
+                    </button>
+                  </div>
+                  <p class="setting-card-note">
+                    Clears today, yesterday &amp; all&#8209;time
+                  </p>
                 </div>
               </div>
             </div>
-
-            <!-- ROW 3: Customize | Reset Board | Reset Scores -->
-            <div class="settings-row settings-row-3">
-              <div class="setting-card">
-                <div class="setting-card-label">Bingo Card</div>
-                <div class="setting-card-body setting-action-body">
-                  <button id="btn-open-customize" class="action-btn">✏️ Customize Items</button>
-                </div>
-                <p class="setting-card-note">Edit your 16 break ideas</p>
-              </div>
-              <div class="setting-card">
-                <div class="setting-card-label">Reset Board</div>
-                <div class="setting-card-body setting-action-body">
-                  <button id="btn-reset-bingo-settings" class="action-btn action-btn-danger">🔀 Reshuffle &amp; Reset</button>
-                </div>
-                <p class="setting-card-note">Clears marks &amp; reshuffles</p>
-              </div>
-              <div class="setting-card">
-                <div class="setting-card-label">Reset Scores</div>
-                <div class="setting-card-body setting-action-body">
-                  <button id="btn-reset-scores" class="action-btn action-btn-danger">🗑 Wipe All Scores</button>
-                </div>
-                <p class="setting-card-note">Clears today, yesterday &amp; all&#8209;time</p>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-      </div>
-    </div>
-
-    <!-- BINGO SECTION -->
-    <section id="bingo-section">
-      <h2>Break Bingo Card</h2>
-      <p class="bingo-instructions">Click a cell to mark it complete (up to ×5). Right-click to undo.</p>
-
-      <!-- SCORE PANEL -->
-      <div id="score-panel-wrap" style="position:relative;">
-      <div id="score-panel">
-        <div class="score-block">
-          <span class="score-label">Today</span>
-          <span class="score-value" id="score-current">0</span>
+          </section>
         </div>
-        <div class="score-divider"></div>
-        <div class="score-block">
-          <span class="score-label">Yesterday</span>
-          <span class="score-value score-value--dim" id="score-yesterday">0</span>
+      </div>
+
+      <!-- BINGO SECTION -->
+      <section id="bingo-section">
+        <h2>Break Bingo Card</h2>
+        <p class="bingo-instructions">
+          Click a cell to mark it complete (up to ×5). Right-click to undo.
+        </p>
+
+        <!-- SCORE PANEL -->
+        <div id="score-panel-wrap" style="position: relative">
+          <div id="score-panel">
+            <div class="score-block">
+              <span class="score-label">Today</span>
+              <span class="score-value" id="score-current">0</span>
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-block">
+              <span class="score-label">Yesterday</span>
+              <span class="score-value score-value--dim" id="score-yesterday"
+                >0</span
+              >
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-block">
+              <span class="score-label">All Time</span>
+              <span class="score-value score-value--gold" id="score-alltime"
+                >0</span
+              >
+            </div>
+          </div>
+          <div id="score-popup"></div>
         </div>
-        <div class="score-divider"></div>
-        <div class="score-block">
-          <span class="score-label">All Time</span>
-          <span class="score-value score-value--gold" id="score-alltime">0</span>
+
+        <div id="bingo-grid"></div>
+      </section>
+    </main>
+
+    <!-- MODAL: Customize break items -->
+    <div id="customize-modal" class="modal hidden">
+      <div class="modal-content customize-modal-content">
+        <h2>✏️ Customize Break Items</h2>
+        <p class="customize-instructions">
+          Fill in your 16 break ideas. Blank lines will use the default text.
+          When you save, items are randomly shuffled into the bingo card.
+        </p>
+        <div id="customize-list"></div>
+        <div class="customize-actions">
+          <button id="btn-customize-save">🔀 Save &amp; Shuffle</button>
+          <button id="btn-customize-cancel">Cancel</button>
+          <button id="btn-customize-defaults">Reset to Defaults</button>
         </div>
       </div>
-      <div id="score-popup"></div>
-      </div>
+    </div>
 
-      <div id="bingo-grid"></div>
-    </section>
-
-  </main>
-
-  <!-- MODAL: Customize break items -->
-  <div id="customize-modal" class="modal hidden">
-    <div class="modal-content customize-modal-content">
-      <h2>✏️ Customize Break Items</h2>
-      <p class="customize-instructions">Fill in your 16 break ideas. Blank lines will use the default text. When you save, items are randomly shuffled into the bingo card.</p>
-      <div id="customize-list"></div>
-      <div class="customize-actions">
-        <button id="btn-customize-save">🔀 Save &amp; Shuffle</button>
-        <button id="btn-customize-cancel">Cancel</button>
-        <button id="btn-customize-defaults">Reset to Defaults</button>
+    <!-- MODAL: Bingo winner -->
+    <div id="bingo-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>🎉 BINGO!</h2>
+        <button id="btn-close-modal">Keep going!</button>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL: Bingo winner -->
-  <div id="bingo-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2>🎉 BINGO!</h2>
-      <button id="btn-close-modal">Awesome!</button>
+    <!-- MODAL: Phase complete notification -->
+    <div id="phase-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="phase-modal-emoji"></h2>
+        <p id="phase-modal-msg"></p>
+        <button id="btn-close-phase-modal">Let's go!</button>
+      </div>
     </div>
-  </div>
 
-  <!-- MODAL: Phase complete notification -->
-  <div id="phase-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2 id="phase-modal-emoji"></h2>
-      <p id="phase-modal-msg"></p>
-      <button id="btn-close-phase-modal">Let's go!</button>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
