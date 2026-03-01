@@ -8,10 +8,20 @@
   </head>
   <body>
 
+  <div id="app-zone">
+
     <header id="main-header">
       <h1>Bingo Break</h1>
       <p class="tagline">A Pomodoro Method Productivity Game</p>
     </header>
+
+    <!-- Bottom nav -->
+    <nav id="bottom-nav">
+      <button class="bnav active" data-i="0"><span class="bnav-label">Timer</span></button>
+      <button class="bnav"        data-i="1"><span class="bnav-label">Bingo</span></button>
+      <button class="bnav"        data-i="2"><span class="bnav-label">Settings</span></button>
+      <button class="bnav"        data-i="3"><span class="bnav-label">Achieve</span></button>
+    </nav>
 
     <div id="deck-stage">
 
@@ -62,7 +72,10 @@
         <div class="card-body">
           <div class="card-nav">
             <span class="card-title">Break Bingo</span>
-            <span class="card-hint">click ×5 · right-click to undo</span>
+            <div class="card-nav-right">
+              <span class="card-hint">click ×5 · right-click to undo</span>
+              <button id="btn-open-customize" class="btn-edit-card">✏ Edit</button>
+            </div>
           </div>
 
           <div id="score-panel-wrap">
@@ -97,111 +110,84 @@
             <span class="card-title">Settings</span>
           </div>
 
+          <!-- TIMER SECTION -->
           <div class="s-section">
             <div class="s-section-label">Timer</div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Timer Mode</div>
-                <div class="s-row-sub">Work / Break duration</div>
+            <div class="s-grid">
+              <div class="s-cell">
+                <div class="s-cell-label">Mode</div>
+                <div class="s-cell-control">
+                  <label class="radio-label"><input type="radio" name="pomo-mode" value="25/5" checked /><span>25/5</span></label>
+                  <label class="radio-label"><input type="radio" name="pomo-mode" value="50/10" /><span>50/10</span></label>
+                </div>
               </div>
-              <div class="s-row-control">
-                <label class="radio-label"><input type="radio" name="pomo-mode" value="25/5" checked /><span>25/5</span></label>
-                <label class="radio-label"><input type="radio" name="pomo-mode" value="50/10" /><span>50/10</span></label>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Auto-Start</div>
-                <div class="s-row-sub">Begin next phase automatically</div>
-              </div>
-              <div class="s-row-control">
-                <label class="toggle-switch"><input type="checkbox" id="toggle-autostart" /><span class="toggle-track"></span></label>
-                <span class="toggle-desc" id="autostart-desc">Off</span>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Notifications</div>
-                <div class="s-row-sub">Browser alerts on phase end</div>
-              </div>
-              <div class="s-row-control">
-                <label class="toggle-switch"><input type="checkbox" id="toggle-notifs" /><span class="toggle-track"></span></label>
-                <span class="toggle-desc" id="notifs-desc">Off</span>
+              <div class="s-cell">
+                <div class="s-cell-label">Auto-Start</div>
+                <div class="s-cell-control">
+                  <label class="toggle-switch"><input type="checkbox" id="toggle-autostart" /><span class="toggle-track"></span></label>
+                  <span class="toggle-desc" id="autostart-desc">Off</span>
+                </div>
               </div>
             </div>
           </div>
 
+          <!-- SOUND SECTION -->
           <div class="s-section">
             <div class="s-section-label">Sound</div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Music Volume</div>
-              </div>
-              <div class="s-row-control vol-control">
-                <input type="range" id="vol-music" min="0" max="100" value="60" />
-                <span class="vol-value" id="vol-music-val">60</span>
-                <button class="btn-mute" id="btn-mute-music">On</button>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">SFX Volume</div>
-              </div>
-              <div class="s-row-control vol-control">
-                <input type="range" id="vol-sfx" min="0" max="100" value="80" />
-                <span class="vol-value" id="vol-sfx-val">80</span>
-                <button class="btn-mute" id="btn-mute-sfx">On</button>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Sound Theme</div>
-                <div class="s-row-sub">Timer alert style — click to preview</div>
-              </div>
-              <div class="s-row-control">
-                <label class="radio-label"><input type="radio" name="sound-theme" value="chime" checked /><span>Chime</span></label>
-                <label class="radio-label"><input type="radio" name="sound-theme" value="beep" /><span>Beep</span></label>
-                <label class="radio-label"><input type="radio" name="sound-theme" value="bell" /><span>Bell</span></label>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Dark Mode</div>
-              </div>
-              <div class="s-row-control">
-                <label class="toggle-switch"><input type="checkbox" id="toggle-darkmode" /><span class="toggle-track"></span></label>
-                <span class="toggle-desc" id="darkmode-desc">Off</span>
+            <div class="s-grid">
+              <div class="s-cell s-cell--wide">
+                <div class="s-cell-control s-sound-row">
+                  <span class="s-sound-group">
+                    <span class="s-cell-label">Music</span>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-music" /><span class="toggle-track"></span></label>
+                    <span class="toggle-desc" id="music-desc">On</span>
+                  </span>
+                  <span class="s-sound-divider"></span>
+                  <span class="s-sound-group">
+                    <span class="s-cell-label">SFX</span>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-sfx" /><span class="toggle-track"></span></label>
+                    <span class="toggle-desc" id="sfx-desc">On</span>
+                  </span>
+                  <span class="s-sound-divider"></span>
+                  <span class="s-sound-group s-sound-theme">
+                    <span class="s-cell-label">Theme</span>
+                    <label class="radio-label"><input type="radio" name="sound-theme" value="chime" checked /><span>Chime</span></label>
+                    <label class="radio-label"><input type="radio" name="sound-theme" value="bell" /><span>Bell</span></label>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
+          <!-- VISUAL SECTION -->
+          <div class="s-section">
+            <div class="s-section-label">Visual</div>
+            <div class="s-grid">
+              <div class="s-cell">
+                <div class="s-cell-label">Dark Mode</div>
+                <div class="s-cell-control">
+                  <label class="toggle-switch"><input type="checkbox" id="toggle-darkmode" /><span class="toggle-track"></span></label>
+                  <span class="toggle-desc" id="darkmode-desc">Off</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BINGO CARD SECTION -->
           <div class="s-section">
             <div class="s-section-label">Bingo Card</div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Customize Items</div>
-                <div class="s-row-sub">Edit your 16 break activities</div>
+            <div class="s-grid">
+              <div class="s-cell">
+                <div class="s-cell-label">Reshuffle</div>
+                <div class="s-cell-control">
+                  <button id="btn-reset-bingo-settings" class="action-btn action-btn-danger">🔀 Reset</button>
+                </div>
               </div>
-              <div class="s-row-control">
-                <button id="btn-open-customize" class="action-btn">✏ Edit</button>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Reshuffle &amp; Reset</div>
-                <div class="s-row-sub">New layout, clears marks &amp; today's score</div>
-              </div>
-              <div class="s-row-control">
-                <button id="btn-reset-bingo-settings" class="action-btn action-btn-danger">🔀 Reset</button>
-              </div>
-            </div>
-            <div class="s-row">
-              <div class="s-row-text">
-                <div class="s-row-label">Reset All Scores</div>
-                <div class="s-row-sub">Clears today, yesterday &amp; all&#8209;time</div>
-              </div>
-              <div class="s-row-control">
-                <button id="btn-reset-scores" class="action-btn action-btn-danger">🗑 Wipe</button>
+              <div class="s-cell">
+                <div class="s-cell-label">Scores</div>
+                <div class="s-cell-control">
+                  <button id="btn-reset-scores" class="action-btn action-btn-danger">🗑 Wipe</button>
+                </div>
               </div>
             </div>
           </div>
@@ -227,13 +213,101 @@
 
     </div><!-- #deck-stage -->
 
-    <!-- Bottom nav -->
-    <nav id="bottom-nav">
-      <button class="bnav active" data-i="0"><span class="bnav-icon">⏱</span><span class="bnav-label">Timer</span></button>
-      <button class="bnav"        data-i="1"><span class="bnav-icon">🎯</span><span class="bnav-label">Bingo</span></button>
-      <button class="bnav"        data-i="2"><span class="bnav-icon">⚙</span><span class="bnav-label">Settings</span></button>
-      <button class="bnav"        data-i="3"><span class="bnav-icon">🏆</span><span class="bnav-label">Achieve</span></button>
-    </nav>
+  </div><!-- #app-zone -->
+
+  <!-- ===== BLOG / FAQ ===== -->
+  <section id="blog">
+    <div class="blog-inner">
+
+      <div class="blog-header">
+        <p class="blog-kicker">From the Desk of Bingo Break</p>
+        <h2 class="blog-title">Better Breaks, Better Work</h2>
+        <p class="blog-sub">Research, tips, and the occasional reflection on what it actually means to rest well.</p>
+      </div>
+
+      <div class="blog-grid">
+
+        <article class="blog-card blog-card--lead">
+          <div class="blog-card-meta">
+            <span class="blog-tag">Productivity</span>
+            <span class="blog-date">June 2025</span>
+          </div>
+          <h3>Why the Pomodoro Technique Still Works (25 Years Later)</h3>
+          <p>Francesco Cirillo invented the Pomodoro Technique in the late 1980s using a tomato-shaped kitchen timer. Decades of productivity research have followed — and the core insight has held up: the human brain isn't built for marathon focus. It thrives on rhythm. Short sprints of deep work, punctuated by genuine rest, consistently outperform long unbroken sessions for both output quality and long-term sustainability.</p>
+          <a href="#" class="blog-read-more">Read more →</a>
+        </article>
+
+        <article class="blog-card">
+          <div class="blog-card-meta">
+            <span class="blog-tag">Habit Design</span>
+            <span class="blog-date">May 2025</span>
+          </div>
+          <h3>The Science Behind Turning Breaks into Micro-Habits</h3>
+          <p>Most people treat breaks as dead time — a pause before getting back to the real work. Bingo Break flips that assumption. By attaching small, meaningful actions to your break window, you build a second layer of productive momentum that compounds quietly in the background of your day.</p>
+          <a href="#" class="blog-read-more">Read more →</a>
+        </article>
+
+        <article class="blog-card">
+          <div class="blog-card-meta">
+            <span class="blog-tag">Wellbeing</span>
+            <span class="blog-date">April 2025</span>
+          </div>
+          <h3>20 Pushups, a Glass of Water, and Why Small Things Add Up</h3>
+          <p>The default Bingo Break activities aren't random. Each one was chosen because it takes under three minutes, requires no equipment, and addresses something most desk workers quietly neglect: movement, hydration, connection, and stillness. Do one a day and you'll barely notice. Do five and you'll feel the difference by Friday.</p>
+          <a href="#" class="blog-read-more">Read more →</a>
+        </article>
+
+        <article class="blog-card">
+          <div class="blog-card-meta">
+            <span class="blog-tag">Focus</span>
+            <span class="blog-date">March 2025</span>
+          </div>
+          <h3>Background Music and Deep Work: What the Research Says</h3>
+          <p>Whether music helps or hurts focus depends almost entirely on the task type and the individual. Low-complexity, repetitive tasks tend to benefit from ambient sound. Creative or language-heavy work often suffers from it. The Bingo Break music player defaults to instrumental lo-fi for exactly this reason — present enough to signal focus mode, unobtrusive enough to stay out of the way.</p>
+          <a href="#" class="blog-read-more">Read more →</a>
+        </article>
+
+      </div>
+
+      <div class="blog-faq">
+        <h2 class="faq-title">Frequently Asked Questions</h2>
+        <div class="faq-grid">
+
+          <div class="faq-item">
+            <h4>Is Bingo Break free to use?</h4>
+            <p>Yes, completely. There are no accounts, no subscriptions, and no ads. Your settings and scores are saved locally in your browser — nothing is sent to a server.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>Can I customize the break activities?</h4>
+            <p>Absolutely. Tap the ✏ Edit button on the Bingo card to replace any of the 16 default activities with whatever fits your life — a specific stretch, a breathing exercise, a line of a book.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>What's the difference between 25/5 and 50/10 mode?</h4>
+            <p>The classic Pomodoro is 25 minutes of work followed by a 5-minute break. The 50/10 variant suits people who find they need more runway to reach deep focus — the longer session rewards sustained attention, and the 10-minute break gives you enough time for something more restorative.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>How does the scoring system work?</h4>
+            <p>You earn points each time you mark a bingo activity complete. Completing the same activity multiple times in a day earns escalating multipliers. Completing a full row, column, or diagonal earns a line bonus, and clearing the entire board earns a blackout bonus.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>Will my progress reset if I close the browser?</h4>
+            <p>No. Everything is saved to your browser's local storage as you go. Your scores, cell completions, and settings persist between sessions. Daily scores reset at midnight.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>Can I use Bingo Break on my phone?</h4>
+            <p>Yes — the card deck is fully swipeable on touch devices. You can swipe left and right between cards just as you would on mobile, and the layout adapts to smaller screens.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
 
     <!-- MODAL: Customize break items -->
     <div id="customize-modal" class="modal hidden">

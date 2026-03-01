@@ -530,14 +530,20 @@ function initSettings() {
     radio.addEventListener("change", (e) => { if (e.target.checked) applyMode(e.target.value); });
   });
 
-  // Sound theme radios
+  // Sound theme radios — preview always plays regardless of SFX mute
+  // If a previously saved state had "beep", fall back to "chime"
+  if (state.soundTheme === "beep") state.soundTheme = "chime";
   document.querySelectorAll("input[name='sound-theme']").forEach((radio) => {
     if (radio.value === (state.soundTheme || "chime")) radio.checked = true;
     radio.addEventListener("change", (e) => {
       if (e.target.checked) {
         state.soundTheme = e.target.value;
         saveState();
+        // Preview: temporarily bypass mute
+        const wasMuted = state.mutedSfx;
+        state.mutedSfx = false;
         playStartClick();
+        state.mutedSfx = wasMuted;
       }
     });
   });
@@ -552,17 +558,6 @@ function initSettings() {
   toggleAutostart.addEventListener("change", () => {
     state.autoStart = toggleAutostart.checked;
     document.getElementById("autostart-desc").textContent = state.autoStart ? "On" : "Off";
-    saveState();
-  });
-
-  // Notifications
-  const toggleNotifs = document.getElementById("toggle-notifs");
-  toggleNotifs.checked = state.notificationsEnabled;
-  document.getElementById("notifs-desc").textContent = state.notificationsEnabled ? "On" : "Off";
-  toggleNotifs.addEventListener("change", () => {
-    state.notificationsEnabled = toggleNotifs.checked;
-    document.getElementById("notifs-desc").textContent = state.notificationsEnabled ? "On" : "Off";
-    if (state.notificationsEnabled) requestNotificationPermission();
     saveState();
   });
 
@@ -607,42 +602,24 @@ function initSettings() {
 }
 
 function initVolumeControls() {
-  const sliderMusic  = document.getElementById("vol-music");
-  const sliderSfx    = document.getElementById("vol-sfx");
-  const valMusic     = document.getElementById("vol-music-val");
-  const valSfx       = document.getElementById("vol-sfx-val");
-  const btnMuteMusic = document.getElementById("btn-mute-music");
-  const btnMuteSfx   = document.getElementById("btn-mute-sfx");
+  const toggleMusic = document.getElementById("toggle-music");
+  const toggleSfx   = document.getElementById("toggle-sfx");
 
-  sliderMusic.value  = state.volMusic;
-  valMusic.textContent = state.volMusic;
-  sliderSfx.value    = state.volSfx;
-  valSfx.textContent = state.volSfx;
-  updateMuteButton(btnMuteMusic, state.mutedMusic);
-  updateMuteButton(btnMuteSfx,   state.mutedSfx);
+  // Music is "on" when NOT muted
+  toggleMusic.checked = !state.mutedMusic;
+  document.getElementById("music-desc").textContent = state.mutedMusic ? "Off" : "On";
+  toggleSfx.checked = !state.mutedSfx;
+  document.getElementById("sfx-desc").textContent = state.mutedSfx ? "Off" : "On";
 
-  sliderMusic.addEventListener("input", () => {
-    state.volMusic = parseInt(sliderMusic.value);
-    valMusic.textContent = state.volMusic;
-    if (state.volMusic > 0) { state.mutedMusic = false; updateMuteButton(btnMuteMusic, false); }
+  toggleMusic.addEventListener("change", () => {
+    state.mutedMusic = !toggleMusic.checked;
+    document.getElementById("music-desc").textContent = state.mutedMusic ? "Off" : "On";
     applyMusicVolume();
     saveState();
   });
-  sliderSfx.addEventListener("input", () => {
-    state.volSfx = parseInt(sliderSfx.value);
-    valSfx.textContent = state.volSfx;
-    if (state.volSfx > 0) { state.mutedSfx = false; updateMuteButton(btnMuteSfx, false); }
-    saveState();
-  });
-  btnMuteMusic.addEventListener("click", () => {
-    state.mutedMusic = !state.mutedMusic;
-    updateMuteButton(btnMuteMusic, state.mutedMusic);
-    applyMusicVolume();
-    saveState();
-  });
-  btnMuteSfx.addEventListener("click", () => {
-    state.mutedSfx = !state.mutedSfx;
-    updateMuteButton(btnMuteSfx, state.mutedSfx);
+  toggleSfx.addEventListener("change", () => {
+    state.mutedSfx = !toggleSfx.checked;
+    document.getElementById("sfx-desc").textContent = state.mutedSfx ? "Off" : "On";
     saveState();
   });
 }
@@ -946,22 +923,18 @@ function onPointerUp() {
   const THRESH_PX  = 80;
   const THRESH_VEL = 0.4;
 
-  const goLeft  = dx < -THRESH_PX || vel < -THRESH_VEL;
-  const goRight = dx >  THRESH_PX || vel >  THRESH_VEL;
+  const didDrag = Math.abs(dx) > THRESH_PX || Math.abs(vel) > THRESH_VEL;
 
   topCard.classList.add("animating");
 
-  if (goLeft && !goRight) {
-    topCard.style.transform = `translate(-110vw, 0px) rotate(-8deg)`;
+  if (didDrag) {
+    // Exit in whichever direction the user dragged, but always advance forward
+    const exitX = dx >= 0 ? "110vw" : "-110vw";
+    const exitRot = dx >= 0 ? "8deg" : "-8deg";
+    topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
     setTimeout(() => {
       topCard.style.transform = "";
       goTo((activeCard + 1) % CARD_COUNT, 1);
-    }, 180);
-  } else if (goRight) {
-    topCard.style.transform = `translate(110vw, 0px) rotate(8deg)`;
-    setTimeout(() => {
-      topCard.style.transform = "";
-      goTo((activeCard - 1 + CARD_COUNT) % CARD_COUNT, -1);
     }, 180);
   } else {
     topCard.style.transform = transformForDepth(0);
