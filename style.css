@@ -33,12 +33,11 @@ body {
   color: var(--ink);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23f4efe5'/%3E%3Crect width='1' height='1' fill='%23ece7dd' opacity='.55'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23ece7dd' opacity='.55'/%3E%3C/svg%3E");
   transition: background 0.3s, color 0.3s;
-  user-select: none;
 }
 body.dark { background-image: none; }
 
-/* Allow text selection inside card bodies and blog */
-.card-body, #blog { user-select: text; }
+/* Allow text selection inside blog */
+#blog { user-select: text; }
 
 /* App zone: fills viewport height, centers content, no overflow */
 #app-zone {
@@ -49,6 +48,7 @@ body.dark { background-image: none; }
   justify-content: center;
   padding: 20px 20px 24px;
   box-sizing: border-box;
+  user-select: none;
 }
 
 /* ===== DARK MODE ===== */
@@ -77,7 +77,7 @@ header {
 header h1 {
   font-family: var(--font-serif);
   font-size: 2.1rem;
-  letter-spacing: -0.5px;
+  letter-spacing: 2px;
   line-height: 1;
   color: var(--ink);
   transition: color 0.3s;
@@ -301,7 +301,7 @@ header.header-break .tagline { color: white; }
 .cbl-wordmark {
   font-family: var(--font-serif);
   font-size: 2rem;
-  letter-spacing: -0.5px;
+  letter-spacing: 2px;
   color: white;
   line-height: 1.1;
 }

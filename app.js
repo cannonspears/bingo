@@ -164,10 +164,25 @@ let audioCtx = null;
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new AudioContext();
-  if (audioCtx.state === "suspended") audioCtx.resume();
   return audioCtx;
 }
-function sfxVolume() { return state.mutedSfx ? 0 : state.volSfx / 100; }
+
+// Prime the AudioContext on the first user gesture so it's running before sounds are needed
+function primeAudioCtx() {
+  const ctx = getAudioCtx();
+  if (ctx.state === "suspended") {
+    ctx.resume();
+  }
+}
+
+async function ensureAudioCtxRunning() {
+  const ctx = getAudioCtx();
+  if (ctx.state === "suspended") {
+    await ctx.resume();
+  }
+  return ctx;
+}
+function sfxVolume() { return state.volSfx / 100 || 0.8; }
 function theme()     { return state.soundTheme || "chime"; }
 
 function makeOsc(ctx, type, freq, startT, stopT, vol, freqEnd) {
@@ -219,25 +234,25 @@ function bellDone(ctx, vol, t) {
   makeOsc(ctx, "triangle", 784, t+0.7, t+1.45, vol*0.5, 698);
 }
 
-function playStartClick() {
-  const ctx = getAudioCtx(), vol = sfxVolume();
-  if (!vol) return;
+async function playStartClick() {
+  const ctx = await ensureAudioCtxRunning();
+  const vol = sfxVolume();
   const t = ctx.currentTime;
   if (theme() === "beep") beepStart(ctx, vol, t);
   else if (theme() === "bell") bellStart(ctx, vol, t);
   else chimeStart(ctx, vol, t);
 }
-function playPause() {
-  const ctx = getAudioCtx(), vol = sfxVolume();
-  if (!vol) return;
+async function playPause() {
+  const ctx = await ensureAudioCtxRunning();
+  const vol = sfxVolume();
   const t = ctx.currentTime;
   if (theme() === "beep") beepPause(ctx, vol, t);
   else if (theme() === "bell") bellPause(ctx, vol, t);
   else chimePause(ctx, vol, t);
 }
-function playTimerDone() {
-  const ctx = getAudioCtx(), vol = sfxVolume();
-  if (!vol) return;
+async function playTimerDone() {
+  const ctx = await ensureAudioCtxRunning();
+  const vol = sfxVolume();
   const t = ctx.currentTime;
   if (theme() === "beep") beepDone(ctx, vol, t);
   else if (theme() === "bell") bellDone(ctx, vol, t);
@@ -265,9 +280,22 @@ async function loadMusicManifest() {
   }
 }
 
-function pickRandomTrack() {
+// Shuffle queue — exhausts all tracks before any repeat
+let shuffleQueue = [];
+
+function buildShuffleQueue() {
+  const arr = [...MUSIC_FILES];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  shuffleQueue = arr;
+}
+
+function pickNextTrack() {
   if (!MUSIC_FILES.length) return null;
-  return MUSIC_FILES[Math.floor(Math.random() * MUSIC_FILES.length)];
+  if (!shuffleQueue.length) buildShuffleQueue();
+  return shuffleQueue.shift();
 }
 
 function updateNowPlaying(track) {
@@ -301,31 +329,48 @@ function updateNowPlaying(track) {
   npLicense.textContent = track.license || "";
 }
 
-function startMusic() {
-  stopMusic();
-  const track = pickRandomTrack();
+function startMusic(fromEnded = false) {
+  // If not chaining from a natural end, explicitly stop any current track first
+  // and reset the shuffle queue so a new work session starts fresh
+  if (!fromEnded) {
+    stopMusic();
+    buildShuffleQueue();
+  }
+
+  const track = pickNextTrack();
   if (!track) return;
-  musicAudio        = new Audio(track.file);
-  musicAudio.loop   = false;
-  musicAudio.volume = 0;
-  musicAudio.onerror = () => { musicAudio = null; updateNowPlaying(null); };
-  musicAudio.addEventListener("ended", () => {
-    if (state.running && state.phase === "work") startMusic();
+
+  const audio  = new Audio(track.file);
+  audio.loop   = false;
+  audio.volume = 0;
+  musicAudio   = audio;
+
+  audio.onerror = () => {
+    if (musicAudio === audio) { musicAudio = null; updateNowPlaying(null); }
+  };
+
+  audio.addEventListener("ended", () => {
+    // Only chain if this is still the active track and the timer is still running
+    if (musicAudio !== audio) return;
+    musicAudio = null; // clear before starting next to avoid double-trigger
+    if (state.running && state.phase === "work") startMusic(true);
   });
-  musicAudio.play().catch((e) => console.warn("Music playback failed:", e));
+
+  audio.play().catch((e) => console.warn("Music playback failed:", e));
   updateNowPlaying(track);
   fadeInMusic();
 }
 
 function fadeInMusic() {
   if (!musicAudio) return;
+  const audio     = musicAudio; // capture this specific instance
   const targetVol = state.mutedMusic ? 0 : state.volMusic / 100;
   const steps = 25, interval = 500 / steps;
   let step = 0;
   const fadeTimer = setInterval(() => {
     step++;
-    if (!musicAudio) { clearInterval(fadeTimer); return; }
-    musicAudio.volume = Math.min(targetVol, (step / steps) * targetVol);
+    if (musicAudio !== audio) { clearInterval(fadeTimer); return; } // track was replaced
+    audio.volume = Math.min(targetVol, (step / steps) * targetVol);
     if (step >= steps) clearInterval(fadeTimer);
   }, interval);
 }
@@ -1004,6 +1049,11 @@ function initDrag() {
 async function init() {
   await loadMusicManifest();
   loadState();
+
+  // Prime AudioContext on the very first user gesture anywhere on the page
+  // so it's in "running" state before the first button click needs it
+  const primeOnce = () => { primeAudioCtx(); document.removeEventListener("pointerdown", primeOnce); };
+  document.addEventListener("pointerdown", primeOnce);
 
   // Timer buttons
   document.getElementById("btn-start").addEventListener("click", startTimer);
