@@ -7,227 +7,325 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- Global score popup — floats above everything -->
+    <div id="score-popup-global" class="score-popup-global"></div>
 
-  <!-- Global score popup — floats above everything -->
-  <div id="score-popup-global" class="score-popup-global"></div>
+    <div id="app-zone">
+      <header id="main-header">
+        <h1>Bingo Break</h1>
+        <p class="tagline">A Pomodoro Method Productivity Game</p>
+      </header>
 
-  <div id="app-zone">
+      <!-- Bottom nav: Work | Break | Music | Points | Settings -->
+      <nav id="bottom-nav">
+        <button class="bnav active" data-i="0">
+          <span class="bnav-label">Work</span>
+        </button>
+        <button class="bnav" data-i="1">
+          <span class="bnav-label">Break</span>
+        </button>
+        <button class="bnav" data-i="2">
+          <span class="bnav-label">Music</span>
+        </button>
+        <button class="bnav" data-i="3">
+          <span class="bnav-label">Points</span>
+        </button>
+        <button class="bnav" data-i="4">
+          <span class="bnav-label">Settings</span>
+        </button>
+      </nav>
 
-    <header id="main-header">
-      <h1>Bingo Break</h1>
-      <p class="tagline">A Pomodoro Method Productivity Game</p>
-    </header>
-
-    <!-- Bottom nav: Work | Break | Music | Points | Settings -->
-    <nav id="bottom-nav">
-      <button class="bnav active" data-i="0"><span class="bnav-label">Work</span></button>
-      <button class="bnav"        data-i="1"><span class="bnav-label">Break</span></button>
-      <button class="bnav"        data-i="2"><span class="bnav-label">Music</span></button>
-      <button class="bnav"        data-i="3"><span class="bnav-label">Points</span></button>
-      <button class="bnav"        data-i="4"><span class="bnav-label">Settings</span></button>
-    </nav>
-
-    <div id="deck-stage">
-
-      <!-- CARD 0 — WORK SESSION -->
-      <div class="card card-work" data-card="0">
-        <div class="card-flipper">
-          <div class="card-face card-front">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Work Session</span>
-                <button class="flip-corner" data-card="0">Settings →</button>
+      <div id="deck-stage">
+        <!-- CARD 0 — WORK SESSION -->
+        <div class="card card-work" data-card="0">
+          <div class="card-flipper">
+            <div class="card-face card-front">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Work Session</span>
+                  <button class="flip-corner" data-card="0">Settings →</button>
+                </div>
+                <div id="timer-block-work" class="timer-block">
+                  <div class="phase-counter-row">
+                    <span class="phase-counter-label">Pomos completed</span>
+                    <span class="phase-counter-value pomo-number">0</span>
+                  </div>
+                  <div class="timer-display timer-digits">25:00</div>
+                  <div class="timer-progress-bar">
+                    <div class="timer-progress-fill"></div>
+                  </div>
+                  <div class="timer-btns">
+                    <button class="btn-start btn-primary">▶ Start</button>
+                    <button
+                      class="btn-pause btn-primary btn-pause-style"
+                      disabled
+                    >
+                      ⏸ Pause
+                    </button>
+                    <button class="btn-reset btn-sec">↺</button>
+                  </div>
+                </div>
+                <div class="grid-header-row">
+                  <div class="grid-header-left">
+                    <span class="grid-label">Today's Tasks</span>
+                    <span class="grid-hint"
+                      >click to complete · right-click undo</span
+                    >
+                  </div>
+                  <div class="grid-header-right">
+                    <span
+                      class="grid-pts-value score-value--work"
+                      id="work-score-inline"
+                      >0</span
+                    >
+                    <span class="grid-pts-label">pts today</span>
+                  </div>
+                </div>
+                <div id="work-grid" class="work-grid"></div>
               </div>
-              <div id="timer-block-work" class="timer-block">
+            </div>
+            <div class="card-face card-back card-back-work">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Work Settings</span>
+                  <button class="flip-corner flip-corner-back" data-card="0">
+                    ← Back
+                  </button>
+                </div>
+                <div class="s-section">
+                  <div class="s-section-label">Tasks</div>
+                  <div class="s-grid">
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Customize Tasks</div>
+                      <div class="s-cell-control">
+                        <button id="btn-open-customize-work" class="action-btn">
+                          ✏ Edit Tasks
+                        </button>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Reset Board</div>
+                      <div class="s-cell-control">
+                        <button
+                          id="btn-reset-work-board"
+                          class="action-btn action-btn-danger"
+                        >
+                          🗑 Clear &amp; Reset
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="s-section">
+                  <div class="s-section-label">Scoring</div>
+                  <div class="s-grid">
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Work task value</div>
+                      <div class="s-cell-note">
+                        Work tasks earn <strong>15 pts</strong> each. One
+                        completion per task. Line bonus: +45 pts. Blackout: +135
+                        pts.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 1 — BREAK SESSION -->
+        <div class="card card-bingo" data-card="1">
+          <div class="card-flipper">
+            <div class="card-face card-front">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Break Time</span>
+                  <button class="flip-corner" data-card="1">Settings →</button>
+                </div>
                 <div class="phase-counter-row">
-                  <span class="phase-counter-label">Pomos completed</span>
-                  <span class="phase-counter-value pomo-number">0</span>
+                  <span class="phase-counter-label">Breaks completed</span>
+                  <span class="phase-counter-value break-number">0</span>
                 </div>
-                <div class="timer-display timer-digits">25:00</div>
-                <div class="timer-progress-bar">
-                  <div class="timer-progress-fill"></div>
-                </div>
-                <div class="timer-btns">
-                  <button class="btn-start btn-primary">▶ Start</button>
-                  <button class="btn-pause btn-primary btn-pause-style" disabled>⏸ Pause</button>
-                  <button class="btn-reset btn-sec">↺</button>
-                </div>
-              </div>
-              <div class="grid-header-row">
-                <div class="grid-header-left">
-                  <span class="grid-label">Today's Tasks</span>
-                  <span class="grid-hint">click to complete · right-click undo</span>
-                </div>
-                <div class="grid-header-right">
-                  <span class="grid-pts-value score-value--work" id="work-score-inline">0</span>
-                  <span class="grid-pts-label">pts today</span>
-                </div>
-              </div>
-              <div id="work-grid" class="work-grid"></div>
-            </div>
-          </div>
-          <div class="card-face card-back card-back-work">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Work Settings</span>
-                <button class="flip-corner flip-corner-back" data-card="0">← Back</button>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Tasks</div>
-                <div class="s-grid">
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Customize Tasks</div>
-                    <div class="s-cell-control"><button id="btn-open-customize-work" class="action-btn">✏ Edit Tasks</button></div>
+                <div id="timer-block-break" class="timer-block timer-dimmed">
+                  <div class="timer-display timer-digits">05:00</div>
+                  <div class="timer-progress-bar">
+                    <div class="timer-progress-fill break-phase"></div>
                   </div>
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Reset Board</div>
-                    <div class="s-cell-control"><button id="btn-reset-work-board" class="action-btn action-btn-danger">🗑 Clear &amp; Reset</button></div>
+                  <div class="timer-btns">
+                    <button class="btn-start btn-primary break-mode">
+                      ▶ Start
+                    </button>
+                    <button
+                      class="btn-pause btn-primary btn-pause-style break-mode"
+                      disabled
+                    >
+                      ⏸ Pause
+                    </button>
+                    <button class="btn-reset btn-sec">↺</button>
                   </div>
                 </div>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Scoring</div>
-                <div class="s-grid">
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Work task value</div>
-                    <div class="s-cell-note">Work tasks earn <strong>15 pts</strong> each. One completion per task. Line bonus: +45 pts. Blackout: +135 pts.</div>
+                <div class="grid-header-row">
+                  <div class="grid-header-left">
+                    <span class="grid-label">Break Bingo</span>
+                    <span class="grid-hint">click ×5 · right-click undo</span>
+                  </div>
+                  <div class="grid-header-right">
+                    <span
+                      class="grid-pts-value score-value--break"
+                      id="break-score-inline"
+                      >0</span
+                    >
+                    <span class="grid-pts-label">pts today</span>
                   </div>
                 </div>
+                <div id="break-grid" class="bingo-grid"></div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD 1 — BREAK SESSION -->
-      <div class="card card-bingo" data-card="1">
-        <div class="card-flipper">
-          <div class="card-face card-front">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Break Time</span>
-                <button class="flip-corner" data-card="1">Settings →</button>
-              </div>
-              <div class="phase-counter-row">
-                <span class="phase-counter-label">Breaks completed</span>
-                <span class="phase-counter-value break-number">0</span>
-              </div>
-              <div id="timer-block-break" class="timer-block timer-dimmed">
-                <div class="timer-display timer-digits">05:00</div>
-                <div class="timer-progress-bar">
-                  <div class="timer-progress-fill break-phase"></div>
+            <div class="card-face card-back card-back-bingo">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Break Settings</span>
+                  <button class="flip-corner flip-corner-back" data-card="1">
+                    ← Back
+                  </button>
                 </div>
-                <div class="timer-btns">
-                  <button class="btn-start btn-primary break-mode">▶ Start</button>
-                  <button class="btn-pause btn-primary btn-pause-style break-mode" disabled>⏸ Pause</button>
-                  <button class="btn-reset btn-sec">↺</button>
-                </div>
-              </div>
-              <div class="grid-header-row">
-                <div class="grid-header-left">
-                  <span class="grid-label">Break Bingo</span>
-                  <span class="grid-hint">click ×5 · right-click undo</span>
-                </div>
-                <div class="grid-header-right">
-                  <span class="grid-pts-value score-value--break" id="break-score-inline">0</span>
-                  <span class="grid-pts-label">pts today</span>
-                </div>
-              </div>
-              <div id="break-grid" class="bingo-grid"></div>
-            </div>
-          </div>
-          <div class="card-face card-back card-back-bingo">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Break Settings</span>
-                <button class="flip-corner flip-corner-back" data-card="1">← Back</button>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Board</div>
-                <div class="s-grid">
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Edit Activities</div>
-                    <div class="s-cell-control"><button id="btn-open-customize-break" class="action-btn">✏ Edit Items</button></div>
-                  </div>
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Reshuffle Board</div>
-                    <div class="s-cell-control"><button id="btn-reset-break-board" class="action-btn action-btn-danger">🔀 Reset &amp; Shuffle</button></div>
+                <div class="s-section">
+                  <div class="s-section-label">Board</div>
+                  <div class="s-grid">
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Edit Activities</div>
+                      <div class="s-cell-control">
+                        <button
+                          id="btn-open-customize-break"
+                          class="action-btn"
+                        >
+                          ✏ Edit Items
+                        </button>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Reshuffle Board</div>
+                      <div class="s-cell-control">
+                        <button
+                          id="btn-reset-break-board"
+                          class="action-btn action-btn-danger"
+                        >
+                          🔀 Reset &amp; Shuffle
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Scoring</div>
-                <div class="s-grid">
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Break item value</div>
-                    <div class="s-cell-note">Break items earn <strong>1–5 pts</strong> (1 pt per star, up to 5). Line bonus: +15 pts. Blackout: +60 pts.</div>
+                <div class="s-section">
+                  <div class="s-section-label">Scoring</div>
+                  <div class="s-grid">
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Break item value</div>
+                      <div class="s-cell-note">
+                        Break items earn <strong>1–5 pts</strong> (1 pt per
+                        star, up to 5). Line bonus: +15 pts. Blackout: +60 pts.
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- CARD 2 — NOW PLAYING -->
-      <div class="card card-music" data-card="2">
-        <div class="card-flipper">
-          <div class="card-face card-front">
-            <div class="card-stripe card-stripe-music"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Now Playing</span>
-                <button class="flip-corner" data-card="2">Info →</button>
-              </div>
-              <div class="genre-section">
-                <div class="s-section-label" style="border:none;padding:0;margin-bottom:8px;">Genre</div>
-                <div class="genre-grid">
-                  <button class="genre-btn" data-genre="lofi">Lo-Fi</button>
-                  <button class="genre-btn" data-genre="guitar">Guitar</button>
-                  <button class="genre-btn" data-genre="classical">Classical</button>
-                  <button class="genre-btn" data-genre="ambient">Ambient</button>
-                  <button class="genre-btn" data-genre="piano">Piano</button>
+        <!-- CARD 2 — NOW PLAYING -->
+        <div class="card card-music" data-card="2">
+          <div class="card-flipper">
+            <div class="card-face card-front">
+              <div class="card-stripe card-stripe-music"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Now Playing</span>
+                  <button class="flip-corner" data-card="2">Info →</button>
                 </div>
-              </div>
-              <div id="now-playing" class="now-playing now-playing-idle">
-                <span class="now-playing-icon" id="np-icon">♫</span>
-                <div class="np-info">
-                  <span id="np-track">No music playing</span>
-                  <span id="np-artist">Select a genre and start a session</span>
+                <div class="genre-section">
+                  <div
+                    class="s-section-label"
+                    style="border: none; padding: 0; margin-bottom: 8px"
+                  >
+                    Genre
+                  </div>
+                  <div class="genre-grid">
+                    <button class="genre-btn" data-genre="lofi">Lo-Fi</button>
+                    <button class="genre-btn" data-genre="guitar">
+                      Guitar
+                    </button>
+                    <button class="genre-btn" data-genre="classical">
+                      Classical
+                    </button>
+                    <button class="genre-btn" data-genre="ambient">
+                      Ambient
+                    </button>
+                    <button class="genre-btn" data-genre="piano">Piano</button>
+                  </div>
                 </div>
-                <div class="np-right">
-                  <a id="np-url" href="#" target="_blank" rel="noopener" class="np-link hidden"></a>
-                  <span id="np-license" class="np-license"></span>
+                <div id="now-playing" class="now-playing now-playing-idle">
+                  <span class="now-playing-icon" id="np-icon">♫</span>
+                  <div class="np-info">
+                    <span id="np-track">No music playing</span>
+                    <span id="np-artist"
+                      >Select a genre and start a session</span
+                    >
+                  </div>
+                  <div class="np-right">
+                    <a
+                      id="np-url"
+                      href="#"
+                      target="_blank"
+                      rel="noopener"
+                      class="np-link hidden"
+                    ></a>
+                    <span id="np-license" class="np-license"></span>
+                  </div>
                 </div>
-              </div>
-              <div class="genre-mood-display" id="genre-mood">
-                <div class="genre-mood-name" id="genre-mood-name">Lo-Fi</div>
-                <div class="genre-mood-desc" id="genre-mood-desc">Mellow beats for sustained focus</div>
-                <div class="genre-waveform">
-                  <span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span>
+                <div class="genre-mood-display" id="genre-mood">
+                  <div class="genre-mood-name" id="genre-mood-name">Lo-Fi</div>
+                  <div class="genre-mood-desc" id="genre-mood-desc">
+                    Mellow beats for sustained focus
+                  </div>
+                  <div class="genre-waveform">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                  </div>
                 </div>
+                <p class="music-note">
+                  Music plays automatically during work sessions.
+                </p>
               </div>
-              <p class="music-note">Music plays automatically during work sessions.</p>
             </div>
-          </div>
-          <div class="card-face card-back card-back-music">
-            <div class="card-stripe card-stripe-music"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Music Info</span>
-                <button class="flip-corner flip-corner-back" data-card="2">← Back</button>
-              </div>
-              <div class="music-info-body">
-                <p class="music-info-para">Music plays during work sessions from your local <code>music/{genre}/</code> folders. Each folder needs a <code>manifest.json</code> listing the tracks.</p>
-                <p class="music-info-para">Tracks auto-shuffle with no repeats until the full playlist loops. Switching genres restarts the queue immediately.</p>
-                <div class="music-info-schema">
-                  <div class="schema-label">manifest.json format</div>
-                  <pre class="schema-pre">[
+            <div class="card-face card-back card-back-music">
+              <div class="card-stripe card-stripe-music"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Music Info</span>
+                  <button class="flip-corner flip-corner-back" data-card="2">
+                    ← Back
+                  </button>
+                </div>
+                <div class="music-info-body">
+                  <p class="music-info-para">
+                    Music plays during work sessions from your local
+                    <code>music/{genre}/</code> folders. Each folder needs a
+                    <code>manifest.json</code> listing the tracks.
+                  </p>
+                  <p class="music-info-para">
+                    Tracks auto-shuffle with no repeats until the full playlist
+                    loops. Switching genres restarts the queue immediately.
+                  </p>
+                  <div class="music-info-schema">
+                    <div class="schema-label">manifest.json format</div>
+                    <pre class="schema-pre">
+[
   {
     "file": "track1.mp3",
     "title": "Track Name",
@@ -235,265 +333,437 @@
     "license": "CC BY 4.0",
     "url": "https://..."
   }
-]</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD 3 — POINTS -->
-      <div class="card card-pts" data-card="3">
-        <div class="card-flipper">
-          <div class="card-face card-front">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Points</span>
-                <button class="flip-corner" data-card="3">Settings →</button>
-              </div>
-
-              <div class="pts-section-label">Today</div>
-              <div class="pts-today-grid">
-                <div class="pts-today-block pts-today-work">
-                  <span class="pts-today-amount" id="pts-work-today">0</span>
-                  <span class="pts-today-label">Work</span>
-                </div>
-                <div class="pts-today-op">+</div>
-                <div class="pts-today-block pts-today-break">
-                  <span class="pts-today-amount" id="pts-break-today">0</span>
-                  <span class="pts-today-label">Break</span>
-                </div>
-                <div class="pts-today-op">=</div>
-                <div class="pts-today-block pts-today-total">
-                  <span class="pts-today-amount pts-today-amount--total" id="pts-total-today">0</span>
-                  <span class="pts-today-label">Total</span>
-                </div>
-              </div>
-
-              <div class="pts-section-label" style="margin-top:16px;">History</div>
-              <div class="pts-history">
-                <div class="pts-history-row">
-                  <span class="pts-history-label">Yesterday</span>
-                  <span class="pts-history-value" id="pts-total-yesterday">0</span>
-                </div>
-                <div class="pts-history-divider"></div>
-                <div class="pts-history-row">
-                  <span class="pts-history-label">All-Time Best Day</span>
-                  <span class="pts-history-value pts-history-gold" id="pts-total-alltime">0</span>
-                </div>
-              </div>
-
-              <div class="pts-section-label" style="margin-top:16px;">All-Time Breakdown</div>
-              <div class="pts-alltime-row">
-                <div class="pts-alltime-block">
-                  <span class="pts-alltime-label">Work Best</span>
-                  <span class="pts-alltime-value score-value--work" id="pts-work-alltime">0</span>
-                </div>
-                <div class="pts-alltime-sep"></div>
-                <div class="pts-alltime-block">
-                  <span class="pts-alltime-label">Break Best</span>
-                  <span class="pts-alltime-value score-value--break" id="pts-break-alltime">0</span>
-                </div>
-              </div>
-
-              <div class="pts-legend">
-                <div class="pts-legend-row"><span class="pts-legend-dot dot-work"></span><span>Work: 25 pts · Line +100 · Blackout +500</span></div>
-                <div class="pts-legend-row"><span class="pts-legend-dot dot-break"></span><span>Break: 5 pts · Line +20 · Blackout +100</span></div>
-                <div class="pts-legend-row"><span class="pts-legend-dot dot-multi"></span><span>Both: ×1.2 → ×2.0 multiplier for repeats</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="card-face card-back card-back-pts">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Points Settings</span>
-                <button class="flip-corner flip-corner-back" data-card="3">← Back</button>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Data</div>
-                <div class="s-grid">
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">Wipe All Scores</div>
-                    <div class="s-cell-control"><button id="btn-reset-scores" class="action-btn action-btn-danger">🗑 Wipe All Scores</button></div>
+]</pre
+                    >
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- CARD 4 — SETTINGS -->
-      <div class="card card-set" data-card="4">
-        <div class="card-flipper">
-          <div class="card-face card-front">
-            <div class="card-stripe"></div>
-            <div class="card-body">
-              <div class="card-nav">
-                <span class="card-title">Settings</span>
-                <button class="flip-corner" data-card="4">Flip →</button>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Timer</div>
-                <div class="s-grid">
-                  <div class="s-cell">
-                    <div class="s-cell-label">Mode</div>
-                    <div class="s-cell-control">
-                      <label class="radio-label"><input type="radio" name="pomo-mode" value="25/5" checked /><span>25/5</span></label>
-                      <label class="radio-label"><input type="radio" name="pomo-mode" value="50/10" /><span>50/10</span></label>
-                    </div>
+        <!-- CARD 3 — POINTS -->
+        <div class="card card-pts" data-card="3">
+          <div class="card-flipper">
+            <div class="card-face card-front">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Points</span>
+                  <button class="flip-corner" data-card="3">Settings →</button>
+                </div>
+
+                <div class="pts-section-label">Today</div>
+                <div class="pts-today-grid">
+                  <div class="pts-today-block pts-today-work">
+                    <span class="pts-today-amount" id="pts-work-today">0</span>
+                    <span class="pts-today-label">Work</span>
                   </div>
-                  <div class="s-cell">
-                    <div class="s-cell-label">Auto-Start</div>
-                    <div class="s-cell-control">
-                      <label class="toggle-switch"><input type="checkbox" id="toggle-autostart" /><span class="toggle-track"></span></label>
-                      <span class="toggle-desc" id="autostart-desc">Off</span>
-                    </div>
+                  <div class="pts-today-op">+</div>
+                  <div class="pts-today-block pts-today-break">
+                    <span class="pts-today-amount" id="pts-break-today">0</span>
+                    <span class="pts-today-label">Break</span>
+                  </div>
+                  <div class="pts-today-op">=</div>
+                  <div class="pts-today-block pts-today-total">
+                    <span
+                      class="pts-today-amount pts-today-amount--total"
+                      id="pts-total-today"
+                      >0</span
+                    >
+                    <span class="pts-today-label">Total</span>
+                  </div>
+                </div>
+
+                <div class="pts-section-label" style="margin-top: 16px">
+                  History
+                </div>
+                <div class="pts-history">
+                  <div class="pts-history-row">
+                    <span class="pts-history-label">Yesterday</span>
+                    <span class="pts-history-value" id="pts-total-yesterday"
+                      >0</span
+                    >
+                  </div>
+                  <div class="pts-history-divider"></div>
+                  <div class="pts-history-row">
+                    <span class="pts-history-label">All-Time Best Day</span>
+                    <span
+                      class="pts-history-value pts-history-gold"
+                      id="pts-total-alltime"
+                      >0</span
+                    >
+                  </div>
+                </div>
+
+                <div class="pts-section-label" style="margin-top: 16px">
+                  All-Time Breakdown
+                </div>
+                <div class="pts-alltime-row">
+                  <div class="pts-alltime-block">
+                    <span class="pts-alltime-label">Work Best</span>
+                    <span
+                      class="pts-alltime-value score-value--work"
+                      id="pts-work-alltime"
+                      >0</span
+                    >
+                  </div>
+                  <div class="pts-alltime-sep"></div>
+                  <div class="pts-alltime-block">
+                    <span class="pts-alltime-label">Break Best</span>
+                    <span
+                      class="pts-alltime-value score-value--break"
+                      id="pts-break-alltime"
+                      >0</span
+                    >
+                  </div>
+                </div>
+
+                <div class="pts-legend">
+                  <div class="pts-legend-row">
+                    <span class="pts-legend-dot dot-work"></span
+                    ><span>Work: 25 pts · Line +100 · Blackout +500</span>
+                  </div>
+                  <div class="pts-legend-row">
+                    <span class="pts-legend-dot dot-break"></span
+                    ><span>Break: 5 pts · Line +20 · Blackout +100</span>
+                  </div>
+                  <div class="pts-legend-row">
+                    <span class="pts-legend-dot dot-multi"></span
+                    ><span>Both: ×1.2 → ×2.0 multiplier for repeats</span>
                   </div>
                 </div>
               </div>
-              <div class="s-section">
-                <div class="s-section-label">Sound</div>
-                <div class="s-grid">
-                  <div class="s-cell">
-                    <div class="s-cell-label">Music</div>
-                    <div class="s-cell-control">
-                      <label class="toggle-switch"><input type="checkbox" id="toggle-music" /><span class="toggle-track"></span></label>
-                      <span class="toggle-desc" id="music-desc">On</span>
-                    </div>
-                  </div>
-                  <div class="s-cell">
-                    <div class="s-cell-label">SFX</div>
-                    <div class="s-cell-control">
-                      <label class="toggle-switch"><input type="checkbox" id="toggle-sfx" /><span class="toggle-track"></span></label>
-                      <span class="toggle-desc" id="sfx-desc">On</span>
-                    </div>
-                  </div>
-                  <div class="s-cell s-cell--wide">
-                    <div class="s-cell-label">SFX Theme</div>
-                    <div class="s-cell-control">
-                      <label class="radio-label"><input type="radio" name="sound-theme" value="chime" checked /><span>Chime</span></label>
-                      <label class="radio-label"><input type="radio" name="sound-theme" value="bell" /><span>Bell</span></label>
-                    </div>
-                  </div>
+            </div>
+            <div class="card-face card-back card-back-pts">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Points Settings</span>
+                  <button class="flip-corner flip-corner-back" data-card="3">
+                    ← Back
+                  </button>
                 </div>
-              </div>
-              <div class="s-section">
-                <div class="s-section-label">Visual</div>
-                <div class="s-grid">
-                  <div class="s-cell">
-                    <div class="s-cell-label">Dark Mode</div>
-                    <div class="s-cell-control">
-                      <label class="toggle-switch"><input type="checkbox" id="toggle-darkmode" /><span class="toggle-track"></span></label>
-                      <span class="toggle-desc" id="darkmode-desc">Off</span>
+                <div class="s-section">
+                  <div class="s-section-label">Data</div>
+                  <div class="s-grid">
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Wipe All Scores</div>
+                      <div class="s-cell-control">
+                        <button
+                          id="btn-reset-scores"
+                          class="action-btn action-btn-danger"
+                        >
+                          🗑 Wipe All Scores
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-face card-back card-back-set">
-            <div class="card-stripe" style="background:rgba(255,255,255,0.15)"></div>
-            <div class="card-body cbl-body">
-              <div class="card-nav">
-                <span></span>
-                <button class="flip-corner flip-corner-back cbl-back-btn" data-card="4">← Back</button>
+        </div>
+
+        <!-- CARD 4 — SETTINGS -->
+        <div class="card card-set" data-card="4">
+          <div class="card-flipper">
+            <div class="card-face card-front">
+              <div class="card-stripe"></div>
+              <div class="card-body">
+                <div class="card-nav">
+                  <span class="card-title">Settings</span>
+                  <button class="flip-corner" data-card="4">Flip →</button>
+                </div>
+                <div class="s-section">
+                  <div class="s-section-label">Timer</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Mode</div>
+                      <div class="s-cell-control">
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="pomo-mode"
+                            value="25/5"
+                            checked
+                          /><span>25/5</span></label
+                        >
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="pomo-mode"
+                            value="50/10"
+                          /><span>50/10</span></label
+                        >
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">Auto-Start</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-autostart" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="autostart-desc">Off</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="s-section">
+                  <div class="s-section-label">Sound</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Music</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-music" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="music-desc">On</span>
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">SFX</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-sfx" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="sfx-desc">On</span>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">SFX Theme</div>
+                      <div class="s-cell-control">
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="sound-theme"
+                            value="chime"
+                            checked
+                          /><span>Chime</span></label
+                        >
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="sound-theme"
+                            value="bell"
+                          /><span>Bell</span></label
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="s-section">
+                  <div class="s-section-label">Visual</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Dark Mode</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-darkmode" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="darkmode-desc">Off</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="cbl-center">
-                <div class="cbl-wordmark">Bingo Break</div>
-                <div class="cbl-tagline">A Pomodoro Method Productivity Game</div>
+            </div>
+            <div class="card-face card-back card-back-set">
+              <div
+                class="card-stripe"
+                style="background: rgba(255, 255, 255, 0.15)"
+              ></div>
+              <div class="card-body cbl-body">
+                <div class="card-nav">
+                  <span></span>
+                  <button
+                    class="flip-corner flip-corner-back cbl-back-btn"
+                    data-card="4"
+                  >
+                    ← Back
+                  </button>
+                </div>
+                <div class="cbl-center">
+                  <div class="cbl-wordmark">Bingo Break</div>
+                  <div class="cbl-tagline">
+                    A Pomodoro Method Productivity Game
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- #deck-stage -->
+    </div>
+    <!-- #app-zone -->
 
-    </div><!-- #deck-stage -->
-  </div><!-- #app-zone -->
+    <!-- BLOG / FAQ (preserved) -->
+    <section id="blog">
+      <div class="blog-inner">
+        <div class="blog-header">
+          <p class="blog-kicker">From the Desk of Bingo Break</p>
+          <h2 class="blog-title">Better Breaks, Better Work</h2>
+          <p class="blog-sub">
+            Research, tips, and the occasional reflection on what it actually
+            means to rest well.
+          </p>
+        </div>
+        <div class="blog-grid">
+          <article class="blog-card blog-card--lead">
+            <div class="blog-card-meta">
+              <span class="blog-tag">Productivity</span
+              ><span class="blog-date">June 2025</span>
+            </div>
+            <h3>Why the Pomodoro Technique Still Works (25 Years Later)</h3>
+            <p>
+              Francesco Cirillo invented the Pomodoro Technique in the late
+              1980s using a tomato-shaped kitchen timer. The core insight has
+              held up: the human brain thrives on rhythm. Short sprints of deep
+              work, punctuated by genuine rest, consistently outperform long
+              unbroken sessions for both output quality and long-term
+              sustainability.
+            </p>
+            <a href="#" class="blog-read-more">Read more →</a>
+          </article>
+          <article class="blog-card">
+            <div class="blog-card-meta">
+              <span class="blog-tag">Habit Design</span
+              ><span class="blog-date">May 2025</span>
+            </div>
+            <h3>The Science Behind Turning Breaks into Micro-Habits</h3>
+            <p>
+              Most people treat breaks as dead time. Bingo Break flips that
+              assumption — attaching small, meaningful actions to your break
+              window builds a second layer of productive momentum that compounds
+              quietly in the background of your day.
+            </p>
+            <a href="#" class="blog-read-more">Read more →</a>
+          </article>
+          <article class="blog-card">
+            <div class="blog-card-meta">
+              <span class="blog-tag">Wellbeing</span
+              ><span class="blog-date">April 2025</span>
+            </div>
+            <h3>20 Pushups, a Glass of Water, and Why Small Things Add Up</h3>
+            <p>
+              Each default activity takes under three minutes, requires no
+              equipment, and addresses something most desk workers quietly
+              neglect: movement, hydration, connection, and stillness.
+            </p>
+            <a href="#" class="blog-read-more">Read more →</a>
+          </article>
+          <article class="blog-card">
+            <div class="blog-card-meta">
+              <span class="blog-tag">Focus</span
+              ><span class="blog-date">March 2025</span>
+            </div>
+            <h3>Background Music and Deep Work: What the Research Says</h3>
+            <p>
+              The Bingo Break music player defaults to instrumental lo-fi —
+              present enough to signal focus mode, unobtrusive enough to stay
+              out of the way.
+            </p>
+            <a href="#" class="blog-read-more">Read more →</a>
+          </article>
+        </div>
+        <div class="blog-faq">
+          <h2 class="faq-title">Frequently Asked Questions</h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <h4>Is Bingo Break free to use?</h4>
+              <p>
+                Yes, completely. No accounts, no subscriptions, no ads. Settings
+                and scores are saved locally in your browser.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>Can I customize the activities?</h4>
+              <p>
+                Absolutely. Flip either the Work or Break card to find the Edit
+                button and replace any default with whatever fits your day.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>What's the difference between 25/5 and 50/10?</h4>
+              <p>
+                Classic Pomodoro is 25 minutes of work, 5-minute break. The
+                50/10 variant suits people who need more runway to reach deep
+                focus.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>How does scoring work?</h4>
+              <p>
+                Work tasks earn 5× more than break activities. Both grids reward
+                repeat completions with multipliers, and completing a full line
+                or the whole board earns a bonus.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>Will my progress reset if I close the browser?</h4>
+              <p>
+                No. Everything is saved to local storage as you go. Daily scores
+                reset at midnight.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>How do I add my own music?</h4>
+              <p>
+                Place MP3s in <code>music/lofi/</code>,
+                <code>music/guitar/</code>, etc. with a
+                <code>manifest.json</code> in each folder. The Music card lets
+                you switch genres on the fly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <!-- BLOG / FAQ (preserved) -->
-  <section id="blog">
-    <div class="blog-inner">
-      <div class="blog-header">
-        <p class="blog-kicker">From the Desk of Bingo Break</p>
-        <h2 class="blog-title">Better Breaks, Better Work</h2>
-        <p class="blog-sub">Research, tips, and the occasional reflection on what it actually means to rest well.</p>
-      </div>
-      <div class="blog-grid">
-        <article class="blog-card blog-card--lead">
-          <div class="blog-card-meta"><span class="blog-tag">Productivity</span><span class="blog-date">June 2025</span></div>
-          <h3>Why the Pomodoro Technique Still Works (25 Years Later)</h3>
-          <p>Francesco Cirillo invented the Pomodoro Technique in the late 1980s using a tomato-shaped kitchen timer. The core insight has held up: the human brain thrives on rhythm. Short sprints of deep work, punctuated by genuine rest, consistently outperform long unbroken sessions for both output quality and long-term sustainability.</p>
-          <a href="#" class="blog-read-more">Read more →</a>
-        </article>
-        <article class="blog-card">
-          <div class="blog-card-meta"><span class="blog-tag">Habit Design</span><span class="blog-date">May 2025</span></div>
-          <h3>The Science Behind Turning Breaks into Micro-Habits</h3>
-          <p>Most people treat breaks as dead time. Bingo Break flips that assumption — attaching small, meaningful actions to your break window builds a second layer of productive momentum that compounds quietly in the background of your day.</p>
-          <a href="#" class="blog-read-more">Read more →</a>
-        </article>
-        <article class="blog-card">
-          <div class="blog-card-meta"><span class="blog-tag">Wellbeing</span><span class="blog-date">April 2025</span></div>
-          <h3>20 Pushups, a Glass of Water, and Why Small Things Add Up</h3>
-          <p>Each default activity takes under three minutes, requires no equipment, and addresses something most desk workers quietly neglect: movement, hydration, connection, and stillness.</p>
-          <a href="#" class="blog-read-more">Read more →</a>
-        </article>
-        <article class="blog-card">
-          <div class="blog-card-meta"><span class="blog-tag">Focus</span><span class="blog-date">March 2025</span></div>
-          <h3>Background Music and Deep Work: What the Research Says</h3>
-          <p>The Bingo Break music player defaults to instrumental lo-fi — present enough to signal focus mode, unobtrusive enough to stay out of the way.</p>
-          <a href="#" class="blog-read-more">Read more →</a>
-        </article>
-      </div>
-      <div class="blog-faq">
-        <h2 class="faq-title">Frequently Asked Questions</h2>
-        <div class="faq-grid">
-          <div class="faq-item"><h4>Is Bingo Break free to use?</h4><p>Yes, completely. No accounts, no subscriptions, no ads. Settings and scores are saved locally in your browser.</p></div>
-          <div class="faq-item"><h4>Can I customize the activities?</h4><p>Absolutely. Flip either the Work or Break card to find the Edit button and replace any default with whatever fits your day.</p></div>
-          <div class="faq-item"><h4>What's the difference between 25/5 and 50/10?</h4><p>Classic Pomodoro is 25 minutes of work, 5-minute break. The 50/10 variant suits people who need more runway to reach deep focus.</p></div>
-          <div class="faq-item"><h4>How does scoring work?</h4><p>Work tasks earn 5× more than break activities. Both grids reward repeat completions with multipliers, and completing a full line or the whole board earns a bonus.</p></div>
-          <div class="faq-item"><h4>Will my progress reset if I close the browser?</h4><p>No. Everything is saved to local storage as you go. Daily scores reset at midnight.</p></div>
-          <div class="faq-item"><h4>How do I add my own music?</h4><p>Place MP3s in <code>music/lofi/</code>, <code>music/guitar/</code>, etc. with a <code>manifest.json</code> in each folder. The Music card lets you switch genres on the fly.</p></div>
+    <!-- MODAL: Customize items -->
+    <div id="customize-modal" class="modal hidden">
+      <div class="modal-content customize-modal-content">
+        <h2 id="customize-modal-title">✏ Customize Items</h2>
+        <p class="customize-instructions">
+          Fill in your items. Blank lines use defaults. Break items are randomly
+          shuffled on save.
+        </p>
+        <div id="customize-list"></div>
+        <div class="customize-actions">
+          <button id="btn-customize-save">🔀 Save &amp; Apply</button>
+          <button id="btn-customize-cancel">Cancel</button>
+          <button id="btn-customize-defaults">Reset to Defaults</button>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- MODAL: Customize items -->
-  <div id="customize-modal" class="modal hidden">
-    <div class="modal-content customize-modal-content">
-      <h2 id="customize-modal-title">✏ Customize Items</h2>
-      <p class="customize-instructions">Fill in your items. Blank lines use defaults. Break items are randomly shuffled on save.</p>
-      <div id="customize-list"></div>
-      <div class="customize-actions">
-        <button id="btn-customize-save">🔀 Save &amp; Apply</button>
-        <button id="btn-customize-cancel">Cancel</button>
-        <button id="btn-customize-defaults">Reset to Defaults</button>
+    <!-- MODAL: Bingo / goal line -->
+    <div id="bingo-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="bingo-modal-title">🎉 BINGO!</h2>
+        <p id="bingo-modal-msg">Keep completing your break activities!</p>
+        <button id="btn-close-modal">Keep going!</button>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL: Bingo / goal line -->
-  <div id="bingo-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2 id="bingo-modal-title">🎉 BINGO!</h2>
-      <p id="bingo-modal-msg">Keep completing your break activities!</p>
-      <button id="btn-close-modal">Keep going!</button>
+    <!-- MODAL: Phase complete -->
+    <div id="phase-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="phase-modal-emoji"></h2>
+        <p id="phase-modal-msg"></p>
+        <button id="btn-close-phase-modal">Let's go!</button>
+      </div>
     </div>
-  </div>
 
-  <!-- MODAL: Phase complete -->
-  <div id="phase-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2 id="phase-modal-emoji"></h2>
-      <p id="phase-modal-msg"></p>
-      <button id="btn-close-phase-modal">Let's go!</button>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>
