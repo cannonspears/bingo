@@ -1,51 +1,85 @@
 // ===================================================================
-// BINGO BREAK — app.js
-// All original game logic preserved.
-// New additions: card deck engine, progress bar, updated UI bindings.
+// BINGO BREAK — app.js  (v2)
+// 5-card deck: Work | Break | Now Playing | Achievements | Settings
 // ===================================================================
 
-// ===== STATE =====
-const DEFAULT_CELLS = [
+// ===== DEFAULTS =====
+const DEFAULT_BREAK_CELLS = [
   "20 pushups", "Make your bed", "5 min walk", "Drink water",
   "Stretch arms", "10 jumping jacks", "Tidy desk", "Deep breaths",
   "Text a friend", "Do the dishes", "10 squats", "Wipe counters",
   "Read a page", "Journal 1 min", "Cold water face", "Dance break",
 ];
 
+const DEFAULT_WORK_CELLS = [
+  "Clear inbox",    "Write outline",  "Review notes",
+  "Plan next task", "Deep work block","Send follow-up",
+  "Read article",   "Tidy desktop",   "Log progress",
+];
+
+const GENRES = ["lofi", "guitar", "classical", "ambient", "piano"];
+
+const GENRE_META = {
+  lofi:      { label: "Lo-Fi",     desc: "Mellow beats for sustained focus",        color: "#7c5cbf", bg: "#f0ebff" },
+  guitar:    { label: "Guitar",    desc: "Warm acoustic tones to keep you grounded", color: "#c0622b", bg: "#fff3eb" },
+  classical: { label: "Classical", desc: "Timeless compositions for deep thinking",  color: "#2b6cc0", bg: "#ebf3ff" },
+  ambient:   { label: "Ambient",   desc: "Atmospheric soundscapes for flow state",   color: "#2b9c6e", bg: "#ebfff6" },
+  piano:     { label: "Piano",     desc: "Solo piano for calm, steady work",         color: "#9c2b7c", bg: "#ffebf9" },
+};
+
+// ===== STATE =====
 let state = {
-  mode: "25/5",
-  phase: "work",
+  mode:   "25/5",
+  phase:  "work",
   timeLeft: 25 * 60,
-  running: false,
+  running:  false,
   pomoCount: 0,
-  cells: [],
+
+  breakCells: [],
+  workCells:  [],
+
   bingoAcknowledged: false,
+  workBingoAcknowledged: false,
+
   volMusic: 60,
-  volSfx: 80,
+  volSfx:   80,
   mutedMusic: false,
-  mutedSfx: false,
-  autoStart: false,
+  mutedSfx:   false,
+  autoStart:  false,
   notificationsEnabled: false,
-  darkMode: false,
+  darkMode:   false,
   soundTheme: "chime",
+
+  activeGenre: "lofi",
+
   scoreCurrentDate: "",
-  scoreCurrent: 0,
-  scoreYesterday: 0,
-  scoreAllTime: 0,
-  scoreAllTimeBase: 0,
-  awardedLines: [],
-  celebratedLines: [],
+  scoreWorkToday:   0,
+  scoreBreakToday:  0,
+  scoreWorkYesterday:  0,
+  scoreBreakYesterday: 0,
+  scoreWorkAllTime:  0,
+  scoreBreakAllTime: 0,
+  scoreWorkAllTimeBase:  0,
+  scoreBreakAllTimeBase: 0,
+
+  awardedBreakLines: [],
+  celebratedBreakLines: [],
+  blackoutBreakAwarded: false,
+
+  awardedWorkLines: [],
+  celebratedWorkLines: [],
+  blackoutWorkAwarded: false,
 };
 
 let timerInterval = null;
 
 // ===== LOCAL STORAGE =====
 function saveState() {
-  localStorage.setItem("bingoBreakState", JSON.stringify(state));
+  localStorage.setItem("bingoBreakState2", JSON.stringify(state));
 }
 
 function loadState() {
-  const saved = localStorage.getItem("bingoBreakState");
+  const saved = localStorage.getItem("bingoBreakState2");
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -55,102 +89,161 @@ function loadState() {
       console.warn("Could not parse saved state", e);
     }
   }
-  if (!Array.isArray(state.cells) || state.cells.length !== 16) {
-    state.cells = DEFAULT_CELLS.map((text) => ({ text, count: 0 }));
+
+  // Break cells (4×4 = 16)
+  if (!Array.isArray(state.breakCells) || state.breakCells.length !== 16) {
+    state.breakCells = DEFAULT_BREAK_CELLS.map(text => ({ text, count: 0 }));
   }
-  state.cells = state.cells.map((c) => {
-    if (typeof c.count !== "number") {
-      return { text: c.text, count: c.completed ? 1 : 0 };
-    }
-    return c;
-  });
-  if (!Array.isArray(state.awardedLines))    state.awardedLines    = [];
-  if (!Array.isArray(state.celebratedLines)) state.celebratedLines = [];
+  state.breakCells = state.breakCells.map(c =>
+    typeof c.count !== "number" ? { text: c.text, count: c.completed ? 1 : 0 } : c
+  );
+
+  // Work cells (3×3 = 9)
+  if (!Array.isArray(state.workCells) || state.workCells.length !== 9) {
+    state.workCells = DEFAULT_WORK_CELLS.map(text => ({ text, count: 0 }));
+  }
+  state.workCells = state.workCells.map(c =>
+    typeof c.count !== "number" ? { text: c.text, count: c.completed ? 1 : 0 } : c
+  );
+
+  if (!Array.isArray(state.awardedBreakLines))    state.awardedBreakLines    = [];
+  if (!Array.isArray(state.celebratedBreakLines)) state.celebratedBreakLines = [];
+  if (!Array.isArray(state.awardedWorkLines))     state.awardedWorkLines     = [];
+  if (!Array.isArray(state.celebratedWorkLines))  state.celebratedWorkLines  = [];
 
   // Daily score rollover
   const todayStr = localDateString();
   if (state.scoreCurrentDate !== todayStr) {
     const yesterdayStr = localDateString(-1);
     if (state.scoreCurrentDate === yesterdayStr) {
-      state.scoreYesterday = state.scoreCurrent;
+      state.scoreWorkYesterday  = state.scoreWorkToday;
+      state.scoreBreakYesterday = state.scoreBreakToday;
     }
-    state.scoreAllTimeBase = Math.max(state.scoreAllTimeBase || 0, state.scoreCurrent);
-    state.scoreAllTime     = state.scoreAllTimeBase;
-    state.scoreCurrent     = 0;
+    state.scoreWorkAllTimeBase  = Math.max(state.scoreWorkAllTimeBase  || 0, state.scoreWorkToday);
+    state.scoreBreakAllTimeBase = Math.max(state.scoreBreakAllTimeBase || 0, state.scoreBreakToday);
+    state.scoreWorkAllTime  = state.scoreWorkAllTimeBase;
+    state.scoreBreakAllTime = state.scoreBreakAllTimeBase;
+    state.scoreWorkToday  = 0;
+    state.scoreBreakToday = 0;
     state.scoreCurrentDate = todayStr;
-    state.awardedLines     = [];
-    state.celebratedLines  = [];
-    state.cells            = state.cells.map((c) => ({ ...c, count: 0 }));
-    state.bingoAcknowledged = false;
+
+    state.awardedBreakLines    = [];
+    state.celebratedBreakLines = [];
+    state.blackoutBreakAwarded = false;
+    state.breakCells = state.breakCells.map(c => ({ ...c, count: 0 }));
+
+    state.awardedWorkLines    = [];
+    state.celebratedWorkLines = [];
+    state.blackoutWorkAwarded = false;
+    state.workCells = state.workCells.map(c => ({ ...c, count: 0 }));
+
+    state.bingoAcknowledged     = false;
+    state.workBingoAcknowledged = false;
   }
 }
 
-// ===== SCORING =====
+// ===== HELPERS =====
 function localDateString(dayOffset = 0) {
   const d = new Date();
   d.setDate(d.getDate() + dayOffset);
-  const y   = d.getFullYear();
-  const m   = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
+// ===== SCORING =====
+// Break: 5 pts base. Work: 25 pts base (5×). Same multipliers.
 const COUNT_MULTIPLIERS = [0, 1.0, 1.2, 1.5, 1.8, 2.0];
 
-function pointsForCell(count) {
+function basePointsForCell(count, isWork) {
   if (count < 1 || count > 5) return 0;
-  return Math.round(5 * COUNT_MULTIPLIERS[count]);
+  return Math.round((isWork ? 25 : 5) * COUNT_MULTIPLIERS[count]);
 }
 
-function addScore(pts) {
-  state.scoreCurrent += pts;
-  state.scoreAllTime  = Math.max(state.scoreAllTimeBase || 0, state.scoreCurrent);
+function addScore(pts, isWork) {
+  if (isWork) {
+    state.scoreWorkToday  += pts;
+    state.scoreWorkAllTime = Math.max(state.scoreWorkAllTimeBase || 0, state.scoreWorkToday);
+  } else {
+    state.scoreBreakToday  += pts;
+    state.scoreBreakAllTime = Math.max(state.scoreBreakAllTimeBase || 0, state.scoreBreakToday);
+  }
   saveState();
   updateScoreUI();
 }
 
+function totalToday()     { return state.scoreWorkToday  + state.scoreBreakToday; }
+function totalYesterday() { return state.scoreWorkYesterday + state.scoreBreakYesterday; }
+function totalAllTime()   { return state.scoreWorkAllTime   + state.scoreBreakAllTime; }
+
 function updateScoreUI() {
-  const el  = document.getElementById("score-current");
-  const elY = document.getElementById("score-yesterday");
-  const elA = document.getElementById("score-alltime");
-  if (el)  el.textContent  = state.scoreCurrent;
-  if (elY) elY.textContent = state.scoreYesterday;
-  if (elA) elA.textContent = state.scoreAllTime;
+  // Minimal inline score on Work card
+  const workInline  = document.getElementById("work-score-inline");
+  const breakInline = document.getElementById("break-score-inline");
+  if (workInline)  workInline.textContent  = state.scoreWorkToday;
+  if (breakInline) breakInline.textContent = state.scoreBreakToday;
+
+  // Full breakdown on Points card (card 3)
+  const ids = {
+    "pts-work-today":      state.scoreWorkToday,
+    "pts-break-today":     state.scoreBreakToday,
+    "pts-total-today":     totalToday(),
+    "pts-total-yesterday": totalYesterday(),
+    "pts-total-alltime":   totalAllTime(),
+    "pts-work-alltime":    state.scoreWorkAllTime,
+    "pts-break-alltime":   state.scoreBreakAllTime,
+  };
+  for (const [id, val] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
 }
 
-const BINGO_LINES = [
-  [0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15],
-  [0,4,8,12], [1,5,9,13], [2,6,10,14], [3,7,11,15],
-  [0,5,10,15], [3,6,9,12],
+// ===== BINGO LINES =====
+const BREAK_LINES = [
+  [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+  [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],
+  [0,5,10,15],[3,6,9,12],
+];
+const WORK_LINES = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6],
 ];
 
 function lineKey(line) { return line.join(","); }
 
-function checkAndAwardLines() {
+function checkAndAwardLines(isWork) {
+  const lines       = isWork ? WORK_LINES       : BREAK_LINES;
+  const awardedKey  = isWork ? "awardedWorkLines"  : "awardedBreakLines";
+  const cells       = isWork ? state.workCells    : state.breakCells;
+  const bonusPts    = isWork ? 100 : 20;
   let newLines = 0;
-  for (const line of BINGO_LINES) {
+
+  for (const line of lines) {
     const key = lineKey(line);
-    if (state.awardedLines.includes(key)) continue;
-    if (line.every((i) => state.cells[i].count >= 1)) {
-      state.awardedLines.push(key);
+    if (state[awardedKey].includes(key)) continue;
+    if (line.every(i => cells[i].count >= 1)) {
+      state[awardedKey].push(key);
       newLines++;
     }
   }
   if (newLines > 0) {
-    const bonus = newLines * 20;
-    addScore(bonus);
+    const bonus = newLines * bonusPts;
+    addScore(bonus, isWork);
     showScorePopup(`+${bonus} Line Bonus! 🎯`);
   }
-  if (!state.blackoutAwarded && state.cells.every((c) => c.count >= 1)) {
-    state.blackoutAwarded = true;
-    addScore(100);
-    showScorePopup("+100 BLACKOUT! 🔥");
+
+  const blackoutKey = isWork ? "blackoutWorkAwarded" : "blackoutBreakAwarded";
+  if (!state[blackoutKey] && cells.every(c => c.count >= 1)) {
+    state[blackoutKey] = true;
+    const bbonus = isWork ? 500 : 100;
+    addScore(bbonus, isWork);
+    showScorePopup(`+${bbonus} BLACKOUT! 🔥`);
   }
 }
 
 let popupTimeout = null;
 function showScorePopup(msg) {
-  const popup = document.getElementById("score-popup");
+  const popup = document.getElementById("score-popup-global");
   if (!popup) return;
   popup.textContent = msg;
   popup.classList.add("visible");
@@ -161,139 +254,68 @@ function showScorePopup(msg) {
 // ===== SOUND ENGINE =====
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
-
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new AudioContext();
-  return audioCtx;
-}
-
-// Prime the AudioContext on the first user gesture so it's running before sounds are needed
-function primeAudioCtx() {
-  const ctx = getAudioCtx();
-  if (ctx.state === "suspended") {
-    ctx.resume();
-  }
-}
-
-async function ensureAudioCtxRunning() {
-  const ctx = getAudioCtx();
-  if (ctx.state === "suspended") {
-    await ctx.resume();
-  }
-  return ctx;
-}
-function sfxVolume() { return state.volSfx / 100 || 0.8; }
+function getAudioCtx() { if (!audioCtx) audioCtx = new AudioContext(); return audioCtx; }
+function primeAudioCtx() { const ctx = getAudioCtx(); if (ctx.state === "suspended") ctx.resume(); }
+async function ensureAudioCtxRunning() { const ctx = getAudioCtx(); if (ctx.state === "suspended") await ctx.resume(); return ctx; }
+function sfxVolume() { return state.mutedSfx ? 0 : (state.volSfx / 100 || 0.8); }
 function theme()     { return state.soundTheme || "chime"; }
 
 function makeOsc(ctx, type, freq, startT, stopT, vol, freqEnd) {
-  const osc  = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
   osc.type = type;
   osc.frequency.setValueAtTime(freq, startT);
   if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, stopT);
   gain.gain.setValueAtTime(vol, startT);
   gain.gain.exponentialRampToValueAtTime(0.001, stopT);
-  osc.start(startT);
-  osc.stop(stopT + 0.01);
+  osc.start(startT); osc.stop(stopT + 0.01);
 }
 
-// Chime
-function chimeStart(ctx, vol, t) { makeOsc(ctx, "sine", 880, t, t+0.12, vol*0.4, 440); }
-function chimePause(ctx, vol, t) {
-  makeOsc(ctx, "sine", 660, t, t+0.18, vol*0.35, 440);
-  makeOsc(ctx, "sine", 440, t+0.14, t+0.32, vol*0.25, 330);
-}
-function chimeDone(ctx, vol, t) {
-  [0, 0.35, 0.7].forEach((o) => {
-    makeOsc(ctx, "sine", 1318, t+o, t+o+0.5, vol*0.6);
-    makeOsc(ctx, "sine", 1975, t+o, t+o+0.4, vol*0.3);
-  });
-}
+function chimeStart(ctx,vol,t){ makeOsc(ctx,"sine",880,t,t+.12,vol*.4,440); }
+function chimePause(ctx,vol,t){ makeOsc(ctx,"sine",660,t,t+.18,vol*.35,440); makeOsc(ctx,"sine",440,t+.14,t+.32,vol*.25,330); }
+function chimeDone(ctx,vol,t) { [0,.35,.7].forEach(o=>{ makeOsc(ctx,"sine",1318,t+o,t+o+.5,vol*.6); makeOsc(ctx,"sine",1975,t+o,t+o+.4,vol*.3); }); }
+function bellStart(ctx,vol,t) { makeOsc(ctx,"triangle",740,t,t+.55,vol*.5,600); }
+function bellPause(ctx,vol,t) { makeOsc(ctx,"triangle",600,t,t+.5,vol*.4,500); makeOsc(ctx,"triangle",500,t+.28,t+.75,vol*.25,420); }
+function bellDone(ctx,vol,t)  { makeOsc(ctx,"triangle",523,t,t+.8,vol*.5,440); makeOsc(ctx,"triangle",659,t+.35,t+1.1,vol*.5,587); makeOsc(ctx,"triangle",784,t+.7,t+1.45,vol*.5,698); }
 
-// Beep
-function beepStart(ctx, vol, t) { makeOsc(ctx, "square", 440, t, t+0.08, vol*0.25, 660); }
-function beepPause(ctx, vol, t) {
-  makeOsc(ctx, "square", 660, t, t+0.08, vol*0.2);
-  makeOsc(ctx, "square", 440, t+0.12, t+0.2, vol*0.2);
-}
-function beepDone(ctx, vol, t) {
-  [0, 0.22, 0.44].forEach((o) => makeOsc(ctx, "square", 880, t+o, t+o+0.14, vol*0.3));
-}
+async function playStartClick() { const ctx=await ensureAudioCtxRunning(),vol=sfxVolume(),t=ctx.currentTime; theme()==="bell"?bellStart(ctx,vol,t):chimeStart(ctx,vol,t); }
+async function playPause()      { const ctx=await ensureAudioCtxRunning(),vol=sfxVolume(),t=ctx.currentTime; theme()==="bell"?bellPause(ctx,vol,t):chimePause(ctx,vol,t); }
+async function playTimerDone()  { const ctx=await ensureAudioCtxRunning(),vol=sfxVolume(),t=ctx.currentTime; theme()==="bell"?bellDone(ctx,vol,t):chimeDone(ctx,vol,t); }
 
-// Bell
-function bellStart(ctx, vol, t) { makeOsc(ctx, "triangle", 740, t, t+0.55, vol*0.5, 600); }
-function bellPause(ctx, vol, t) {
-  makeOsc(ctx, "triangle", 600, t, t+0.5, vol*0.4, 500);
-  makeOsc(ctx, "triangle", 500, t+0.28, t+0.75, vol*0.25, 420);
-}
-function bellDone(ctx, vol, t) {
-  makeOsc(ctx, "triangle", 523, t, t+0.8, vol*0.5, 440);
-  makeOsc(ctx, "triangle", 659, t+0.35, t+1.1, vol*0.5, 587);
-  makeOsc(ctx, "triangle", 784, t+0.7, t+1.45, vol*0.5, 698);
-}
-
-async function playStartClick() {
-  const ctx = await ensureAudioCtxRunning();
-  const vol = sfxVolume();
-  const t = ctx.currentTime;
-  if (theme() === "beep") beepStart(ctx, vol, t);
-  else if (theme() === "bell") bellStart(ctx, vol, t);
-  else chimeStart(ctx, vol, t);
-}
-async function playPause() {
-  const ctx = await ensureAudioCtxRunning();
-  const vol = sfxVolume();
-  const t = ctx.currentTime;
-  if (theme() === "beep") beepPause(ctx, vol, t);
-  else if (theme() === "bell") bellPause(ctx, vol, t);
-  else chimePause(ctx, vol, t);
-}
-async function playTimerDone() {
-  const ctx = await ensureAudioCtxRunning();
-  const vol = sfxVolume();
-  const t = ctx.currentTime;
-  if (theme() === "beep") beepDone(ctx, vol, t);
-  else if (theme() === "bell") bellDone(ctx, vol, t);
-  else chimeDone(ctx, vol, t);
-}
-
-// ===== BACKGROUND MUSIC =====
-let MUSIC_FILES = [];
-let musicAudio  = null;
-
-async function loadMusicManifest() {
-  try {
-    const res = await fetch("music/manifest.json");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const tracks = await res.json();
-    if (Array.isArray(tracks) && tracks.length > 0) {
-      MUSIC_FILES = tracks.map((t) =>
-        typeof t === "string"
-          ? { file: `music/${t}`, title: t.replace(/\.mp3$/i, ""), artist: "", license: "", url: "" }
-          : { ...t, file: `music/${t.file}` },
-      );
-    }
-  } catch (e) {
-    console.warn("Could not load music/manifest.json — no background music will play.", e);
-  }
-}
-
-// Shuffle queue — exhausts all tracks before any repeat
+// ===== MUSIC ENGINE =====
+let genreTracks = {};  // { lofi: [...], guitar: [...], ... }
 let shuffleQueue = [];
+let musicAudio   = null;
+
+async function loadAllManifests() {
+  await Promise.all(GENRES.map(async genre => {
+    try {
+      const res = await fetch(`music/${genre}/manifest.json`);
+      if (!res.ok) return;
+      const tracks = await res.json();
+      if (Array.isArray(tracks) && tracks.length) {
+        genreTracks[genre] = tracks.map(t =>
+          typeof t === "string"
+            ? { file: `music/${genre}/${t}`, title: t.replace(/\.mp3$/i,""), artist:"", license:"", url:"" }
+            : { ...t, file: `music/${genre}/${t.file}` }
+        );
+      }
+    } catch(e) { /* genre folder missing — silent skip */ }
+  }));
+}
+
+function currentGenreTracks() {
+  return genreTracks[state.activeGenre] || [];
+}
 
 function buildShuffleQueue() {
-  const arr = [...MUSIC_FILES];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
+  const arr = [...currentGenreTracks()];
+  for (let i = arr.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
   shuffleQueue = arr;
 }
 
 function pickNextTrack() {
-  if (!MUSIC_FILES.length) return null;
+  if (!currentGenreTracks().length) return null;
   if (!shuffleQueue.length) buildShuffleQueue();
   return shuffleQueue.shift();
 }
@@ -305,98 +327,119 @@ function updateNowPlaying(track) {
   const npArtist  = document.getElementById("np-artist");
   const npUrl     = document.getElementById("np-url");
   const npLicense = document.getElementById("np-license");
+  if (!npEl) return;
 
   if (!track) {
     npEl.classList.add("now-playing-idle");
-    npIcon.style.animation = "none";
-    npTrack.textContent    = "No music playing";
-    npArtist.textContent   = "Music plays during work sessions";
-    npUrl.classList.add("hidden");
-    npLicense.textContent  = "";
+    if (npIcon) npIcon.style.animation = "none";
+    if (npTrack) npTrack.textContent  = "No music playing";
+    if (npArtist) npArtist.textContent = "Select a genre and start a session";
+    if (npUrl) npUrl.classList.add("hidden");
+    if (npLicense) npLicense.textContent = "";
     return;
   }
   npEl.classList.remove("now-playing-idle");
-  npIcon.style.animation = "";
-  npTrack.textContent    = track.title  || "Unknown Track";
-  npArtist.textContent   = track.artist || "";
-  if (track.url) {
-    npUrl.href = track.url;
-    npUrl.textContent = "↗ Source";
-    npUrl.classList.remove("hidden");
-  } else {
-    npUrl.classList.add("hidden");
+  if (npIcon) npIcon.style.animation = "";
+  if (npTrack)   npTrack.textContent   = track.title  || "Unknown Track";
+  if (npArtist)  npArtist.textContent  = track.artist || "";
+  if (npUrl) {
+    if (track.url) { npUrl.href = track.url; npUrl.textContent = "↗ Source"; npUrl.classList.remove("hidden"); }
+    else npUrl.classList.add("hidden");
   }
-  npLicense.textContent = track.license || "";
+  if (npLicense) npLicense.textContent = track.license || "";
 }
 
 function startMusic(fromEnded = false) {
-  // If not chaining from a natural end, explicitly stop any current track first
-  // and reset the shuffle queue so a new work session starts fresh
-  if (!fromEnded) {
-    stopMusic();
-    buildShuffleQueue();
-  }
-
+  if (!fromEnded) { stopMusic(); buildShuffleQueue(); }
   const track = pickNextTrack();
   if (!track) return;
-
-  const audio  = new Audio(track.file);
+  const audio = new Audio(track.file);
   audio.loop   = false;
   audio.volume = 0;
   musicAudio   = audio;
-
-  audio.onerror = () => {
-    if (musicAudio === audio) { musicAudio = null; updateNowPlaying(null); }
-  };
-
+  audio.onerror = () => { if (musicAudio===audio) { musicAudio=null; updateNowPlaying(null); } };
   audio.addEventListener("ended", () => {
-    // Only chain if this is still the active track and the timer is still running
     if (musicAudio !== audio) return;
-    musicAudio = null; // clear before starting next to avoid double-trigger
+    musicAudio = null;
     if (state.running && state.phase === "work") startMusic(true);
   });
-
-  audio.play().catch((e) => console.warn("Music playback failed:", e));
+  audio.play().catch(e => console.warn("Music playback failed:", e));
   updateNowPlaying(track);
   fadeInMusic();
 }
 
 function fadeInMusic() {
   if (!musicAudio) return;
-  const audio     = musicAudio; // capture this specific instance
-  const targetVol = state.mutedMusic ? 0 : state.volMusic / 100;
-  const steps = 25, interval = 500 / steps;
-  let step = 0;
-  const fadeTimer = setInterval(() => {
+  const audio = musicAudio;
+  const target = state.mutedMusic ? 0 : state.volMusic/100;
+  const steps=25, interval=500/steps; let step=0;
+  const t = setInterval(() => {
     step++;
-    if (musicAudio !== audio) { clearInterval(fadeTimer); return; } // track was replaced
-    audio.volume = Math.min(targetVol, (step / steps) * targetVol);
-    if (step >= steps) clearInterval(fadeTimer);
+    if (musicAudio!==audio) { clearInterval(t); return; }
+    audio.volume = Math.min(target, (step/steps)*target);
+    if (step>=steps) clearInterval(t);
   }, interval);
 }
 
 function stopMusic() {
-  if (musicAudio) {
-    musicAudio.pause();
-    musicAudio.src = "";
-    musicAudio = null;
-  }
+  if (musicAudio) { musicAudio.pause(); musicAudio.src=""; musicAudio=null; }
   updateNowPlaying(null);
 }
 
 function applyMusicVolume() {
-  if (musicAudio) musicAudio.volume = state.mutedMusic ? 0 : state.volMusic / 100;
+  if (musicAudio) musicAudio.volume = state.mutedMusic ? 0 : state.volMusic/100;
+}
+
+function switchGenre(genre) {
+  state.activeGenre = genre;
+  saveState();
+  applyGenreTheme(genre);
+  updateGenreButtons();
+  // Restart music if currently playing work session
+  if (state.running && state.phase === "work") {
+    stopMusic();
+    buildShuffleQueue();
+    startMusic();
+  }
+}
+
+function applyGenreTheme(genre) {
+  const meta = GENRE_META[genre] || GENRE_META.lofi;
+  const card = document.querySelector('.card-music');
+  if (!card) return;
+  card.style.setProperty('--genre-color', meta.color);
+  card.style.setProperty('--genre-bg',    meta.bg);
+  // Also update CSS root so genre-btn active glow works globally
+  document.documentElement.style.setProperty('--genre-color', meta.color);
+  document.documentElement.style.setProperty('--genre-bg',    meta.bg);
+  // Update stripe color
+  const stripe = card.querySelector('.card-stripe-music');
+  if (stripe) stripe.style.background = meta.color;
+  // Update mood display
+  const moodName = document.getElementById('genre-mood-name');
+  const moodDesc = document.getElementById('genre-mood-desc');
+  if (moodName) moodName.textContent = meta.label;
+  if (moodDesc) moodDesc.textContent = meta.desc;
+  // Tint now-playing icon
+  const npIcon = document.getElementById('np-icon');
+  if (npIcon) npIcon.style.color = meta.color;
+}
+
+function updateGenreButtons() {
+  document.querySelectorAll(".genre-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.genre === state.activeGenre);
+  });
 }
 
 // ===== NOTIFICATIONS =====
 function requestNotificationPermission() {
   if (!("Notification" in window)) return;
   if (Notification.permission === "default") {
-    Notification.requestPermission().then((perm) => {
+    Notification.requestPermission().then(perm => {
       if (perm !== "granted") {
         state.notificationsEnabled = false;
-        document.getElementById("toggle-notifs").checked = false;
-        document.getElementById("notifs-desc").textContent = "Off";
+        const el = document.getElementById("toggle-notifs");
+        if (el) el.checked = false;
         saveState();
       }
     });
@@ -406,7 +449,7 @@ function requestNotificationPermission() {
 function sendNotification(title, body) {
   if (!state.notificationsEnabled) return;
   if (!("Notification" in window) || Notification.permission !== "granted") return;
-  new Notification(title, { body, icon: "" });
+  new Notification(title, { body });
 }
 
 // ===== TIMER =====
@@ -447,8 +490,8 @@ function resetTimer(save = true) {
 function tick() {
   if (state.timeLeft > 0) {
     state.timeLeft--;
-    updateTimerDisplay();
-    updateProgressBar();
+    updateTimerDisplays();
+    updateProgressBars();
     if (state.timeLeft % 5 === 0) saveState();
   } else {
     phaseComplete();
@@ -467,11 +510,15 @@ function phaseComplete() {
     updatePomoCount();
     sendNotification("Work session done! ☕", `Enjoy your ${breakMinutes()}-minute break.`);
     showPhaseModal("☕", `Work session done! Enjoy your ${breakMinutes()}-minute break.`);
+    // Auto-navigate to Break card
+    goTo(1);
   } else {
     state.phase    = "work";
     state.timeLeft = workMinutes() * 60;
     sendNotification("Break's over! 💪", "Time to focus.");
     showPhaseModal("💪", "Break's over! Ready to focus?");
+    // Auto-navigate to Work card
+    goTo(0);
   }
 
   updateTimerUI();
@@ -492,65 +539,77 @@ function showPhaseModal(emoji, msg) {
 }
 
 function formatTime(seconds) {
-  const m = Math.floor(seconds / 60).toString().padStart(2, "0");
-  const s = (seconds % 60).toString().padStart(2, "0");
+  const m = Math.floor(seconds/60).toString().padStart(2,"0");
+  const s = (seconds % 60).toString().padStart(2,"0");
   return `${m}:${s}`;
 }
 
-function updateTimerDisplay() {
-  document.getElementById("timer-display").textContent = formatTime(state.timeLeft);
+function updateTimerDisplays() {
+  document.querySelectorAll(".timer-display").forEach(el => {
+    el.textContent = formatTime(state.timeLeft);
+  });
 }
 
-function updateProgressBar() {
-  const fill  = document.getElementById("timer-progress-fill");
-  if (!fill) return;
+function updateProgressBars() {
   const total = totalSeconds();
   const pct   = total > 0 ? (state.timeLeft / total) * 100 : 100;
-  fill.style.width = pct + "%";
-  fill.classList.toggle("break-phase", state.phase === "break");
+  document.querySelectorAll(".timer-progress-fill").forEach(fill => {
+    fill.style.width = pct + "%";
+    fill.classList.toggle("break-phase", state.phase === "break");
+  });
 }
 
 function updateTimerUI() {
-  const display   = document.getElementById("timer-display");
-  const phaseLabel = document.getElementById("phase-label");
-  const btnStart  = document.getElementById("btn-start");
-  const btnPause  = document.getElementById("btn-pause");
-  const header    = document.getElementById("main-header");
-  // Also update the card title
-  const cardTitle = document.getElementById("card-title-0");
+  updateTimerDisplays();
+  updateProgressBars();
 
-  display.textContent = formatTime(state.timeLeft);
+  const isWork    = state.phase === "work";
+  const isRunning = state.running;
 
-  if (state.phase === "work") {
-    phaseLabel.textContent = "Work Session";
-    phaseLabel.className   = "phase-label";
-    display.className      = "timer-digits" + (state.running ? " running" : "");
-    if (cardTitle) cardTitle.textContent = "Work Session";
-    header.classList.toggle("header-work", state.running);
-    header.classList.remove("header-break");
-    btnStart.classList.remove("break-mode");
-    btnPause.classList.remove("break-mode");
-  } else {
-    phaseLabel.textContent = "Break Time!";
-    phaseLabel.className   = "phase-label break-phase";
-    display.className      = "timer-digits break-phase" + (state.running ? " running" : "");
-    if (cardTitle) cardTitle.textContent = "Break Time!";
-    header.classList.toggle("header-break", state.running);
-    header.classList.remove("header-work");
-    btnStart.classList.add("break-mode");
-    btnPause.classList.add("break-mode");
-  }
+  // Timer block lives only on Work card
+  // Mirror timer on both Work and Break cards — dim whichever phase is inactive
+  const workBlock  = document.getElementById("timer-block-work");
+  const breakBlock = document.getElementById("timer-block-break");
+  if (workBlock)  workBlock.classList.toggle("timer-dimmed", !isWork);
+  if (breakBlock) breakBlock.classList.toggle("timer-dimmed",  isWork);
 
-  if (!state.running) header.classList.remove("header-work", "header-break");
+  // Phase labels
+  document.querySelectorAll(".phase-label-work").forEach(el => {
+    el.classList.toggle("inactive-phase", !isWork);
+    el.classList.remove("break-phase");
+  });
+  document.querySelectorAll(".phase-label-break").forEach(el => {
+    el.classList.toggle("inactive-phase", isWork);
+    el.classList.toggle("break-phase", !isWork);
+  });
 
-  btnStart.disabled = state.running;
-  btnPause.disabled = !state.running;
+  // Phase label on Work card
+  document.querySelectorAll(".phase-label-work").forEach(el => {
+    el.textContent = isWork ? "Work Session" : "Break in progress";
+    el.classList.toggle("break-phase", !isWork);
+  });
 
-  updateProgressBar();
+  // Timer digits color
+  document.querySelectorAll(".timer-digits").forEach(el => {
+    el.classList.toggle("break-phase", !isWork);
+    el.classList.toggle("running", isRunning);
+  });
+
+  // Buttons
+  const btnStarts = document.querySelectorAll(".btn-start");
+  const btnPauses = document.querySelectorAll(".btn-pause");
+  btnStarts.forEach(b => { b.disabled = isRunning; b.classList.toggle("break-mode", !isWork); });
+  btnPauses.forEach(b => { b.disabled = !isRunning; b.classList.toggle("break-mode", !isWork); });
+
+  // Header
+  const header = document.getElementById("main-header");
+  header.classList.toggle("header-work",  isWork  && isRunning);
+  header.classList.toggle("header-break", !isWork && isRunning);
+  if (!isRunning) header.classList.remove("header-work","header-break");
 }
 
 function updatePomoCount() {
-  document.getElementById("pomo-number").textContent = state.pomoCount;
+  document.querySelectorAll(".pomo-number").forEach(el => el.textContent = state.pomoCount);
 }
 
 // ===== SETTINGS =====
@@ -565,26 +624,25 @@ function applyMode(mode) {
 
 function applyDarkMode(enabled) {
   document.body.classList.toggle("dark", enabled);
-  document.getElementById("darkmode-desc").textContent = enabled ? "On" : "Off";
+  const el = document.getElementById("darkmode-desc");
+  if (el) el.textContent = enabled ? "On" : "Off";
 }
 
 function initSettings() {
-  // Timer mode radios
-  document.querySelectorAll("input[name='pomo-mode']").forEach((radio) => {
+  // Timer mode
+  document.querySelectorAll("input[name='pomo-mode']").forEach(radio => {
     if (radio.value === state.mode) radio.checked = true;
-    radio.addEventListener("change", (e) => { if (e.target.checked) applyMode(e.target.value); });
+    radio.addEventListener("change", e => { if (e.target.checked) applyMode(e.target.value); });
   });
 
-  // Sound theme radios — preview always plays regardless of SFX mute
-  // If a previously saved state had "beep", fall back to "chime"
+  // Sound theme
   if (state.soundTheme === "beep") state.soundTheme = "chime";
-  document.querySelectorAll("input[name='sound-theme']").forEach((radio) => {
-    if (radio.value === (state.soundTheme || "chime")) radio.checked = true;
-    radio.addEventListener("change", (e) => {
+  document.querySelectorAll("input[name='sound-theme']").forEach(radio => {
+    if (radio.value === (state.soundTheme||"chime")) radio.checked = true;
+    radio.addEventListener("change", e => {
       if (e.target.checked) {
         state.soundTheme = e.target.value;
         saveState();
-        // Preview: temporarily bypass mute
         const wasMuted = state.mutedSfx;
         state.mutedSfx = false;
         playStartClick();
@@ -593,129 +651,142 @@ function initSettings() {
     });
   });
 
-  // Volume controls
-  initVolumeControls();
+  // Volume toggles
+  const toggleMusic = document.getElementById("toggle-music");
+  const toggleSfx   = document.getElementById("toggle-sfx");
+  if (toggleMusic) {
+    toggleMusic.checked = !state.mutedMusic;
+    document.getElementById("music-desc").textContent = state.mutedMusic ? "Off" : "On";
+    toggleMusic.addEventListener("change", () => {
+      state.mutedMusic = !toggleMusic.checked;
+      document.getElementById("music-desc").textContent = state.mutedMusic ? "Off" : "On";
+      applyMusicVolume();
+      saveState();
+    });
+  }
+  if (toggleSfx) {
+    toggleSfx.checked = !state.mutedSfx;
+    document.getElementById("sfx-desc").textContent = state.mutedSfx ? "Off" : "On";
+    toggleSfx.addEventListener("change", () => {
+      state.mutedSfx = !toggleSfx.checked;
+      document.getElementById("sfx-desc").textContent = state.mutedSfx ? "Off" : "On";
+      saveState();
+    });
+  }
 
   // Auto-start
   const toggleAutostart = document.getElementById("toggle-autostart");
-  toggleAutostart.checked = state.autoStart;
-  document.getElementById("autostart-desc").textContent = state.autoStart ? "On" : "Off";
-  toggleAutostart.addEventListener("change", () => {
-    state.autoStart = toggleAutostart.checked;
+  if (toggleAutostart) {
+    toggleAutostart.checked = state.autoStart;
     document.getElementById("autostart-desc").textContent = state.autoStart ? "On" : "Off";
-    saveState();
-  });
+    toggleAutostart.addEventListener("change", () => {
+      state.autoStart = toggleAutostart.checked;
+      document.getElementById("autostart-desc").textContent = state.autoStart ? "On" : "Off";
+      saveState();
+    });
+  }
 
   // Dark mode
   const toggleDark = document.getElementById("toggle-darkmode");
-  toggleDark.checked = state.darkMode;
-  applyDarkMode(state.darkMode);
-  toggleDark.addEventListener("change", () => {
-    state.darkMode = toggleDark.checked;
+  if (toggleDark) {
+    toggleDark.checked = state.darkMode;
     applyDarkMode(state.darkMode);
-    saveState();
-  });
-
-  // Reset board
-  document.getElementById("btn-reset-bingo-settings").addEventListener("click", () => {
-    if (confirm("Reshuffle the bingo card and clear all marks? Today's score will also reset.")) {
-      const texts    = state.cells.map((c) => c.text);
-      const shuffled = shuffleCells(texts.map((text) => ({ text, count: 0 })));
-      state.cells             = shuffled;
-      state.bingoAcknowledged = false;
-      state.awardedLines      = [];
-      state.celebratedLines   = [];
-      state.blackoutAwarded   = false;
-      state.scoreCurrent      = 0;
-      updateScoreUI();
+    toggleDark.addEventListener("change", () => {
+      state.darkMode = toggleDark.checked;
+      applyDarkMode(state.darkMode);
       saveState();
-      renderBingoGrid();
-    }
-  });
+    });
+  }
 
-  // Reset scores
-  document.getElementById("btn-reset-scores").addEventListener("click", () => {
-    if (confirm("Wipe all scores — today, yesterday, and all-time? This cannot be undone.")) {
-      state.scoreCurrent  = 0;
-      state.scoreYesterday = 0;
-      state.scoreAllTime  = 0;
-      state.scoreAllTimeBase = 0;
-      saveState();
-      updateScoreUI();
-    }
-  });
+  // Reset break board
+  const btnResetBreak = document.getElementById("btn-reset-break-board");
+  if (btnResetBreak) {
+    btnResetBreak.addEventListener("click", () => {
+      if (confirm("Reshuffle break bingo card and clear all marks? Today's break score resets too.")) {
+        state.breakCells           = shuffleCells(DEFAULT_BREAK_CELLS.map(text => ({text, count:0})));
+        state.bingoAcknowledged    = false;
+        state.awardedBreakLines    = [];
+        state.celebratedBreakLines = [];
+        state.blackoutBreakAwarded = false;
+        state.scoreBreakToday      = 0;
+        saveState();
+        renderBreakGrid();
+        updateScoreUI();
+      }
+    });
+  }
+
+  // Reset work board
+  const btnResetWork = document.getElementById("btn-reset-work-board");
+  if (btnResetWork) {
+    btnResetWork.addEventListener("click", () => {
+      if (confirm("Reset work task grid and clear all marks? Today's work score resets too.")) {
+        state.workCells              = DEFAULT_WORK_CELLS.map(text => ({text, count:0}));
+        state.workBingoAcknowledged  = false;
+        state.awardedWorkLines       = [];
+        state.celebratedWorkLines    = [];
+        state.blackoutWorkAwarded    = false;
+        state.scoreWorkToday         = 0;
+        saveState();
+        renderWorkGrid();
+        updateScoreUI();
+      }
+    });
+  }
+
+  // Reset all scores
+  const btnResetScores = document.getElementById("btn-reset-scores");
+  if (btnResetScores) {
+    btnResetScores.addEventListener("click", () => {
+      if (confirm("Wipe ALL scores — today, yesterday, and all-time? This cannot be undone.")) {
+        state.scoreWorkToday = state.scoreBreakToday = 0;
+        state.scoreWorkYesterday = state.scoreBreakYesterday = 0;
+        state.scoreWorkAllTime = state.scoreBreakAllTime = 0;
+        state.scoreWorkAllTimeBase = state.scoreBreakAllTimeBase = 0;
+        saveState();
+        updateScoreUI();
+      }
+    });
+  }
 }
 
-function initVolumeControls() {
-  const toggleMusic = document.getElementById("toggle-music");
-  const toggleSfx   = document.getElementById("toggle-sfx");
-
-  // Music is "on" when NOT muted
-  toggleMusic.checked = !state.mutedMusic;
-  document.getElementById("music-desc").textContent = state.mutedMusic ? "Off" : "On";
-  toggleSfx.checked = !state.mutedSfx;
-  document.getElementById("sfx-desc").textContent = state.mutedSfx ? "Off" : "On";
-
-  toggleMusic.addEventListener("change", () => {
-    state.mutedMusic = !toggleMusic.checked;
-    document.getElementById("music-desc").textContent = state.mutedMusic ? "Off" : "On";
-    applyMusicVolume();
-    saveState();
-  });
-  toggleSfx.addEventListener("change", () => {
-    state.mutedSfx = !toggleSfx.checked;
-    document.getElementById("sfx-desc").textContent = state.mutedSfx ? "Off" : "On";
-    saveState();
-  });
-}
-
-function updateMuteButton(btn, muted) {
-  btn.textContent = muted ? "Off" : "On";
-  btn.classList.toggle("muted", muted);
-}
-
-// ===== BINGO GRID =====
+// ===== GRIDS =====
 function shuffleCells(cells) {
   const arr = [...cells];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
+  for (let i=arr.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
   return arr;
 }
 
-function renderBingoGrid() {
-  const grid = document.getElementById("bingo-grid");
+function renderGrid(cells, containerId, isWork) {
+  const grid = document.getElementById(containerId);
+  if (!grid) return;
   grid.innerHTML = "";
 
-  state.cells.forEach((cell, i) => {
+  cells.forEach((cell, i) => {
     const div = document.createElement("div");
-    div.className  = "bingo-cell" + (cell.count > 0 ? ` completed completed-${cell.count}` : "");
+    div.className = "bingo-cell" + (cell.count > 0 ? ` completed completed-${cell.count}` : "") + (isWork ? " work-cell" : "");
     div.dataset.index = i;
 
     const span = document.createElement("span");
     span.className   = "cell-text" + (cell.text ? "" : " placeholder");
-    span.textContent = cell.text || "Click to add...";
+    span.textContent = cell.text || "Click to add…";
     div.appendChild(span);
 
-    if (cell.count > 0) {
+    if (cell.count > 0 && !isWork) {
       const pip = document.createElement("span");
       pip.className   = "cell-count-pip";
       pip.textContent = "★".repeat(cell.count);
       div.appendChild(pip);
     }
 
-    div.addEventListener("click", (e) => {
-      if (e.target.tagName === "INPUT") return;
-      toggleCell(i);
-    });
-    div.addEventListener("contextmenu", (e) => {
+    div.addEventListener("click", e => { if (e.target.tagName === "INPUT") return; toggleCell(i, isWork); });
+    div.addEventListener("contextmenu", e => {
       e.preventDefault();
-      if (state.cells[i].count > 0) {
-        state.cells[i].count--;
+      if (cells[i].count > 0) {
+        cells[i].count--;
         recalculateScore();
         saveState();
-        renderBingoGrid();
+        renderGrid(cells, containerId, isWork);
       }
     });
 
@@ -723,82 +794,120 @@ function renderBingoGrid() {
   });
 }
 
+function renderBreakGrid() { renderGrid(state.breakCells, "break-grid", false); }
+function renderWorkGrid()  { renderGrid(state.workCells,  "work-grid",  true);  }
+
 function recalculateScore() {
-  let pts = 0;
-  state.cells.forEach((c) => {
-    for (let n = 1; n <= c.count; n++) pts += pointsForCell(n) - pointsForCell(n - 1);
+  let workPts = 0, breakPts = 0;
+  state.workCells.forEach(c => {
+    for (let n=1; n<=c.count; n++) workPts += basePointsForCell(n,true) - basePointsForCell(n-1,true);
   });
-  pts += state.awardedLines.length * 20;
-  if (state.blackoutAwarded) pts += 100;
-  state.scoreCurrent = pts;
-  state.scoreAllTime = Math.max(state.scoreAllTimeBase || 0, state.scoreCurrent);
+  state.breakCells.forEach(c => {
+    for (let n=1; n<=c.count; n++) breakPts += basePointsForCell(n,false) - basePointsForCell(n-1,false);
+  });
+  workPts  += state.awardedWorkLines.length  * 100;
+  breakPts += state.awardedBreakLines.length * 20;
+  if (state.blackoutWorkAwarded)  workPts  += 500;
+  if (state.blackoutBreakAwarded) breakPts += 100;
+  state.scoreWorkToday  = workPts;
+  state.scoreBreakToday = breakPts;
+  state.scoreWorkAllTime  = Math.max(state.scoreWorkAllTimeBase  ||0, workPts);
+  state.scoreBreakAllTime = Math.max(state.scoreBreakAllTimeBase ||0, breakPts);
   updateScoreUI();
 }
 
-function toggleCell(index) {
-  const cell      = state.cells[index];
+function toggleCell(index, isWork) {
+  const cells     = isWork ? state.workCells : state.breakCells;
+  const cell      = cells[index];
   const prevCount = cell.count;
-  if (prevCount >= 5) return;
+  const maxCount  = isWork ? 1 : 5; // work tasks: one-off only
+
+  if (prevCount >= maxCount) return;
 
   cell.count = prevCount + 1;
-  const pts  = pointsForCell(cell.count) - pointsForCell(prevCount);
-  addScore(pts);
+  const pts  = basePointsForCell(cell.count, isWork) - basePointsForCell(prevCount, isWork);
+  addScore(pts, isWork);
 
-  const multiplierLabels = ["", "", "×1.2", "×1.5", "×1.8", "×2.0"];
-  showScorePopup(cell.count >= 2 ? `+${pts} pts ${multiplierLabels[cell.count]}` : `+${pts} pts`);
+  if (isWork) {
+    showScorePopup(`+${pts} pts ✓`);
+  } else {
+    const multiplierLabels = ["","","×1.2","×1.5","×1.8","×2.0"];
+    showScorePopup(cell.count >= 2 ? `+${pts} pts ${multiplierLabels[cell.count]}` : `+${pts} pts`);
+  }
 
-  checkAndAwardLines();
+  checkAndAwardLines(isWork);
   saveState();
-  renderBingoGrid();
-  checkBingo();
+
+  if (isWork) {
+    renderWorkGrid();
+    checkBingo(true);
+  } else {
+    renderBreakGrid();
+    checkBingo(false);
+  }
 }
 
-function checkBingo() {
-  const c    = state.cells;
-  const done = (i) => c[i].count >= 1;
-  for (const line of BINGO_LINES) {
+function checkBingo(isWork) {
+  const lines      = isWork ? WORK_LINES       : BREAK_LINES;
+  const cells      = isWork ? state.workCells  : state.breakCells;
+  const celebKey   = isWork ? "celebratedWorkLines" : "celebratedBreakLines";
+
+  for (const line of lines) {
     const key = lineKey(line);
-    if (state.celebratedLines.includes(key)) continue;
-    if (line.every(done)) {
-      state.celebratedLines.push(key);
-      showBingoModal();
+    if (state[celebKey].includes(key)) continue;
+    if (line.every(i => cells[i].count >= 1)) {
+      state[celebKey].push(key);
+      showBingoModal(isWork);
       return;
     }
   }
 }
 
-function showBingoModal() {
-  document.getElementById("bingo-modal").classList.remove("hidden");
+function showBingoModal(isWork) {
+  const modal = document.getElementById("bingo-modal");
+  const title = document.getElementById("bingo-modal-title");
+  const msg   = document.getElementById("bingo-modal-msg");
+  if (title) title.textContent = isWork ? "✅ Goal Complete!" : "🎉 BINGO!";
+  if (msg)   msg.textContent   = isWork ? "Line cleared — great work session!" : "Keep completing your break activities!";
+  if (modal) modal.classList.remove("hidden");
 }
 
-// ===== CUSTOMIZE MODAL =====
-function openCustomizeModal() {
-  const list = document.getElementById("customize-list");
+// ===== CUSTOMIZE MODALS =====
+function openCustomizeModal(isWork) {
+  const cells    = isWork ? state.workCells  : state.breakCells;
+  const defaults = isWork ? DEFAULT_WORK_CELLS : DEFAULT_BREAK_CELLS;
+  const modal    = document.getElementById("customize-modal");
+  const title    = document.getElementById("customize-modal-title");
+  const list     = document.getElementById("customize-list");
+  const saveBtn  = document.getElementById("btn-customize-save");
+
+  if (title) title.textContent = isWork ? "✏ Customize Work Tasks" : "✏ Customize Break Items";
   list.innerHTML = "";
-  state.cells.forEach((cell, i) => {
+  saveBtn.dataset.isWork = isWork ? "1" : "0";
+
+  cells.forEach((cell, i) => {
     const row   = document.createElement("div");
     row.className = "customize-row";
     const num   = document.createElement("span");
     num.className   = "row-num";
     num.textContent = i + 1;
     const input = document.createElement("input");
-    input.type        = "text";
-    input.maxLength   = 50;
-    input.placeholder = `Break idea ${i + 1}…`;
-    input.value       = cell.text;
-    input.addEventListener("keydown", (e) => {
+    input.type = "text"; input.maxLength = 50;
+    input.placeholder = isWork ? `Work task ${i+1}…` : `Break idea ${i+1}…`;
+    input.value = cell.text;
+    input.addEventListener("keydown", e => {
       if (e.key === "Enter") {
         const inputs = list.querySelectorAll("input");
-        const next   = inputs[i + 1];
+        const next = inputs[i+1];
         if (next) next.focus();
         else document.getElementById("btn-customize-save").focus();
       }
     });
-    row.appendChild(num);
-    row.appendChild(input);
+    row.appendChild(num); row.appendChild(input);
     list.appendChild(row);
   });
-  document.getElementById("customize-modal").classList.remove("hidden");
+
+  modal.classList.remove("hidden");
   list.querySelectorAll("input")[0].focus();
 }
 
@@ -807,32 +916,46 @@ function closeCustomizeModal() {
 }
 
 function saveCustomize() {
-  const inputs = document.querySelectorAll("#customize-list input");
-  const texts  = Array.from(inputs).map((inp) => inp.value.trim());
-  const filled = texts.map((t, i) => t || DEFAULT_CELLS[i] || "");
-  for (let i = filled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [filled[i], filled[j]] = [filled[j], filled[i]];
+  const isWork  = document.getElementById("btn-customize-save").dataset.isWork === "1";
+  const defaults = isWork ? DEFAULT_WORK_CELLS : DEFAULT_BREAK_CELLS;
+  const inputs  = document.querySelectorAll("#customize-list input");
+  const texts   = Array.from(inputs).map(inp => inp.value.trim());
+  const filled  = texts.map((t,i) => t || defaults[i] || "");
+
+  if (isWork) {
+    state.workCells = filled.map(text => ({ text, count: 0 }));
+    state.awardedWorkLines    = [];
+    state.celebratedWorkLines = [];
+    state.blackoutWorkAwarded = false;
+    renderWorkGrid();
+  } else {
+    // shuffle break items
+    const shuffled = [...filled];
+    for (let i=shuffled.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
+    state.breakCells = shuffled.map(text => ({ text, count: 0 }));
+    state.awardedBreakLines    = [];
+    state.celebratedBreakLines = [];
+    state.blackoutBreakAwarded = false;
+    renderBreakGrid();
   }
-  state.cells             = filled.map((text) => ({ text, count: 0 }));
   state.bingoAcknowledged = false;
   saveState();
-  renderBingoGrid();
   closeCustomizeModal();
 }
 
 function loadDefaultsIntoModal() {
-  const inputs = document.querySelectorAll("#customize-list input");
-  DEFAULT_CELLS.forEach((text, i) => { if (inputs[i]) inputs[i].value = text; });
+  const isWork   = document.getElementById("btn-customize-save").dataset.isWork === "1";
+  const defaults = isWork ? DEFAULT_WORK_CELLS : DEFAULT_BREAK_CELLS;
+  const inputs   = document.querySelectorAll("#customize-list input");
+  defaults.forEach((text, i) => { if (inputs[i]) inputs[i].value = text; });
 }
 
-// =================================================================
+// ===================================================================
 // CARD DECK ENGINE
-// =================================================================
-const CARD_COUNT = 4;
-const MAX_VISIBLE_DEPTH = 3; // peek capped regardless of total card count
+// ===================================================================
+const CARD_COUNT = 5;
+const MAX_VISIBLE_DEPTH = 3;
 
-// Read CSS custom properties for peek offsets
 function getPeek(prop) {
   return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(prop)) || 11;
 }
@@ -840,31 +963,25 @@ function getPeek(prop) {
 const cards   = () => Array.from(document.querySelectorAll(".card"));
 const navBtns = () => Array.from(document.querySelectorAll(".bnav"));
 
-let deckOrder  = [0, 1, 2, 3];
+let deckOrder  = [0,1,2,3,4];
 let activeCard = 0;
 
 function transformForDepth(depth) {
   if (depth === 0) return "translate(0px, 0px)";
-  const px = getPeek("--peek-x");
-  const py = getPeek("--peek-y");
-  const capped = Math.min(depth, MAX_VISIBLE_DEPTH);
-  return `translate(${px * capped}px, ${py * capped}px)`;
+  const px = getPeek("--peek-x"), py = getPeek("--peek-y");
+  return `translate(${px * Math.min(depth, MAX_VISIBLE_DEPTH)}px, ${py * Math.min(depth, MAX_VISIBLE_DEPTH)}px)`;
 }
 
 function layoutDeck(animate = true) {
-  const allCards = cards();
-  allCards.forEach((card, cardIdx) => {
+  cards().forEach((card, cardIdx) => {
     const depth = deckOrder.indexOf(cardIdx);
-
     if (animate) card.classList.add("animating");
     else         card.classList.remove("animating");
-
     card.classList.remove("depth-0","depth-1","depth-2","depth-3");
     card.classList.add(`depth-${Math.min(depth, MAX_VISIBLE_DEPTH)}`);
     card.style.transform = transformForDepth(depth);
     card.style.zIndex    = CARD_COUNT - depth;
   });
-
   if (animate) {
     clearTimeout(layoutDeck._t);
     layoutDeck._t = setTimeout(() => cards().forEach(c => c.classList.remove("animating")), 460);
@@ -875,211 +992,170 @@ function goTo(targetIdx, direction) {
   if (targetIdx === activeCard) return;
   if (direction === undefined) direction = targetIdx > activeCard ? 1 : -1;
 
-  // Unflip the card we're leaving (no animation, instant reset)
   const leavingCard = document.querySelector(`.card[data-card="${activeCard}"]`);
   if (leavingCard && flippedCards.has(activeCard)) {
     flippedCards.delete(activeCard);
-    leavingCard.classList.remove("flipped", "flipping");
+    leavingCard.classList.remove("flipped","flipping");
   }
 
   let steps = 0;
   while (deckOrder[0] !== targetIdx && steps < CARD_COUNT) {
-    if (direction > 0) { deckOrder.push(deckOrder.shift()); }
-    else               { deckOrder.unshift(deckOrder.pop()); }
+    if (direction > 0) deckOrder.push(deckOrder.shift());
+    else               deckOrder.unshift(deckOrder.pop());
     steps++;
   }
-
   activeCard = targetIdx;
   layoutDeck(true);
   syncBottomNav();
 }
 
 function syncBottomNav() {
-  navBtns().forEach((b, i) => b.classList.toggle("active", i === activeCard));
+  navBtns().forEach((b,i) => b.classList.toggle("active", i === activeCard));
 }
 
-// Bottom nav
 function initBottomNav() {
-  navBtns().forEach((btn, i) => {
-    btn.addEventListener("click", () => goTo(i));
-  });
+  navBtns().forEach((btn,i) => btn.addEventListener("click", () => goTo(i)));
 }
 
-// Keyboard
 function initKeyboard() {
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") goTo((activeCard + 1) % CARD_COUNT,  1);
-    if (e.key === "ArrowLeft")  goTo((activeCard - 1 + CARD_COUNT) % CARD_COUNT, -1);
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") goTo((activeCard+1) % CARD_COUNT,  1);
+    if (e.key === "ArrowLeft")  goTo((activeCard-1+CARD_COUNT) % CARD_COUNT, -1);
   });
 }
 
-// Click non-top card to navigate to it
 function initCardClicks() {
-  cards().forEach((card, i) => {
-    card.addEventListener("click", (e) => {
-      if (!card.classList.contains("depth-0")) {
-        goTo(i);
-        e.stopPropagation();
-      }
+  cards().forEach((card,i) => {
+    card.addEventListener("click", e => {
+      if (!card.classList.contains("depth-0")) { goTo(i); e.stopPropagation(); }
     });
   });
 }
 
-// =================================================================
+// ===================================================================
 // CARD FLIP ENGINE
-// =================================================================
+// ===================================================================
 const flippedCards = new Set();
 
 function flipCard(cardIdx) {
   const card = document.querySelector(`.card[data-card="${cardIdx}"]`);
   if (!card) return;
-
-  // Force animation re-trigger by removing class, forcing reflow, then re-adding
   card.classList.remove("flipping");
-  void card.offsetWidth; // reflow
+  void card.offsetWidth;
   card.classList.add("flipping");
   setTimeout(() => card.classList.remove("flipping"), 580);
-
-  if (flippedCards.has(cardIdx)) {
-    flippedCards.delete(cardIdx);
-    card.classList.remove("flipped");
-  } else {
-    flippedCards.add(cardIdx);
-    card.classList.add("flipped");
-  }
+  if (flippedCards.has(cardIdx)) { flippedCards.delete(cardIdx); card.classList.remove("flipped"); }
+  else                            { flippedCards.add(cardIdx);    card.classList.add("flipped"); }
 }
 
 function initFlipCorners() {
   document.querySelectorAll(".flip-corner").forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", e => {
       e.stopPropagation();
-      const cardIdx = parseInt(btn.dataset.card);
-      flipCard(cardIdx);
+      flipCard(parseInt(btn.dataset.card));
     });
   });
 }
 
-// ── Drag / swipe ──
+// Drag/swipe
 let drag = null;
 
 function onPointerDown(e) {
   const card = e.currentTarget;
   if (!card.classList.contains("depth-0")) return;
-  // Don't start drag if clicking the flip corner area
   if (e.target.closest(".flip-corner")) return;
-
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-  drag = { startX: clientX, startY: clientY, currentX: 0, velocityX: 0, lastX: clientX, lastT: Date.now(), moved: false };
+  drag = { startX:clientX, startY:clientY, currentX:0, velocityX:0, lastX:clientX, lastT:Date.now(), moved:false };
   card.classList.remove("animating");
 }
 
 function onPointerMove(e) {
   if (!drag) return;
-
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  const dx = clientX - drag.startX;
-  const dy = clientY - drag.startY;
-
-  // If vertical movement dominates first, hand back to scroll
-  if (!drag.moved && Math.abs(dy) > Math.abs(dx) + 6) { drag = null; return; }
+  const dx=clientX-drag.startX, dy=clientY-drag.startY;
+  if (!drag.moved && Math.abs(dy) > Math.abs(dx)+6) { drag=null; return; }
   if (Math.abs(dx) > 4) drag.moved = true;
   if (!drag.moved) return;
-
   e.preventDefault();
-
-  const now  = Date.now();
-  const dt   = now - drag.lastT || 1;
-  drag.velocityX = (clientX - drag.lastX) / dt;
-  drag.lastX     = clientX;
-  drag.lastT     = now;
-  drag.currentX  = dx;
-
-  // Move top card with drag
-  const topCard = cards()[deckOrder[0]];
-  topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
+  const now=Date.now(), dt=now-drag.lastT||1;
+  drag.velocityX=(clientX-drag.lastX)/dt; drag.lastX=clientX; drag.lastT=now; drag.currentX=dx;
+  const topCard=cards()[deckOrder[0]];
+  topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx*.012}deg)`;
 }
 
 function onPointerUp() {
   if (!drag) return;
-
-  const topCard = cards()[deckOrder[0]];
-  const dx  = drag.currentX;
-  const vel = drag.velocityX;
-
-  const THRESH_PX  = 80;
-  const THRESH_VEL = 0.4;
-
-  const didDrag = Math.abs(dx) > THRESH_PX || Math.abs(vel) > THRESH_VEL;
-
+  const topCard=cards()[deckOrder[0]];
+  const dx=drag.currentX, vel=drag.velocityX;
+  const didDrag = Math.abs(dx)>80 || Math.abs(vel)>0.4;
   topCard.classList.add("animating");
-
   if (didDrag) {
-    // Exit in whichever direction the user dragged, but always advance forward
-    const exitX = dx >= 0 ? "110vw" : "-110vw";
-    const exitRot = dx >= 0 ? "8deg" : "-8deg";
+    const exitX=dx>=0?"110vw":"-110vw", exitRot=dx>=0?"8deg":"-8deg";
     topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
     setTimeout(() => {
       topCard.style.transform = "";
-      goTo((activeCard + 1) % CARD_COUNT, 1);
+      goTo((activeCard+1) % CARD_COUNT, 1);
     }, 180);
   } else {
     topCard.style.transform = transformForDepth(0);
   }
-
   drag = null;
 }
 
 function initDrag() {
   cards().forEach(card => {
     card.addEventListener("mousedown",  onPointerDown);
-    card.addEventListener("touchstart", onPointerDown, { passive: true });
+    card.addEventListener("touchstart", onPointerDown, { passive:true });
   });
   document.addEventListener("mousemove",  onPointerMove);
   document.addEventListener("mouseup",    onPointerUp);
-  document.addEventListener("touchmove",  onPointerMove, { passive: false });
+  document.addEventListener("touchmove",  onPointerMove, { passive:false });
   document.addEventListener("touchend",   onPointerUp);
 }
 
-// =================================================================
+// ===================================================================
 // INIT
-// =================================================================
+// ===================================================================
 async function init() {
-  await loadMusicManifest();
+  await loadAllManifests();
   loadState();
 
-  // Prime AudioContext on the very first user gesture anywhere on the page
-  // so it's in "running" state before the first button click needs it
   const primeOnce = () => { primeAudioCtx(); document.removeEventListener("pointerdown", primeOnce); };
   document.addEventListener("pointerdown", primeOnce);
 
-  // Timer buttons
-  document.getElementById("btn-start").addEventListener("click", startTimer);
-  document.getElementById("btn-pause").addEventListener("click", pauseTimer);
-  document.getElementById("btn-reset").addEventListener("click", () => resetTimer(true));
+  // Timer buttons (multiple instances mirrored on Work + Break cards)
+  document.querySelectorAll(".btn-start").forEach(btn => btn.addEventListener("click", startTimer));
+  document.querySelectorAll(".btn-pause").forEach(btn => btn.addEventListener("click", pauseTimer));
+  document.querySelectorAll(".btn-reset").forEach(btn => btn.addEventListener("click", () => resetTimer(true)));
 
   // Settings
   initSettings();
 
-  // Customize modal
-  document.getElementById("btn-open-customize").addEventListener("click", openCustomizeModal);
-  document.getElementById("btn-customize-cancel").addEventListener("click", closeCustomizeModal);
-  document.getElementById("btn-customize-save").addEventListener("click", saveCustomize);
-  document.getElementById("btn-customize-defaults").addEventListener("click", loadDefaultsIntoModal);
-  document.getElementById("customize-modal").addEventListener("click", (e) => {
+  // Customize modals
+  document.getElementById("btn-open-customize-work")?.addEventListener("click",  () => openCustomizeModal(true));
+  document.getElementById("btn-open-customize-break")?.addEventListener("click", () => openCustomizeModal(false));
+  document.getElementById("btn-customize-cancel")?.addEventListener("click",     closeCustomizeModal);
+  document.getElementById("btn-customize-save")?.addEventListener("click",       saveCustomize);
+  document.getElementById("btn-customize-defaults")?.addEventListener("click",   loadDefaultsIntoModal);
+  document.getElementById("customize-modal")?.addEventListener("click", e => {
     if (e.target === document.getElementById("customize-modal")) closeCustomizeModal();
   });
 
   // Bingo modal
-  document.getElementById("btn-close-modal").addEventListener("click", () => {
+  document.getElementById("btn-close-modal")?.addEventListener("click", () => {
     document.getElementById("bingo-modal").classList.add("hidden");
   });
 
   // Phase modal
-  document.getElementById("btn-close-phase-modal").addEventListener("click", () => {
+  document.getElementById("btn-close-phase-modal")?.addEventListener("click", () => {
     document.getElementById("phase-modal").classList.add("hidden");
+  });
+
+  // Genre buttons
+  document.querySelectorAll(".genre-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchGenre(btn.dataset.genre));
   });
 
   // Deck engine
@@ -1090,11 +1166,16 @@ async function init() {
   initFlipCorners();
   initDrag();
 
-  // Initial UI state
+  // Apply saved genre theme
+  applyGenreTheme(state.activeGenre);
+  updateGenreButtons();
+
+  // Initial renders
   updateTimerUI();
   updatePomoCount();
   updateScoreUI();
-  renderBingoGrid();
+  renderBreakGrid();
+  renderWorkGrid();
 }
 
 document.addEventListener("DOMContentLoaded", init);
