@@ -34,6 +34,7 @@ let state = {
   timeLeft: 25 * 60,
   running:  false,
   pomoCount: 0,
+  breakCount: 0,
 
   breakCells: [],
   workCells:  [],
@@ -139,6 +140,7 @@ function loadState() {
 
     state.bingoAcknowledged     = false;
     state.workBingoAcknowledged = false;
+    state.breakCount            = 0;
   }
 }
 
@@ -151,11 +153,11 @@ function localDateString(dayOffset = 0) {
 
 // ===== SCORING =====
 // Break: 5 pts base. Work: 25 pts base (5×). Same multipliers.
-const COUNT_MULTIPLIERS = [0, 1.0, 1.2, 1.5, 1.8, 2.0];
-
+// Work: 15 pts flat. Break: +1 pt per star (1,2,3,4,5 cumulative).
 function basePointsForCell(count, isWork) {
   if (count < 1 || count > 5) return 0;
-  return Math.round((isWork ? 25 : 5) * COUNT_MULTIPLIERS[count]);
+  if (isWork) return 15;
+  return count;
 }
 
 function addScore(pts, isWork) {
@@ -215,7 +217,7 @@ function checkAndAwardLines(isWork) {
   const lines       = isWork ? WORK_LINES       : BREAK_LINES;
   const awardedKey  = isWork ? "awardedWorkLines"  : "awardedBreakLines";
   const cells       = isWork ? state.workCells    : state.breakCells;
-  const bonusPts    = isWork ? 100 : 20;
+  const bonusPts    = isWork ? 45 : 15;
   let newLines = 0;
 
   for (const line of lines) {
@@ -235,7 +237,7 @@ function checkAndAwardLines(isWork) {
   const blackoutKey = isWork ? "blackoutWorkAwarded" : "blackoutBreakAwarded";
   if (!state[blackoutKey] && cells.every(c => c.count >= 1)) {
     state[blackoutKey] = true;
-    const bbonus = isWork ? 500 : 100;
+    const bbonus = isWork ? 135 : 60;
     addScore(bbonus, isWork);
     showScorePopup(`+${bbonus} BLACKOUT! 🔥`);
   }
@@ -513,8 +515,10 @@ function phaseComplete() {
     // Auto-navigate to Break card
     goTo(1);
   } else {
+    state.breakCount++;
     state.phase    = "work";
     state.timeLeft = workMinutes() * 60;
+    updateBreakCount();
     sendNotification("Break's over! 💪", "Time to focus.");
     showPhaseModal("💪", "Break's over! Ready to focus?");
     // Auto-navigate to Work card
@@ -610,6 +614,10 @@ function updateTimerUI() {
 
 function updatePomoCount() {
   document.querySelectorAll(".pomo-number").forEach(el => el.textContent = state.pomoCount);
+}
+
+function updateBreakCount() {
+  document.querySelectorAll(".break-number").forEach(el => el.textContent = state.breakCount);
 }
 
 // ===== SETTINGS =====
@@ -805,10 +813,10 @@ function recalculateScore() {
   state.breakCells.forEach(c => {
     for (let n=1; n<=c.count; n++) breakPts += basePointsForCell(n,false) - basePointsForCell(n-1,false);
   });
-  workPts  += state.awardedWorkLines.length  * 100;
-  breakPts += state.awardedBreakLines.length * 20;
-  if (state.blackoutWorkAwarded)  workPts  += 500;
-  if (state.blackoutBreakAwarded) breakPts += 100;
+  workPts  += state.awardedWorkLines.length  * 45;
+  breakPts += state.awardedBreakLines.length * 15;
+  if (state.blackoutWorkAwarded)  workPts  += 135;
+  if (state.blackoutBreakAwarded) breakPts += 60;
   state.scoreWorkToday  = workPts;
   state.scoreBreakToday = breakPts;
   state.scoreWorkAllTime  = Math.max(state.scoreWorkAllTimeBase  ||0, workPts);
@@ -831,8 +839,7 @@ function toggleCell(index, isWork) {
   if (isWork) {
     showScorePopup(`+${pts} pts ✓`);
   } else {
-    const multiplierLabels = ["","","×1.2","×1.5","×1.8","×2.0"];
-    showScorePopup(cell.count >= 2 ? `+${pts} pts ${multiplierLabels[cell.count]}` : `+${pts} pts`);
+    showScorePopup(`+${pts} pt${pts !== 1 ? "s" : ""}`);
   }
 
   checkAndAwardLines(isWork);
@@ -1173,6 +1180,7 @@ async function init() {
   // Initial renders
   updateTimerUI();
   updatePomoCount();
+  updateBreakCount();
   updateScoreUI();
   renderBreakGrid();
   renderWorkGrid();

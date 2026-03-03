@@ -210,6 +210,9 @@ body.dark .card-title { color: var(--ink); }
   opacity: 0.35;
   pointer-events: none;
 }
+#timer-block-break.timer-dimmed .phase-counter-row {
+  opacity: 1 / 0.35; /* cancel parent */
+}
 
 .phase-label {
   font-size: 0.58rem;
@@ -284,28 +287,68 @@ body.dark .card-title { color: var(--ink); }
 }
 .btn-sec:hover { border-color: var(--muted); color: var(--ink); }
 
-/* Pomo row */
-.pomo-row { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); }
-.pomo-number { font-weight: 700; color: var(--ink); font-family: var(--font-serif); font-size: 0.95rem; }
-
-/* ===== GRID SECTION LABEL ===== */
-.grid-section-label {
+/* ===== PHASE COUNTER ROW (Pomos / Breaks completed) ===== */
+.phase-counter-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.phase-counter-label {
   font-size: 0.58rem;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: 600;
-  margin-bottom: 7px;
+}
+.phase-counter-value {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--ink);
+  line-height: 1;
+}
+
+/* ===== GRID HEADER ROW ===== */
+.grid-header-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 10px 0 6px;
+}
+.grid-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.grid-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .grid-hint {
   font-size: 0.55rem;
-  letter-spacing: 0.5px;
-  color: var(--rule);
-  text-transform: none;
-  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+}
+.grid-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.grid-pts-value {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.grid-pts-label {
+  font-size: 0.53rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* ===== WORK TASK GRID (3×3) ===== */
@@ -394,33 +437,10 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text { color: #f5a09a; }
 }
 .bingo-cell.completed-5 .cell-count-pip { opacity: 1; }
 
-/* ===== INLINE SCORE ROW (Work + Break cards) ===== */
+/* ===== SCORE VALUE COLOURS ===== */
 .score-value--work  { color: var(--c-work); }
 .score-value--break { color: var(--c-bingo); }
 .score-value--gold  { color: var(--c-ach); }
-
-.inline-score-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-  padding: 7px 12px;
-  background: color-mix(in srgb, var(--rule) 25%, var(--card-bg));
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-}
-.inline-score-label {
-  font-size: 0.58rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 600;
-}
-.inline-score-value {
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  line-height: 1;
-}
 
 /* ===== GLOBAL SCORE POPUP ===== */
 .score-popup-global {

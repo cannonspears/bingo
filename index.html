@@ -40,7 +40,10 @@
                 <button class="flip-corner" data-card="0">Settings →</button>
               </div>
               <div id="timer-block-work" class="timer-block">
-                <div class="phase-label phase-label-work">Work Session</div>
+                <div class="phase-counter-row">
+                  <span class="phase-counter-label">Pomos completed</span>
+                  <span class="phase-counter-value pomo-number">0</span>
+                </div>
                 <div class="timer-display timer-digits">25:00</div>
                 <div class="timer-progress-bar">
                   <div class="timer-progress-fill"></div>
@@ -50,17 +53,18 @@
                   <button class="btn-pause btn-primary btn-pause-style" disabled>⏸ Pause</button>
                   <button class="btn-reset btn-sec">↺</button>
                 </div>
-                <div class="pomo-row">
-                  <span class="pomo-label">Pomos completed:</span>
-                  <span class="pomo-number">0</span>
+              </div>
+              <div class="grid-header-row">
+                <div class="grid-header-left">
+                  <span class="grid-label">Today's Tasks</span>
+                  <span class="grid-hint">click to complete · right-click undo</span>
+                </div>
+                <div class="grid-header-right">
+                  <span class="grid-pts-value score-value--work" id="work-score-inline">0</span>
+                  <span class="grid-pts-label">pts today</span>
                 </div>
               </div>
-              <div class="grid-section-label">Today's Tasks <span class="grid-hint">click to complete · right-click undo</span></div>
               <div id="work-grid" class="work-grid"></div>
-              <div class="inline-score-row">
-                <span class="inline-score-label">Work pts today</span>
-                <span class="inline-score-value score-value--work" id="work-score-inline">0</span>
-              </div>
             </div>
           </div>
           <div class="card-face card-back card-back-work">
@@ -88,7 +92,7 @@
                 <div class="s-grid">
                   <div class="s-cell s-cell--wide">
                     <div class="s-cell-label">Work task value</div>
-                    <div class="s-cell-note">Work tasks earn <strong>25 pts</strong> each (5× break items). One completion per task. Line bonus: +100 pts. Blackout: +500 pts.</div>
+                    <div class="s-cell-note">Work tasks earn <strong>15 pts</strong> each. One completion per task. Line bonus: +45 pts. Blackout: +135 pts.</div>
                   </div>
                 </div>
               </div>
@@ -107,8 +111,11 @@
                 <span class="card-title">Break Time</span>
                 <button class="flip-corner" data-card="1">Settings →</button>
               </div>
+              <div class="phase-counter-row">
+                <span class="phase-counter-label">Breaks completed</span>
+                <span class="phase-counter-value break-number">0</span>
+              </div>
               <div id="timer-block-break" class="timer-block timer-dimmed">
-                <div class="phase-label phase-label-break inactive-phase">Break Time!</div>
                 <div class="timer-display timer-digits">05:00</div>
                 <div class="timer-progress-bar">
                   <div class="timer-progress-fill break-phase"></div>
@@ -118,17 +125,18 @@
                   <button class="btn-pause btn-primary btn-pause-style break-mode" disabled>⏸ Pause</button>
                   <button class="btn-reset btn-sec">↺</button>
                 </div>
-                <div class="pomo-row">
-                  <span class="pomo-label">Pomos completed:</span>
-                  <span class="pomo-number">0</span>
+              </div>
+              <div class="grid-header-row">
+                <div class="grid-header-left">
+                  <span class="grid-label">Break Bingo</span>
+                  <span class="grid-hint">click ×5 · right-click undo</span>
+                </div>
+                <div class="grid-header-right">
+                  <span class="grid-pts-value score-value--break" id="break-score-inline">0</span>
+                  <span class="grid-pts-label">pts today</span>
                 </div>
               </div>
-              <div class="grid-section-label">Break Bingo <span class="grid-hint">click ×5 · right-click undo</span></div>
               <div id="break-grid" class="bingo-grid"></div>
-              <div class="inline-score-row">
-                <span class="inline-score-label">Break pts today</span>
-                <span class="inline-score-value score-value--break" id="break-score-inline">0</span>
-              </div>
             </div>
           </div>
           <div class="card-face card-back card-back-bingo">
@@ -156,7 +164,7 @@
                 <div class="s-grid">
                   <div class="s-cell s-cell--wide">
                     <div class="s-cell-label">Break item value</div>
-                    <div class="s-cell-note">Break items earn <strong>5 pts</strong> base with multipliers up to ×2.0. Line bonus: +20 pts. Blackout: +100 pts.</div>
+                    <div class="s-cell-note">Break items earn <strong>1–5 pts</strong> (1 pt per star, up to 5). Line bonus: +15 pts. Blackout: +60 pts.</div>
                   </div>
                 </div>
               </div>
