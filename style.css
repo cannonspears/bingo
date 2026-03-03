@@ -19,7 +19,6 @@
   --c-ach:   #c9960a;
 
   --card-w:  460px;
-  --card-h:  560px;
   --peek-x:  11px;
   --peek-y:  10px;
 
@@ -44,14 +43,15 @@ body.dark { background-image: none; }
 
 /* ===== APP ZONE ===== */
 #app-zone {
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 20px 20px 24px;
+  justify-content: flex-start;
+  padding: 12px 20px 16px;
   box-sizing: border-box;
   user-select: none;
+  overflow: hidden;
 }
 
 /* ===== DARK MODE ===== */
@@ -67,28 +67,29 @@ body.dark {
 /* ===== HEADER ===== */
 header {
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
   transition: all 0.4s ease;
   width: 100%;
   max-width: calc(var(--card-w) + var(--peek-x) * 3);
-  padding: 10px 20px;
+  padding: 6px 20px;
   border-radius: 12px;
   background: transparent;
+  flex-shrink: 0;
 }
 header h1 {
   font-family: var(--font-serif);
-  font-size: 2.1rem;
+  font-size: 1.85rem;
   letter-spacing: 2px;
   line-height: 1;
   color: var(--ink);
   transition: color 0.3s;
 }
 .tagline {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: 3px;
   transition: color 0.3s;
 }
 header.header-work  { background: var(--c-work); }
@@ -100,14 +101,17 @@ header.header-break h1, header.header-break .tagline { color: white; }
 #deck-stage {
   position: relative;
   width:  calc(var(--card-w) + var(--peek-x) * 3);
-  height: calc(var(--card-h) + var(--peek-y) * 3);
+  /* Height = whatever vertical space remains in the 100dvh app-zone */
+  flex: 1;
+  min-height: 0;
 }
 
 /* ===== CARD BASE ===== */
 .card {
   position: absolute;
   width:  var(--card-w);
-  height: var(--card-h);
+  /* Fill the deck-stage height minus peek offset for stacked cards */
+  height: calc(100% - var(--peek-y) * 3);
   border-radius: 18px;
   cursor: grab;
   touch-action: pan-y;
@@ -774,13 +778,13 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text { color: #f5a09a; }
 .cbl-tagline { font-size: 0.62rem; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); line-height: 1.6; margin-top: 8px; }
 
 /* ===== ACHIEVEMENTS ===== */
-.ach-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; height:calc(var(--card-h) - 140px); text-align:center; padding:20px; gap:12px; }
+.ach-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; min-height:0; text-align:center; padding:20px; gap:12px; }
 .ach-placeholder-icon { font-size: 3rem; opacity: 0.25; }
 .ach-placeholder p { font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
 .ach-placeholder-sub { font-size: 0.75rem !important; color: var(--muted) !important; }
 
 /* ===== BOTTOM NAV ===== */
-#bottom-nav { display: flex; gap: 5px; margin-bottom: 12px; }
+#bottom-nav { display: flex; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
 .bnav {
   display: flex; flex-direction: column; align-items: center;
   padding: 7px 10px; border-radius: 11px; border: 1.5px solid var(--rule);
@@ -834,7 +838,6 @@ body.dark .bnav { background: var(--card-bg); }
 @media (max-width: 520px) {
   :root {
     --card-w: min(88vw, 360px);
-    --card-h: 540px;
     --peek-x: 8px;
     --peek-y: 8px;
   }
