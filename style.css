@@ -2157,6 +2157,7 @@ body.dark .blog-card--lead {
   .blog-title {
     font-size: 1.8rem;
   }
+}
 /* ===== SHORT VIEWPORT — shrink timer font ===== */
 @media (max-height: 700px) {
   .timer-display {
@@ -2174,5 +2175,4 @@ body.dark .blog-card--lead {
     letter-spacing: -1px;
     margin-bottom: 4px;
   }
-}
 }
