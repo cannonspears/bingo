@@ -27,55 +27,55 @@ const DEFAULT_BREAK_TABS = {
     "20 pushups",
     "5 min walk",
     "Stretch arms",
-    "10 jumping jacks",
-    "10 squats",
-    "Drink water",
-    "Cold water face",
-    "Dance break",
+    "30 jumping jacks",
+    "20 squats",
+    "20 bicep curls",
+    "2x 30s planks",
+    "20 crunches",
     "Neck rolls",
-    "Calf raises",
-    "Wall sit 30s",
-    "Deep breaths",
-    "Touch toes",
+    "20 Calf raises",
+    "Wall sits",
+    "20 tricep ext",
+    "Leg stretches",
     "Shoulder rolls",
     "20 sec plank",
-    "Jump rope 1min",
+    "Arm stretches",
   ],
   mind: [
-    "Journal 1 min",
-    "Read a page",
-    "5 min meditation",
+    "Journal",
+    "Read from a book",
+    "Do nothing",
     "Gratitude note",
-    "Doodle freely",
-    "Step outside",
-    "Close eyes 1min",
+    "Free draw",
+    "Memorize something",
+    "Write a tiny story",
     "Positive affirmation",
     "Box breathing",
-    "Listen to a song",
-    "Screen-free sit",
-    "Write a thought",
+    "Memory recall",
+    "Reframe a situation",
+    "Read poetry",
     "Brain teaser",
     "Visualise a goal",
     "Tech-free walk",
-    "Name 3 things",
+    "Word association game",
   ],
   home: [
     "Make your bed",
     "Tidy desk",
     "Do the dishes",
     "Wipe counters",
-    "Text a friend",
-    "Empty trash",
-    "Water a plant",
+    "Clean litterbox",
+    "Take out trash",
+    "Water plants",
     "Sweep a room",
     "Fold laundry",
     "Wipe mirrors",
-    "Restock snacks",
+    "Quick vacuum",
     "Clear floor clutter",
     "Wipe stovetop",
     "Organise a drawer",
-    "Check mail",
-    "Prep tomorrow",
+    "Refill water pitcher",
+    "Family appreciation note",
   ],
 };
 
@@ -208,35 +208,59 @@ function loadState() {
     state.breakTabs = {};
   }
   TABS.forEach((tab) => {
-    if (!Array.isArray(state.breakTabs[tab]) || state.breakTabs[tab].length !== 16) {
-      state.breakTabs[tab] = DEFAULT_BREAK_TABS[tab].map((text) => ({ text, count: 0 }));
+    if (
+      !Array.isArray(state.breakTabs[tab]) ||
+      state.breakTabs[tab].length !== 16
+    ) {
+      state.breakTabs[tab] = DEFAULT_BREAK_TABS[tab].map((text) => ({
+        text,
+        count: 0,
+      }));
     }
     state.breakTabs[tab] = state.breakTabs[tab].map((c) =>
-      typeof c.count !== "number" ? { text: c.text, count: c.completed ? 1 : 0 } : c
+      typeof c.count !== "number"
+        ? { text: c.text, count: c.completed ? 1 : 0 }
+        : c,
     );
   });
 
   // Per-tab line tracking
-  if (!state.awardedBreakLines || typeof state.awardedBreakLines !== "object" || Array.isArray(state.awardedBreakLines)) {
+  if (
+    !state.awardedBreakLines ||
+    typeof state.awardedBreakLines !== "object" ||
+    Array.isArray(state.awardedBreakLines)
+  ) {
     state.awardedBreakLines = { body: [], mind: [], home: [] };
   }
-  if (!state.celebratedBreakLines || typeof state.celebratedBreakLines !== "object" || Array.isArray(state.celebratedBreakLines)) {
+  if (
+    !state.celebratedBreakLines ||
+    typeof state.celebratedBreakLines !== "object" ||
+    Array.isArray(state.celebratedBreakLines)
+  ) {
     state.celebratedBreakLines = { body: [], mind: [], home: [] };
   }
-  if (!state.blackoutBreakAwarded || typeof state.blackoutBreakAwarded !== "object" || Array.isArray(state.blackoutBreakAwarded)) {
+  if (
+    !state.blackoutBreakAwarded ||
+    typeof state.blackoutBreakAwarded !== "object" ||
+    Array.isArray(state.blackoutBreakAwarded)
+  ) {
     state.blackoutBreakAwarded = { body: false, mind: false, home: false };
   }
   TABS.forEach((tab) => {
-    if (!Array.isArray(state.awardedBreakLines[tab])) state.awardedBreakLines[tab] = [];
-    if (!Array.isArray(state.celebratedBreakLines[tab])) state.celebratedBreakLines[tab] = [];
-    if (typeof state.blackoutBreakAwarded[tab] !== "boolean") state.blackoutBreakAwarded[tab] = false;
+    if (!Array.isArray(state.awardedBreakLines[tab]))
+      state.awardedBreakLines[tab] = [];
+    if (!Array.isArray(state.celebratedBreakLines[tab]))
+      state.celebratedBreakLines[tab] = [];
+    if (typeof state.blackoutBreakAwarded[tab] !== "boolean")
+      state.blackoutBreakAwarded[tab] = false;
   });
 
   if (!Array.isArray(state.scoreHistory)) state.scoreHistory = [];
-  if (typeof state.tickingEnabled !== 'boolean') state.tickingEnabled = false;
+  if (typeof state.tickingEnabled !== "boolean") state.tickingEnabled = false;
   if (typeof state.focusedTaskIndex !== "number") state.focusedTaskIndex = -1;
   if (typeof state.showDoneTasks !== "boolean") state.showDoneTasks = false;
-  if (!["all", ...TABS].includes(state.activeBreakTab)) state.activeBreakTab = "all";
+  if (!["all", ...TABS].includes(state.activeBreakTab))
+    state.activeBreakTab = "all";
 
   // Daily score rollover
   const todayStr = localDateString();
@@ -246,8 +270,14 @@ function loadState() {
       state.scoreWorkYesterday = state.scoreWorkToday;
       state.scoreBreakYesterday = state.scoreBreakToday;
     }
-    state.scoreWorkAllTimeBase = Math.max(state.scoreWorkAllTimeBase || 0, state.scoreWorkToday);
-    state.scoreBreakAllTimeBase = Math.max(state.scoreBreakAllTimeBase || 0, state.scoreBreakToday);
+    state.scoreWorkAllTimeBase = Math.max(
+      state.scoreWorkAllTimeBase || 0,
+      state.scoreWorkToday,
+    );
+    state.scoreBreakAllTimeBase = Math.max(
+      state.scoreBreakAllTimeBase || 0,
+      state.scoreBreakToday,
+    );
     state.scoreWorkAllTime = state.scoreWorkAllTimeBase;
     state.scoreBreakAllTime = state.scoreBreakAllTimeBase;
     state.scoreWorkToday = 0;
@@ -262,7 +292,8 @@ function loadState() {
         brk: state.scoreBreakToday,
       });
       // Keep only last 7 days
-      if (state.scoreHistory.length > 7) state.scoreHistory = state.scoreHistory.slice(-7);
+      if (state.scoreHistory.length > 7)
+        state.scoreHistory = state.scoreHistory.slice(-7);
     }
 
     // Reset all break tabs
@@ -270,7 +301,10 @@ function loadState() {
       state.awardedBreakLines[tab] = [];
       state.celebratedBreakLines[tab] = [];
       state.blackoutBreakAwarded[tab] = false;
-      state.breakTabs[tab] = state.breakTabs[tab].map((c) => ({ ...c, count: 0 }));
+      state.breakTabs[tab] = state.breakTabs[tab].map((c) => ({
+        ...c,
+        count: 0,
+      }));
     });
 
     // Reset work task completions (keep the task list itself)
@@ -489,8 +523,10 @@ async function playTimerDone() {
 
 async function playTick() {
   if (state.mutedSfx || !state.tickingEnabled) return;
-  const ctx = await ensureAudioCtxRunning(), vol = sfxVolume() * 0.25, t = ctx.currentTime;
-  makeOsc(ctx, 'square', 1200, t, t + 0.03, vol, 900);
+  const ctx = await ensureAudioCtxRunning(),
+    vol = sfxVolume() * 0.25,
+    t = ctx.currentTime;
+  makeOsc(ctx, "square", 1200, t, t + 0.03, vol, 900);
 }
 
 // ===== MUSIC ENGINE =====
@@ -599,17 +635,20 @@ function startMusic(fromEnded = false) {
     musicAudio = null;
     if (state.running && state.phase === "work") startMusic(true);
   });
-  audio.play().then(() => {
-    // Only update UI once playback actually starts
-    updateNowPlaying(track);
-    fadeInMusic();
-  }).catch((e) => {
-    console.warn("Music playback failed:", e);
-    if (musicAudio === audio) {
-      musicAudio = null;
-      updateNowPlaying(null);
-    }
-  });
+  audio
+    .play()
+    .then(() => {
+      // Only update UI once playback actually starts
+      updateNowPlaying(track);
+      fadeInMusic();
+    })
+    .catch((e) => {
+      console.warn("Music playback failed:", e);
+      if (musicAudio === audio) {
+        musicAudio = null;
+        updateNowPlaying(null);
+      }
+    });
 }
 
 function fadeInMusic() {
@@ -708,9 +747,15 @@ function sendNotification(title, body) {
 }
 
 // ===== TIMER HELPERS =====
-function workMinutes() { return state.mode === "50/10" ? 50 : 25; }
-function breakMinutes() { return state.mode === "50/10" ? 10 : 5; }
-function totalSeconds() { return (state.phase === "work" ? workMinutes() : breakMinutes()) * 60; }
+function workMinutes() {
+  return state.mode === "50/10" ? 50 : 25;
+}
+function breakMinutes() {
+  return state.mode === "50/10" ? 10 : 5;
+}
+function totalSeconds() {
+  return (state.phase === "work" ? workMinutes() : breakMinutes()) * 60;
+}
 
 // ===== WORKER-BASED TIMER =====
 let timeWorker = null;
@@ -719,7 +764,9 @@ let tickingWorker = null;
 function initWorkers() {
   // Try inline blob workers so they work from any path
   try {
-    const timeBlob = new Blob([`
+    const timeBlob = new Blob(
+      [
+        `
 let timer=null,startTS=Date.now(),counted=0,countMax=0;
 function init(s){startTS=Date.now();counted=0;countMax=s;}
 function gap(){
@@ -733,24 +780,32 @@ self.addEventListener('message',e=>{
   if(m.startsWith('start-timer_')){clearInterval(timer);init(parseInt(m.split('_')[1],10));timer=setInterval(()=>postMessage(gap()),1000);}
   else if(m.startsWith('change-timer_')){init(parseInt(m.split('_')[1],10));}
   else if(m==='stop-timer'){clearInterval(timer);timer=null;}
-});`], {type:'application/javascript'});
+});`,
+      ],
+      { type: "application/javascript" },
+    );
     timeWorker = new Worker(URL.createObjectURL(timeBlob));
-  } catch(e) {
-    console.warn('timeWorker failed, falling back to setInterval', e);
+  } catch (e) {
+    console.warn("timeWorker failed, falling back to setInterval", e);
     timeWorker = null;
   }
 
   try {
-    const tickBlob = new Blob([`
+    const tickBlob = new Blob(
+      [
+        `
 let t=null;
 self.addEventListener('message',e=>{
   if(e.data==='ticking-start'){clearInterval(t);t=setInterval(()=>postMessage('tick'),1000);}
   else if(e.data==='ticking-stop'){clearInterval(t);t=null;}
-});`], {type:'application/javascript'});
+});`,
+      ],
+      { type: "application/javascript" },
+    );
     tickingWorker = new Worker(URL.createObjectURL(tickBlob));
-    tickingWorker.addEventListener('message', () => playTick());
-  } catch(e) {
-    console.warn('tickingWorker failed', e);
+    tickingWorker.addEventListener("message", () => playTick());
+  } catch (e) {
+    console.warn("tickingWorker failed", e);
     tickingWorker = null;
   }
 }
@@ -759,13 +814,13 @@ function startTimer() {
   if (state.running) return;
   state.running = true;
   playStartClick();
-  if (state.phase === 'work') startMusic();
+  if (state.phase === "work") startMusic();
   updateTimerUI();
   saveState();
 
   if (timeWorker) {
     timeWorker.onmessage = (e) => {
-      const gap = typeof e.data === 'number' ? e.data : 1;
+      const gap = typeof e.data === "number" ? e.data : 1;
       for (let i = 0; i < gap; i++) tick();
     };
     timeWorker.postMessage(`start-timer_${state.timeLeft}`);
@@ -773,17 +828,18 @@ function startTimer() {
     timerInterval = setInterval(tick, 1000);
   }
 
-  if (state.tickingEnabled && state.phase === 'work') {
-    if (tickingWorker) tickingWorker.postMessage('ticking-start');
+  if (state.tickingEnabled && state.phase === "work") {
+    if (tickingWorker) tickingWorker.postMessage("ticking-start");
   }
 }
 
 function pauseTimer() {
   if (!state.running) return;
   state.running = false;
-  if (timeWorker) timeWorker.postMessage('stop-timer');
-  clearInterval(timerInterval); timerInterval = null;
-  if (tickingWorker) tickingWorker.postMessage('ticking-stop');
+  if (timeWorker) timeWorker.postMessage("stop-timer");
+  clearInterval(timerInterval);
+  timerInterval = null;
+  if (tickingWorker) tickingWorker.postMessage("ticking-stop");
   stopMusic();
   playPause();
   updateTimerUI();
@@ -792,7 +848,7 @@ function pauseTimer() {
 
 function resetTimer(save = true) {
   pauseTimer();
-  state.phase = 'work';
+  state.phase = "work";
   state.timeLeft = workMinutes() * 60;
   state.running = false;
   updateTimerUI();
@@ -813,9 +869,10 @@ function tick() {
 function phaseComplete() {
   stopMusic();
   // Stop workers
-  if (timeWorker) timeWorker.postMessage('stop-timer');
-  if (tickingWorker) tickingWorker.postMessage('ticking-stop');
-  clearInterval(timerInterval); timerInterval = null;
+  if (timeWorker) timeWorker.postMessage("stop-timer");
+  if (tickingWorker) tickingWorker.postMessage("ticking-stop");
+  clearInterval(timerInterval);
+  timerInterval = null;
   state.running = false;
   playTimerDone();
 
@@ -1028,17 +1085,21 @@ function initSettings() {
   const toggleTicking = document.getElementById("toggle-ticking");
   if (toggleTicking) {
     toggleTicking.checked = state.tickingEnabled;
-    document.getElementById("ticking-desc").textContent = state.tickingEnabled ? "On" : "Off";
+    document.getElementById("ticking-desc").textContent = state.tickingEnabled
+      ? "On"
+      : "Off";
     toggleTicking.addEventListener("change", () => {
       state.tickingEnabled = toggleTicking.checked;
-      document.getElementById("ticking-desc").textContent = state.tickingEnabled ? "On" : "Off";
+      document.getElementById("ticking-desc").textContent = state.tickingEnabled
+        ? "On"
+        : "Off";
       saveState();
       // Start/stop live ticking if timer is running
       if (tickingWorker) {
-        if (state.tickingEnabled && state.running && state.phase === 'work') {
-          tickingWorker.postMessage('ticking-start');
+        if (state.tickingEnabled && state.running && state.phase === "work") {
+          tickingWorker.postMessage("ticking-start");
         } else {
-          tickingWorker.postMessage('ticking-stop');
+          tickingWorker.postMessage("ticking-stop");
         }
       }
     });
@@ -1076,11 +1137,15 @@ function initSettings() {
   const btnResetBreak = document.getElementById("btn-reset-break-board");
   if (btnResetBreak) {
     btnResetBreak.addEventListener("click", () => {
-      if (confirm("Reshuffle all break bingo boards and clear all marks? Today's break score resets too.")) {
+      if (
+        confirm(
+          "Reshuffle all break bingo boards and clear all marks? Today's break score resets too.",
+        )
+      ) {
         const TABS = ["all", "body", "mind", "home"];
         TABS.forEach((tab) => {
           state.breakTabs[tab] = shuffleCells(
-            DEFAULT_BREAK_TABS[tab].map((text) => ({ text, count: 0 }))
+            DEFAULT_BREAK_TABS[tab].map((text) => ({ text, count: 0 })),
           );
           state.awardedBreakLines[tab] = [];
           state.celebratedBreakLines[tab] = [];
@@ -1342,7 +1407,8 @@ function completeCurrentFocusTask() {
 }
 
 function recalculateScore() {
-  let workPts = 0, breakPts = 0;
+  let workPts = 0,
+    breakPts = 0;
   state.workCells.forEach((c) => {
     if (c.count >= 1) workPts += 25;
   });
@@ -1350,7 +1416,8 @@ function recalculateScore() {
   TABS.forEach((tab) => {
     state.breakTabs[tab].forEach((c) => {
       for (let n = 1; n <= c.count; n++)
-        breakPts += basePointsForCell(n, false) - basePointsForCell(n - 1, false);
+        breakPts +=
+          basePointsForCell(n, false) - basePointsForCell(n - 1, false);
     });
     breakPts += state.awardedBreakLines[tab].length * 15;
     if (state.blackoutBreakAwarded[tab]) breakPts += 60;
@@ -1358,7 +1425,10 @@ function recalculateScore() {
   state.scoreWorkToday = workPts;
   state.scoreBreakToday = breakPts;
   state.scoreWorkAllTime = Math.max(state.scoreWorkAllTimeBase || 0, workPts);
-  state.scoreBreakAllTime = Math.max(state.scoreBreakAllTimeBase || 0, breakPts);
+  state.scoreBreakAllTime = Math.max(
+    state.scoreBreakAllTimeBase || 0,
+    breakPts,
+  );
   updateScoreUI();
 }
 
@@ -1378,13 +1448,21 @@ function initInlineTaskAdd() {
   }
 
   input?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); addTask(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTask();
+    }
   });
-  btn?.addEventListener("click", (e) => { e.stopPropagation(); addTask(); });
+  btn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    addTask();
+  });
 
   // Stop card drag when interacting with input
-  input?.addEventListener("mousedown", e => e.stopPropagation());
-  input?.addEventListener("touchstart", e => e.stopPropagation(), { passive: true });
+  input?.addEventListener("mousedown", (e) => e.stopPropagation());
+  input?.addEventListener("touchstart", (e) => e.stopPropagation(), {
+    passive: true,
+  });
 }
 
 // ===== 7-DAY HISTORY CHART =====
@@ -1397,19 +1475,26 @@ function renderHistoryChart() {
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const dateStr = localDateString(-i);
-    const hist = state.scoreHistory.find(h => h.date === dateStr);
+    const hist = state.scoreHistory.find((h) => h.date === dateStr);
     const isToday = i === 0;
     days.push({
-      label: isToday ? "Today" : ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(dateStr + "T12:00:00").getDay()],
-      total: isToday ? totalToday() : (hist ? hist.work + hist.brk : 0),
-      work: isToday ? state.scoreWorkToday : (hist ? hist.work : 0),
-      brk: isToday ? state.scoreBreakToday : (hist ? hist.brk : 0),
+      label: isToday
+        ? "Today"
+        : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+            new Date(dateStr + "T12:00:00").getDay()
+          ],
+      total: isToday ? totalToday() : hist ? hist.work + hist.brk : 0,
+      work: isToday ? state.scoreWorkToday : hist ? hist.work : 0,
+      brk: isToday ? state.scoreBreakToday : hist ? hist.brk : 0,
       isToday,
     });
   }
 
-  const maxVal = Math.max(...days.map(d => d.total), 1);
-  const W = 300, H = 72, barW = 28, gap = (W - 7 * barW) / 8;
+  const maxVal = Math.max(...days.map((d) => d.total), 1);
+  const W = 300,
+    H = 72,
+    barW = 28,
+    gap = (W - 7 * barW) / 8;
 
   svg.innerHTML = "";
   labelRow.innerHTML = "";
@@ -1423,28 +1508,44 @@ function renderHistoryChart() {
 
     // Break segment (bottom)
     if (brkH > 0) {
-      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      rect.setAttribute("x", x); rect.setAttribute("y", H - brkH);
-      rect.setAttribute("width", barW); rect.setAttribute("height", brkH);
+      const rect = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
+      rect.setAttribute("x", x);
+      rect.setAttribute("y", H - brkH);
+      rect.setAttribute("width", barW);
+      rect.setAttribute("height", brkH);
       rect.setAttribute("fill", day.isToday ? "#27ae60" : "#7dbb99");
       rect.setAttribute("rx", "3");
       svg.appendChild(rect);
     }
     // Work segment (top)
     if (workH > 0) {
-      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      rect.setAttribute("x", x); rect.setAttribute("y", H - brkH - workH);
-      rect.setAttribute("width", barW); rect.setAttribute("height", workH);
+      const rect = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
+      rect.setAttribute("x", x);
+      rect.setAttribute("y", H - brkH - workH);
+      rect.setAttribute("width", barW);
+      rect.setAttribute("height", workH);
       rect.setAttribute("fill", day.isToday ? "#c0392b" : "#e08070");
       rect.setAttribute("rx", "3");
       svg.appendChild(rect);
     }
     // Empty bar placeholder
     if (day.total === 0) {
-      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      rect.setAttribute("x", x); rect.setAttribute("y", H - 3);
-      rect.setAttribute("width", barW); rect.setAttribute("height", 3);
-      rect.setAttribute("fill", "var(--rule)"); rect.setAttribute("rx", "2");
+      const rect = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
+      rect.setAttribute("x", x);
+      rect.setAttribute("y", H - 3);
+      rect.setAttribute("width", barW);
+      rect.setAttribute("height", 3);
+      rect.setAttribute("fill", "var(--rule)");
+      rect.setAttribute("rx", "2");
       svg.appendChild(rect);
     }
 
@@ -1465,7 +1566,8 @@ function toggleCell(index) {
   if (prevCount >= 5) return;
 
   cell.count = prevCount + 1;
-  const pts = basePointsForCell(cell.count, false) - basePointsForCell(prevCount, false);
+  const pts =
+    basePointsForCell(cell.count, false) - basePointsForCell(prevCount, false);
   addScore(pts, false);
   showScorePopup(`+${pts} pt${pts !== 1 ? "s" : ""}`);
 
@@ -1511,7 +1613,9 @@ function openCustomizeModal(isWork, breakTabKey) {
     const tab = breakTabKey || state.activeBreakTab;
     cells = state.breakTabs[tab];
     defaults = DEFAULT_BREAK_TABS[tab];
-    const tabLabel = { all: "All", body: "Body", mind: "Mind", home: "Home" }[tab];
+    const tabLabel = { all: "All", body: "Body", mind: "Mind", home: "Home" }[
+      tab
+    ];
     titleText = `✏ Edit ${tabLabel} Activities`;
     breakTabKey = tab;
   }
@@ -1530,11 +1634,11 @@ function openCustomizeModal(isWork, breakTabKey) {
   }
   list.innerHTML = "";
   saveBtn.dataset.isWork = isWork ? "1" : "0";
-  saveBtn.dataset.breakTab = isWork ? "" : (breakTabKey || state.activeBreakTab);
+  saveBtn.dataset.breakTab = isWork ? "" : breakTabKey || state.activeBreakTab;
 
   const rowTexts = isWork
-    ? [...cells.map(c => c.text), "", ""]
-    : cells.map(c => c.text);
+    ? [...cells.map((c) => c.text), "", ""]
+    : cells.map((c) => c.text);
 
   if (!isWork) {
     // 2-column grid: 8 rows × 2 inputs = 16 cells
@@ -1885,9 +1989,15 @@ async function init() {
   document.addEventListener("pointerdown", primeOnce);
 
   // Timer buttons
-  document.querySelectorAll(".btn-start").forEach((btn) => btn.addEventListener("click", startTimer));
-  document.querySelectorAll(".btn-pause").forEach((btn) => btn.addEventListener("click", pauseTimer));
-  document.querySelectorAll(".btn-reset").forEach((btn) => btn.addEventListener("click", () => resetTimer(true)));
+  document
+    .querySelectorAll(".btn-start")
+    .forEach((btn) => btn.addEventListener("click", startTimer));
+  document
+    .querySelectorAll(".btn-pause")
+    .forEach((btn) => btn.addEventListener("click", pauseTimer));
+  document
+    .querySelectorAll(".btn-reset")
+    .forEach((btn) => btn.addEventListener("click", () => resetTimer(true)));
 
   // Settings
   initSettings();
@@ -1896,16 +2006,26 @@ async function init() {
   initInlineTaskAdd();
 
   // Toggle done tasks
-  document.getElementById("btn-toggle-done-tasks")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    state.showDoneTasks = !state.showDoneTasks;
-    saveState();
-    renderWorkTaskList();
-  });
+  document
+    .getElementById("btn-toggle-done-tasks")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.showDoneTasks = !state.showDoneTasks;
+      saveState();
+      renderWorkTaskList();
+    });
 
   // Focus mode
-  document.getElementById("btn-exit-focus")?.addEventListener("click", (e) => { e.stopPropagation(); exitFocusMode(); });
-  document.getElementById("btn-complete-focus-task")?.addEventListener("click", (e) => { e.stopPropagation(); completeCurrentFocusTask(); });
+  document.getElementById("btn-exit-focus")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    exitFocusMode();
+  });
+  document
+    .getElementById("btn-complete-focus-task")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      completeCurrentFocusTask();
+    });
 
   // Break tab buttons
   document.querySelectorAll(".break-tab").forEach((btn) => {
@@ -1918,14 +2038,26 @@ async function init() {
   });
 
   // Break edit button (edits active tab)
-  document.getElementById("btn-edit-break-tab")?.addEventListener("click", (e) => { e.stopPropagation(); openCustomizeModal(false); });
+  document
+    .getElementById("btn-edit-break-tab")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openCustomizeModal(false);
+    });
 
   // Customize modal (break only now)
-  document.getElementById("btn-customize-cancel")?.addEventListener("click", closeCustomizeModal);
-  document.getElementById("btn-customize-save")?.addEventListener("click", saveCustomize);
-  document.getElementById("btn-customize-defaults")?.addEventListener("click", loadDefaultsIntoModal);
+  document
+    .getElementById("btn-customize-cancel")
+    ?.addEventListener("click", closeCustomizeModal);
+  document
+    .getElementById("btn-customize-save")
+    ?.addEventListener("click", saveCustomize);
+  document
+    .getElementById("btn-customize-defaults")
+    ?.addEventListener("click", loadDefaultsIntoModal);
   document.getElementById("customize-modal")?.addEventListener("click", (e) => {
-    if (e.target === document.getElementById("customize-modal")) closeCustomizeModal();
+    if (e.target === document.getElementById("customize-modal"))
+      closeCustomizeModal();
   });
 
   // Bingo modal
@@ -1934,9 +2066,11 @@ async function init() {
   });
 
   // Phase modal
-  document.getElementById("btn-close-phase-modal")?.addEventListener("click", () => {
-    document.getElementById("phase-modal").classList.add("hidden");
-  });
+  document
+    .getElementById("btn-close-phase-modal")
+    ?.addEventListener("click", () => {
+      document.getElementById("phase-modal").classList.add("hidden");
+    });
 
   // Genre buttons
   document.querySelectorAll(".genre-btn").forEach((btn) => {
@@ -1964,7 +2098,10 @@ async function init() {
   renderWorkTaskList();
 
   // Restore focus mode if was active
-  if (state.focusedTaskIndex >= 0 && state.workCells[state.focusedTaskIndex]?.count === 0) {
+  if (
+    state.focusedTaskIndex >= 0 &&
+    state.workCells[state.focusedTaskIndex]?.count === 0
+  ) {
     enterFocusMode(state.focusedTaskIndex);
   } else {
     state.focusedTaskIndex = -1;
