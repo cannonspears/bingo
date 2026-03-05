@@ -821,33 +821,6 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   font-size: 1.3rem;
   line-height: 1;
 }
-
-.pts-legend {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.pts-legend-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.7rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-.pts-legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.dot-work {
-  background: var(--c-work);
-}
-.dot-break {
-  background: var(--c-bingo);
-}
 .dot-multi {
   background: var(--c-ach);
 }
