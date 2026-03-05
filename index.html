@@ -72,12 +72,34 @@
                   <div class="grid-header-row">
                     <div class="grid-header-left">
                       <span class="grid-label">Today's Tasks</span>
-                      <span class="grid-hint">tap to focus · complete for +25 pts</span>
+                      <span class="grid-hint"
+                        >tap to focus · complete for +25 pts</span
+                      >
                     </div>
-                    <div class="grid-header-right" style="flex-direction:row;align-items:center;gap:6px;">
-                      <button id="btn-toggle-done-tasks" class="header-edit-btn" title="Show/hide done">☑</button>
-                      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;">
-                        <span class="grid-pts-value score-value--work" id="work-score-inline">0</span>
+                    <div
+                      class="grid-header-right"
+                      style="flex-direction: row; align-items: center; gap: 6px"
+                    >
+                      <button
+                        id="btn-toggle-done-tasks"
+                        class="header-edit-btn"
+                        title="Show/hide done"
+                      >
+                        ☑
+                      </button>
+                      <div
+                        style="
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-end;
+                          gap: 1px;
+                        "
+                      >
+                        <span
+                          class="grid-pts-value score-value--work"
+                          id="work-score-inline"
+                          >0</span
+                        >
                         <span class="grid-pts-label">pts today</span>
                       </div>
                     </div>
@@ -87,17 +109,39 @@
                   <!-- Inline add row -->
                   <div class="work-add-row" id="work-add-row">
                     <div class="work-add-icon">+</div>
-                    <input type="text" id="work-add-input" class="work-add-input" placeholder="Add a task…" maxlength="80" autocomplete="off" />
-                    <button id="work-add-btn" class="work-add-submit" title="Add task">↵</button>
+                    <input
+                      type="text"
+                      id="work-add-input"
+                      class="work-add-input"
+                      placeholder="Add a task…"
+                      maxlength="80"
+                      autocomplete="off"
+                    />
+                    <button
+                      id="work-add-btn"
+                      class="work-add-submit"
+                      title="Add task"
+                    >
+                      ↵
+                    </button>
                   </div>
                 </div>
 
                 <!-- FOCUS MODE VIEW (when a task is focused) -->
                 <div id="work-focus-view" class="work-focus-view hidden">
-                  <button id="btn-exit-focus" class="exit-focus-btn">← All Tasks</button>
-                  <div class="focus-task-name" id="focus-task-name">Task name</div>
-                  <div class="focus-task-hint">Stay focused. You've got this.</div>
-                  <button id="btn-complete-focus-task" class="btn-complete-task">
+                  <button id="btn-exit-focus" class="exit-focus-btn">
+                    ← All Tasks
+                  </button>
+                  <div class="focus-task-name" id="focus-task-name">
+                    Task name
+                  </div>
+                  <div class="focus-task-hint">
+                    Stay focused. You've got this.
+                  </div>
+                  <button
+                    id="btn-complete-focus-task"
+                    class="btn-complete-task"
+                  >
                     <span class="complete-checkmark">✓</span>
                     <span>Mark Complete</span>
                     <span class="complete-pts">+25 pts</span>
@@ -136,7 +180,8 @@
                     <div class="s-cell s-cell--wide">
                       <div class="s-cell-label">Work task value</div>
                       <div class="s-cell-note">
-                        Each completed task earns <strong>25 pts</strong>. Tasks reset daily — your list is saved between days.
+                        Each completed task earns <strong>25 pts</strong>. Tasks
+                        reset daily — your list is saved between days.
                       </div>
                     </div>
                   </div>
@@ -183,10 +228,30 @@
                     <span class="grid-label">Break Bingo</span>
                     <span class="grid-hint">click ×5 · right-click undo</span>
                   </div>
-                  <div class="grid-header-right" style="flex-direction:row;align-items:center;gap:6px;">
-                    <button id="btn-edit-break-tab" class="header-edit-btn" title="Edit this tab's items">✏</button>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;">
-                      <span class="grid-pts-value score-value--break" id="break-score-inline">0</span>
+                  <div
+                    class="grid-header-right"
+                    style="flex-direction: row; align-items: center; gap: 6px"
+                  >
+                    <button
+                      id="btn-edit-break-tab"
+                      class="header-edit-btn"
+                      title="Edit this tab's items"
+                    >
+                      ✏
+                    </button>
+                    <div
+                      style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+                        gap: 1px;
+                      "
+                    >
+                      <span
+                        class="grid-pts-value score-value--break"
+                        id="break-score-inline"
+                        >0</span
+                      >
                       <span class="grid-pts-label">pts today</span>
                     </div>
                   </div>
@@ -235,7 +300,8 @@
                       <div class="s-cell-label">Break item value</div>
                       <div class="s-cell-note">
                         Break items earn <strong>1–5 pts</strong> (1 pt per
-                        star, up to 5). Line bonus: +15 pts. Blackout: +60 pts. All 3 tabs share one score.
+                        star, up to 5). Line bonus: +15 pts. Blackout: +60 pts.
+                        All 3 tabs share one score.
                       </div>
                     </div>
                   </div>
@@ -386,19 +452,30 @@
                   Last 7 Days
                 </div>
                 <div class="pts-chart-wrap">
-                  <svg id="pts-history-chart" class="pts-history-chart" viewBox="0 0 300 80" preserveAspectRatio="none"></svg>
+                  <svg
+                    id="pts-history-chart"
+                    class="pts-history-chart"
+                    viewBox="0 0 300 80"
+                    preserveAspectRatio="none"
+                  ></svg>
                   <div class="pts-chart-labels" id="pts-chart-labels"></div>
                 </div>
 
-                <div class="pts-history" style="margin-top:10px;">
+                <div class="pts-history" style="margin-top: 10px">
                   <div class="pts-history-row">
                     <span class="pts-history-label">Yesterday</span>
-                    <span class="pts-history-value" id="pts-total-yesterday">0</span>
+                    <span class="pts-history-value" id="pts-total-yesterday"
+                      >0</span
+                    >
                   </div>
                   <div class="pts-history-divider"></div>
                   <div class="pts-history-row">
                     <span class="pts-history-label">All-Time Best Day</span>
-                    <span class="pts-history-value pts-history-gold" id="pts-total-alltime">0</span>
+                    <span
+                      class="pts-history-value pts-history-gold"
+                      id="pts-total-alltime"
+                      >0</span
+                    >
                   </div>
                 </div>
 
@@ -422,17 +499,6 @@
                       id="pts-break-alltime"
                       >0</span
                     >
-                  </div>
-                </div>
-
-                <div class="pts-legend">
-                  <div class="pts-legend-row">
-                    <span class="pts-legend-dot dot-work"></span
-                    ><span>Work: 25 pts per completed task</span>
-                  </div>
-                  <div class="pts-legend-row">
-                    <span class="pts-legend-dot dot-break"></span
-                    ><span>Break: 5 pts · Line +20 · Blackout +100</span>
                   </div>
                 </div>
               </div>
