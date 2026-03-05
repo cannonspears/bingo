@@ -1481,12 +1481,14 @@ body.dark .bnav {
 .customize-cell input:focus {
   border-color: var(--c-set);
 }
-
-
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+#btn-edit-break-tab {
+  font-size: 0.6rem;
+  width: auto;
+  padding: 0 7px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
+
 .customize-actions button {
   flex: 1;
   min-width: 100px;
@@ -1562,7 +1564,9 @@ body.dark .bnav {
   outline: none;
   min-width: 0;
 }
-.work-add-input::placeholder { color: var(--muted); }
+.work-add-input::placeholder {
+  color: var(--muted);
+}
 .work-add-submit {
   background: transparent;
   border: none;
@@ -1571,10 +1575,15 @@ body.dark .bnav {
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 5px;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
   flex-shrink: 0;
 }
-.work-add-submit:hover { color: var(--c-work); background: color-mix(in srgb, var(--c-work) 10%, transparent); }
+.work-add-submit:hover {
+  color: var(--c-work);
+  background: color-mix(in srgb, var(--c-work) 10%, transparent);
+}
 
 /* ===== 7-DAY HISTORY CHART ===== */
 .pts-chart-wrap {
@@ -1604,7 +1613,6 @@ body.dark .bnav {
   color: var(--c-work);
   font-weight: 700;
 }
-
 
 .work-task-empty {
   display: flex;
@@ -1763,7 +1771,7 @@ body.dark .bnav {
 }
 .work-task-done-divider::before,
 .work-task-done-divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: var(--rule);
@@ -1781,8 +1789,14 @@ body.dark .bnav {
   display: none;
 }
 @keyframes focusIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .exit-focus-btn {
@@ -1857,7 +1871,7 @@ body.dark .bnav {
 .complete-pts {
   font-size: 0.72rem;
   font-weight: 600;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
   padding: 2px 8px;
   border-radius: 20px;
   letter-spacing: 0.3px;
@@ -1883,7 +1897,10 @@ body.dark .bnav {
   font-size: 0.58rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, transform 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    transform 0.15s;
   text-align: center;
   white-space: nowrap;
   position: relative;
@@ -1892,7 +1909,9 @@ body.dark .bnav {
   letter-spacing: 0.2px;
   z-index: 1;
 }
-.break-tab:last-child { margin-right: 0; }
+.break-tab:last-child {
+  margin-right: 0;
+}
 .break-tab:hover {
   background: color-mix(in srgb, var(--rule) 15%, var(--card-bg));
   color: var(--ink);
@@ -1907,7 +1926,7 @@ body.dark .bnav {
 }
 /* Covers the bottom border of the active tab so it blends into the panel */
 .break-tab.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -1926,7 +1945,7 @@ body.dark .bnav {
 }
 /* Fading border: solid at top, fades to transparent halfway down */
 .break-tab-panel::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: 0 4px 8px 8px;
@@ -1952,7 +1971,6 @@ body.dark .break-tab-panel {
 body.dark .break-tab {
   background: color-mix(in srgb, var(--rule) 50%, var(--card-bg));
 }
-
 
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 520px) {
