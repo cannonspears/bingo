@@ -25,7 +25,7 @@
           <span class="bnav-label">Break</span>
         </button>
         <button class="bnav" data-i="2">
-          <span class="bnav-label">Music</span>
+          <span class="bnav-label">Audio</span>
         </button>
         <button class="bnav" data-i="3">
           <span class="bnav-label">Points</span>
@@ -159,6 +159,74 @@
                   </button>
                 </div>
                 <div class="s-section">
+                  <div class="s-section-label">Timer</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Mode</div>
+                      <div class="s-cell-control">
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="pomo-mode"
+                            value="25/5"
+                            checked
+                          /><span>25/5</span></label
+                        >
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="pomo-mode"
+                            value="50/10"
+                          /><span>50/10</span></label
+                        >
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">Auto-Start</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-autostart" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="autostart-desc">Off</span>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Custom Work Time (minutes)</div>
+                      <div class="s-cell-control">
+                        <input
+                          type="number"
+                          id="custom-work-minutes"
+                          class="custom-timer-input"
+                          placeholder="Leave blank for preset"
+                          min="1"
+                          max="180"
+                        />
+                        <button id="btn-set-custom-work" class="action-btn">
+                          Set
+                        </button>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Custom Break Time (minutes)</div>
+                      <div class="s-cell-control">
+                        <input
+                          type="number"
+                          id="custom-break-minutes-work"
+                          class="custom-timer-input"
+                          placeholder="Leave blank for preset"
+                          min="1"
+                          max="60"
+                        />
+                        <button id="btn-set-custom-break-work" class="action-btn">
+                          Set
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="s-section">
                   <div class="s-section-label">Tasks</div>
                   <div class="s-grid">
                     <div class="s-cell s-cell--wide">
@@ -278,6 +346,74 @@
                   </button>
                 </div>
                 <div class="s-section">
+                  <div class="s-section-label">Timer</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Mode</div>
+                      <div class="s-cell-control">
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="pomo-mode"
+                            value="25/5"
+                            checked
+                          /><span>25/5</span></label
+                        >
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="pomo-mode"
+                            value="50/10"
+                          /><span>50/10</span></label
+                        >
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">Auto-Start</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-autostart" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="autostart-desc">Off</span>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Custom Work Time (minutes)</div>
+                      <div class="s-cell-control">
+                        <input
+                          type="number"
+                          id="custom-work-minutes-break"
+                          class="custom-timer-input"
+                          placeholder="Leave blank for preset"
+                          min="1"
+                          max="180"
+                        />
+                        <button id="btn-set-custom-work-break" class="action-btn">
+                          Set
+                        </button>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">Custom Break Time (minutes)</div>
+                      <div class="s-cell-control">
+                        <input
+                          type="number"
+                          id="custom-break-minutes"
+                          class="custom-timer-input"
+                          placeholder="Leave blank for preset"
+                          min="1"
+                          max="60"
+                        />
+                        <button id="btn-set-custom-break" class="action-btn">
+                          Set
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="s-section">
                   <div class="s-section-label">Board</div>
                   <div class="s-grid">
                     <div class="s-cell s-cell--wide">
@@ -311,15 +447,15 @@
           </div>
         </div>
 
-        <!-- CARD 2 — NOW PLAYING -->
-        <div class="card card-music" data-card="2">
+        <!-- CARD 2 — AUDIO -->
+        <div class="card card-audio" data-card="2">
           <div class="card-flipper">
             <div class="card-face card-front">
-              <div class="card-stripe card-stripe-music"></div>
+              <div class="card-stripe card-stripe-audio"></div>
               <div class="card-body">
                 <div class="card-nav">
-                  <span class="card-title">Now Playing</span>
-                  <button class="flip-corner" data-card="2">Info →</button>
+                  <span class="card-title">Audio</span>
+                  <button class="flip-corner" data-card="2">Settings →</button>
                 </div>
                 <div class="genre-section">
                   <div
@@ -376,38 +512,71 @@
                 </p>
               </div>
             </div>
-            <div class="card-face card-back card-back-music">
-              <div class="card-stripe card-stripe-music"></div>
+            <div class="card-face card-back card-back-audio">
+              <div class="card-stripe card-stripe-audio"></div>
               <div class="card-body">
                 <div class="card-nav">
-                  <span class="card-title">Music Info</span>
+                  <span class="card-title">Audio Settings</span>
                   <button class="flip-corner flip-corner-back" data-card="2">
                     ← Back
                   </button>
                 </div>
-                <div class="music-info-body">
-                  <p class="music-info-para">
-                    Music plays during work sessions from your local
-                    <code>music/{genre}/</code> folders. Each folder needs a
-                    <code>manifest.json</code> listing the tracks.
-                  </p>
-                  <p class="music-info-para">
-                    Tracks auto-shuffle with no repeats until the full playlist
-                    loops. Switching genres restarts the queue immediately.
-                  </p>
-                  <div class="music-info-schema">
-                    <div class="schema-label">manifest.json format</div>
-                    <pre class="schema-pre">
-[
-  {
-    "file": "track1.mp3",
-    "title": "Track Name",
-    "artist": "Artist Name",
-    "license": "CC BY 4.0",
-    "url": "https://..."
-  }
-]</pre
-                    >
+                <div class="s-section">
+                  <div class="s-section-label">Sound</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Music</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-music" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="music-desc">On</span>
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">SFX</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-sfx" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="sfx-desc">On</span>
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">Ticking</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input type="checkbox" id="toggle-ticking" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="ticking-desc">Off</span>
+                      </div>
+                    </div>
+                    <div class="s-cell s-cell--wide">
+                      <div class="s-cell-label">SFX Theme</div>
+                      <div class="s-cell-control">
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="sound-theme"
+                            value="chime"
+                            checked
+                          /><span>Chime</span></label
+                        >
+                        <label class="radio-label"
+                          ><input
+                            type="radio"
+                            name="sound-theme"
+                            value="bell"
+                          /><span>Bell</span></label
+                        >
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -542,100 +711,6 @@
                 <div class="card-nav">
                   <span class="card-title">Settings</span>
                   <button class="flip-corner" data-card="4">Flip →</button>
-                </div>
-                <div class="s-section">
-                  <div class="s-section-label">Timer</div>
-                  <div class="s-grid">
-                    <div class="s-cell">
-                      <div class="s-cell-label">Mode</div>
-                      <div class="s-cell-control">
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode"
-                            value="25/5"
-                            checked
-                          /><span>25/5</span></label
-                        >
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode"
-                            value="50/10"
-                          /><span>50/10</span></label
-                        >
-                      </div>
-                    </div>
-                    <div class="s-cell">
-                      <div class="s-cell-label">Auto-Start</div>
-                      <div class="s-cell-control">
-                        <label class="toggle-switch"
-                          ><input type="checkbox" id="toggle-autostart" /><span
-                            class="toggle-track"
-                          ></span
-                        ></label>
-                        <span class="toggle-desc" id="autostart-desc">Off</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="s-section">
-                  <div class="s-section-label">Sound</div>
-                  <div class="s-grid">
-                    <div class="s-cell">
-                      <div class="s-cell-label">Music</div>
-                      <div class="s-cell-control">
-                        <label class="toggle-switch"
-                          ><input type="checkbox" id="toggle-music" /><span
-                            class="toggle-track"
-                          ></span
-                        ></label>
-                        <span class="toggle-desc" id="music-desc">On</span>
-                      </div>
-                    </div>
-                    <div class="s-cell">
-                      <div class="s-cell-label">SFX</div>
-                      <div class="s-cell-control">
-                        <label class="toggle-switch"
-                          ><input type="checkbox" id="toggle-sfx" /><span
-                            class="toggle-track"
-                          ></span
-                        ></label>
-                        <span class="toggle-desc" id="sfx-desc">On</span>
-                      </div>
-                    </div>
-                    <div class="s-cell">
-                      <div class="s-cell-label">Ticking</div>
-                      <div class="s-cell-control">
-                        <label class="toggle-switch"
-                          ><input type="checkbox" id="toggle-ticking" /><span
-                            class="toggle-track"
-                          ></span
-                        ></label>
-                        <span class="toggle-desc" id="ticking-desc">Off</span>
-                      </div>
-                    </div>
-                    <div class="s-cell s-cell--wide">
-                      <div class="s-cell-label">SFX Theme</div>
-                      <div class="s-cell-control">
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="sound-theme"
-                            value="chime"
-                            checked
-                          /><span>Chime</span></label
-                        >
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="sound-theme"
-                            value="bell"
-                          /><span>Bell</span></label
-                        >
-                      </div>
-                    </div>
-                  </div>
                 </div>
                 <div class="s-section">
                   <div class="s-section-label">Visual</div>

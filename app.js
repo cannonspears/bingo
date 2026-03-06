@@ -157,6 +157,10 @@ let state = {
 
   activeGenre: "lofi",
 
+  // Custom timer settings (in minutes)
+  customWorkMinutes: null,
+  customBreakMinutes: null,
+
   volMusic: 60,
   scoreWorkToday: 0,
   scoreBreakToday: 0,
@@ -748,9 +752,15 @@ function sendNotification(title, body) {
 
 // ===== TIMER HELPERS =====
 function workMinutes() {
+  if (state.customWorkMinutes !== null && state.customWorkMinutes > 0) {
+    return state.customWorkMinutes;
+  }
   return state.mode === "50/10" ? 50 : 25;
 }
 function breakMinutes() {
+  if (state.customBreakMinutes !== null && state.customBreakMinutes > 0) {
+    return state.customBreakMinutes;
+  }
   return state.mode === "50/10" ? 10 : 5;
 }
 function totalSeconds() {
@@ -803,7 +813,9 @@ self.addEventListener('message',e=>{
       { type: "application/javascript" },
     );
     tickingWorker = new Worker(URL.createObjectURL(tickBlob));
-    tickingWorker.addEventListener("message", () => playTick());
+    tickingWorker.addEventListener("message", async () => {
+      await playTick();
+    });
   } catch (e) {
     console.warn("tickingWorker failed", e);
     tickingWorker = null;
@@ -814,9 +826,17 @@ function startTimer() {
   if (state.running) return;
   state.running = true;
   playStartClick();
-  if (state.phase === "work") startMusic();
   updateTimerUI();
   saveState();
+
+  // Start music after a brief delay to ensure audio context is primed
+  if (state.phase === "work") {
+    setTimeout(() => {
+      if (state.running && state.phase === "work") {
+        startMusic();
+      }
+    }, 100);
+  }
 
   if (timeWorker) {
     timeWorker.onmessage = (e) => {
@@ -828,6 +848,7 @@ function startTimer() {
     timerInterval = setInterval(tick, 1000);
   }
 
+  // Start ticking if enabled on work phase
   if (state.tickingEnabled && state.phase === "work") {
     if (tickingWorker) tickingWorker.postMessage("ticking-start");
   }
@@ -885,21 +906,20 @@ function phaseComplete() {
       "Work session done! ☕",
       `Enjoy your ${breakMinutes()}-minute break.`,
     );
-    showPhaseModal(
-      "☕",
-      `Work session done! Enjoy your ${breakMinutes()}-minute break.`,
-    );
-    // Auto-navigate to Break card
-    goTo(1);
+    // Auto-navigate to Break card only if auto-start is enabled
+    if (state.autoStart) {
+      goTo(1);
+    }
   } else {
     state.breakCount++;
     state.phase = "work";
     state.timeLeft = workMinutes() * 60;
     updateBreakCount();
     sendNotification("Break's over! 💪", "Time to focus.");
-    showPhaseModal("💪", "Break's over! Ready to focus?");
-    // Auto-navigate to Work card
-    goTo(0);
+    // Auto-navigate to Work card only if auto-start is enabled
+    if (state.autoStart) {
+      goTo(0);
+    }
   }
 
   updateTimerUI();
@@ -907,9 +927,8 @@ function phaseComplete() {
 
   if (state.autoStart) {
     setTimeout(() => {
-      document.getElementById("phase-modal").classList.add("hidden");
       startTimer();
-    }, 2000);
+    }, 1000);
   }
 }
 
@@ -1133,6 +1152,95 @@ function initSettings() {
     });
   }
 
+  // Custom work timer (Work card)
+  const customWorkInput = document.getElementById("custom-work-minutes");
+  const btnSetCustomWork = document.getElementById("btn-set-custom-work");
+  if (customWorkInput && btnSetCustomWork) {
+    if (state.customWorkMinutes !== null) {
+      customWorkInput.value = state.customWorkMinutes;
+    }
+    btnSetCustomWork.addEventListener("click", () => {
+      const val = parseInt(customWorkInput.value, 10);
+      if (val > 0 && val <= 180) {
+        state.customWorkMinutes = val;
+        saveState();
+        pauseTimer();
+        state.phase = "work";
+        state.timeLeft = workMinutes() * 60;
+        updateTimerUI();
+      } else {
+        alert("Please enter a value between 1 and 180 minutes");
+      }
+    });
+  }
+
+  // Custom break timer (Work card)
+  const customBreakInputWork = document.getElementById("custom-break-minutes-work");
+  const btnSetCustomBreakWork = document.getElementById("btn-set-custom-break-work");
+  if (customBreakInputWork && btnSetCustomBreakWork) {
+    if (state.customBreakMinutes !== null) {
+      customBreakInputWork.value = state.customBreakMinutes;
+    }
+    btnSetCustomBreakWork.addEventListener("click", () => {
+      const val = parseInt(customBreakInputWork.value, 10);
+      if (val > 0 && val <= 60) {
+        state.customBreakMinutes = val;
+        saveState();
+        pauseTimer();
+        state.phase = "break";
+        state.timeLeft = breakMinutes() * 60;
+        updateTimerUI();
+      } else {
+        alert("Please enter a value between 1 and 60 minutes");
+      }
+    });
+  }
+
+  // Custom work timer (Break card)
+  const customWorkInputBreak = document.getElementById("custom-work-minutes-break");
+  const btnSetCustomWorkBreak = document.getElementById("btn-set-custom-work-break");
+  if (customWorkInputBreak && btnSetCustomWorkBreak) {
+    if (state.customWorkMinutes !== null) {
+      customWorkInputBreak.value = state.customWorkMinutes;
+    }
+    btnSetCustomWorkBreak.addEventListener("click", () => {
+      const val = parseInt(customWorkInputBreak.value, 10);
+      if (val > 0 && val <= 180) {
+        state.customWorkMinutes = val;
+        saveState();
+        pauseTimer();
+        state.phase = "work";
+        state.timeLeft = workMinutes() * 60;
+        updateTimerUI();
+      } else {
+        alert("Please enter a value between 1 and 180 minutes");
+      }
+    });
+  }
+
+  // Custom break timer (Break card)
+  const customBreakInput = document.getElementById("custom-break-minutes");
+  const btnSetCustomBreak = document.getElementById("btn-set-custom-break");
+  if (customBreakInput && btnSetCustomBreak) {
+    if (state.customBreakMinutes !== null) {
+      customBreakInput.value = state.customBreakMinutes;
+    }
+    btnSetCustomBreak.addEventListener("click", () => {
+      const val = parseInt(customBreakInput.value, 10);
+      if (val > 0 && val <= 60) {
+        state.customBreakMinutes = val;
+        saveState();
+        pauseTimer();
+        state.phase = "break";
+        state.timeLeft = breakMinutes() * 60;
+        updateTimerUI();
+      } else {
+        alert("Please enter a value between 1 and 60 minutes");
+      }
+    });
+  }
+
+
   // Reset break board (all tabs)
   const btnResetBreak = document.getElementById("btn-reset-break-board");
   if (btnResetBreak) {
@@ -1320,29 +1428,36 @@ function buildTaskItem(cell, idx, isDone) {
   const icon = document.createElement("div");
   icon.className = "task-item-icon";
   icon.textContent = isDone ? "✓" : "";
-  item.appendChild(icon);
-
-  const text = document.createElement("span");
-  text.className = "task-item-text";
-  text.textContent = cell.text || "Unnamed task";
-  item.appendChild(text);
-
-  if (isDone) {
-    // Undo button for done tasks
-    const undo = document.createElement("button");
-    undo.className = "task-item-undo";
-    undo.textContent = "↩";
-    undo.title = "Mark incomplete";
-    undo.addEventListener("click", (e) => {
-      e.stopPropagation();
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (isDone) {
+      // Undo
       state.workCells[idx].count = 0;
       recalculateScore();
       saveState();
       renderWorkTaskList();
       exitFocusMode();
-    });
-    item.appendChild(undo);
-  } else {
+    } else {
+      // Complete task
+      state.workCells[idx].count = 1;
+      addScore(25, true);
+      showScorePopup(`+25 pts ✓`);
+      saveState();
+      renderWorkTaskList();
+    }
+  });
+  item.appendChild(icon);
+
+  const text = document.createElement("span");
+  text.className = "task-item-text";
+  text.textContent = cell.text || "Unnamed task";
+  text.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!isDone) startEditingTask(idx, text);
+  });
+  item.appendChild(text);
+
+  if (!isDone) {
     // Focus hint
     const hint = document.createElement("span");
     hint.className = "task-item-focus-hint";
@@ -1365,6 +1480,32 @@ function buildTaskItem(cell, idx, isDone) {
   }
 
   return item;
+}
+
+function startEditingTask(idx, textElement) {
+  const cell = state.workCells[idx];
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = cell.text;
+  input.maxLength = 80;
+  input.className = "task-item-text-edit";
+  
+  textElement.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function saveEdit() {
+    cell.text = input.value.trim() || "Unnamed task";
+    saveState();
+    renderWorkTaskList();
+  }
+
+  input.addEventListener("blur", saveEdit);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      saveEdit();
+    }
+  });
 }
 
 // ===== FOCUS MODE =====
