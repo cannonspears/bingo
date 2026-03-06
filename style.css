@@ -318,11 +318,27 @@ body.dark .card-title {
   transition: opacity 0.3s;
 }
 .timer-block.timer-dimmed {
-  opacity: 0.35;
+  /* Use position/overlay technique instead of opacity to dim background while keeping content bright */
+  position: relative;
+}
+.timer-block.timer-dimmed::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.65);
   pointer-events: none;
+  border-radius: 0;
+  z-index: 0;
+}
+.timer-block.timer-dimmed > * {
+  position: relative;
+  z-index: 1;
 }
 #timer-block-break.timer-dimmed .phase-counter-row {
-  opacity: 1 / 0.35; /* cancel parent */
+  opacity: 1; /* Already bright from overlay technique */
 }
 
 .phase-label {
@@ -396,6 +412,7 @@ body.dark .card-title {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
+  pointer-events: auto;
 }
 .btn-primary:hover:not(:disabled) {
   background: #a63224;
@@ -424,6 +441,7 @@ body.dark .card-title {
   font-size: 0.84rem;
   cursor: pointer;
   transition: all 0.15s;
+  pointer-events: auto;
 }
 .btn-sec:hover {
   border-color: var(--muted);
@@ -1468,6 +1486,13 @@ body.dark .bnav {
   padding: 0 7px;
   letter-spacing: 0.5px;
   font-weight: 600;
+}
+
+.customize-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .customize-actions button {

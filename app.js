@@ -997,14 +997,16 @@ function updateTimerUI() {
     el.classList.toggle("running", isRunning);
   });
 
-  // Buttons
+  // Buttons - enable pause on any card if timer is running, enable start on any card if timer is not running
   const btnStarts = document.querySelectorAll(".btn-start");
   const btnPauses = document.querySelectorAll(".btn-pause");
   btnStarts.forEach((b) => {
+    // Only disable Start if timer is already running
     b.disabled = isRunning;
     b.classList.toggle("break-mode", !isWork);
   });
   btnPauses.forEach((b) => {
+    // Only disable Pause if timer is not running
     b.disabled = !isRunning;
     b.classList.toggle("break-mode", !isWork);
   });
@@ -1061,7 +1063,9 @@ function initSettings() {
   document.querySelectorAll("input[name='pomo-mode-work'], input[name='pomo-mode-break']").forEach((radio) => {
     if (radio.value === state.mode) radio.checked = true;
     radio.addEventListener("change", (e) => {
-      if (e.target.checked) syncTimerMode(e.target.value);
+      if (e.target.checked) {
+        syncTimerMode(e.target.value);
+      }
     });
   });
 
@@ -1095,6 +1099,12 @@ function initSettings() {
         ? "Off"
         : "On";
       applyMusicVolume();
+      
+      // If turning music on during active work session, start music
+      if (!state.mutedMusic && state.running && state.phase === "work" && !musicAudio) {
+        startMusic();
+      }
+      
       saveState();
     });
   }
@@ -1338,6 +1348,23 @@ function initSettings() {
         state.scoreWorkAllTimeBase = state.scoreBreakAllTimeBase = 0;
         saveState();
         updateScoreUI();
+      }
+    });
+  }
+
+  // Wipe all data (scores, tasks, break activities, everything)
+  const btnWipeAllData = document.getElementById("btn-wipe-all-data");
+  if (btnWipeAllData) {
+    btnWipeAllData.addEventListener("click", () => {
+      if (
+        confirm(
+          "This will delete EVERYTHING — all scores, tasks, bingo boards, and settings. This cannot be undone. Are you sure?",
+        )
+      ) {
+        // Reset to default state
+        localStorage.removeItem("bingoBreakState2");
+        // Reload the page to reinitialize
+        window.location.reload();
       }
     });
   }
@@ -2031,6 +2058,9 @@ function initBottomNav() {
 
 function initKeyboard() {
   document.addEventListener("keydown", (e) => {
+    // Don't navigate if user is editing a task input field
+    if (e.target.classList.contains("task-item-text-edit")) return;
+    
     if (e.key === "ArrowRight") goTo((activeCard + 1) % CARD_COUNT, 1);
     if (e.key === "ArrowLeft")
       goTo((activeCard - 1 + CARD_COUNT) % CARD_COUNT, -1);
@@ -2119,7 +2149,16 @@ function onPointerMove(e) {
   drag.lastT = now;
   drag.currentX = dx;
   const topCard = cards()[deckOrder[0]];
-  topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
+  
+  // Different behaviors for left/right drag
+  if (dx > 0) {
+    // Left to right: slide the card out
+    topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
+  } else {
+    // Right to left: rotate card to peek the back (rotateY for 3D flip effect)
+    const peekRotation = Math.max(-90, dx * 0.5); // Max 90deg rotation (full flip at -180px)
+    topCard.style.transform = `perspective(1000px) rotateY(${peekRotation}deg)`;
+  }
 }
 
 function onPointerUp() {
@@ -2127,19 +2166,43 @@ function onPointerUp() {
   const topCard = cards()[deckOrder[0]];
   const dx = drag.currentX,
     vel = drag.velocityX;
-  const didDrag = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
+  const cardIdx = deckOrder[0];
+  
   topCard.classList.add("animating");
-  if (didDrag) {
-    const exitX = dx >= 0 ? "110vw" : "-110vw",
-      exitRot = dx >= 0 ? "8deg" : "-8deg";
-    topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
-    setTimeout(() => {
-      topCard.style.transform = "";
-      goTo((activeCard + 1) % CARD_COUNT, 1);
-    }, 180);
+  
+  if (dx > 0) {
+    // Left to right drag -> navigate to next card
+    const didDrag = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
+    if (didDrag) {
+      const exitX = "110vw",
+        exitRot = "8deg";
+      topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
+      setTimeout(() => {
+        topCard.style.transform = "";
+        goTo((activeCard + 1) % CARD_COUNT, 1);
+      }, 180);
+    } else {
+      topCard.style.transform = transformForDepth(0);
+    }
   } else {
-    topCard.style.transform = transformForDepth(0);
+    // Right to left drag -> peek and flip threshold
+    // Threshold: if dragged more than 80px to the left, commit to flip
+    const flipThreshold = 80;
+    const shouldFlip = Math.abs(dx) > flipThreshold || Math.abs(vel) > 0.4;
+    
+    if (shouldFlip) {
+      // Animate to full 180 degree rotation
+      topCard.style.transform = `perspective(1000px) rotateY(-180deg)`;
+      setTimeout(() => {
+        flipCard(cardIdx);
+        topCard.style.transform = transformForDepth(0);
+      }, 300);
+    } else {
+      // Snap back to original position
+      topCard.style.transform = transformForDepth(0);
+    }
   }
+  
   drag = null;
 }
 
@@ -2168,16 +2231,25 @@ async function init() {
   };
   document.addEventListener("pointerdown", primeOnce);
 
-  // Timer buttons
+  // Timer buttons - now global, work from any card
   document
     .querySelectorAll(".btn-start")
-    .forEach((btn) => btn.addEventListener("click", startTimer));
+    .forEach((btn) => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startTimer();
+    }));
   document
     .querySelectorAll(".btn-pause")
-    .forEach((btn) => btn.addEventListener("click", pauseTimer));
+    .forEach((btn) => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      pauseTimer();
+    }));
   document
     .querySelectorAll(".btn-reset")
-    .forEach((btn) => btn.addEventListener("click", () => resetTimer(true)));
+    .forEach((btn) => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      resetTimer(true);
+    }));
 
   // Settings
   initSettings();
