@@ -1045,11 +1045,23 @@ function applyDarkMode(enabled) {
 }
 
 function initSettings() {
-  // Timer mode
-  document.querySelectorAll("input[name='pomo-mode']").forEach((radio) => {
+  // Timer mode - sync both cards with unique names
+  const syncTimerMode = (mode) => {
+    state.mode = mode;
+    document.querySelectorAll("input[name='pomo-mode-work'], input[name='pomo-mode-break']").forEach((radio) => {
+      radio.checked = (radio.value === mode);
+    });
+    pauseTimer();
+    state.phase = "work";
+    state.timeLeft = workMinutes() * 60;
+    updateTimerUI();
+    saveState();
+  };
+  
+  document.querySelectorAll("input[name='pomo-mode-work'], input[name='pomo-mode-break']").forEach((radio) => {
     if (radio.value === state.mode) radio.checked = true;
     radio.addEventListener("change", (e) => {
-      if (e.target.checked) applyMode(e.target.value);
+      if (e.target.checked) syncTimerMode(e.target.value);
     });
   });
 
@@ -1124,21 +1136,40 @@ function initSettings() {
     });
   }
 
-  // Auto-start
-  const toggleAutostart = document.getElementById("toggle-autostart");
-  if (toggleAutostart) {
-    toggleAutostart.checked = state.autoStart;
-    document.getElementById("autostart-desc").textContent = state.autoStart
-      ? "On"
-      : "Off";
-    toggleAutostart.addEventListener("change", () => {
-      state.autoStart = toggleAutostart.checked;
-      document.getElementById("autostart-desc").textContent = state.autoStart
-        ? "On"
-        : "Off";
-      saveState();
+  // Auto-start - sync both cards with unique IDs
+  const syncAutoStart = (enabled) => {
+    state.autoStart = enabled;
+    const workToggle = document.getElementById("toggle-autostart-work");
+    const breakToggle = document.getElementById("toggle-autostart-break");
+    const workDesc = document.getElementById("autostart-desc-work");
+    const breakDesc = document.getElementById("autostart-desc-break");
+    
+    if (workToggle) workToggle.checked = enabled;
+    if (breakToggle) breakToggle.checked = enabled;
+    if (workDesc) workDesc.textContent = enabled ? "On" : "Off";
+    if (breakDesc) breakDesc.textContent = enabled ? "On" : "Off";
+    saveState();
+  };
+
+  const toggleAutostartWork = document.getElementById("toggle-autostart-work");
+  const toggleAutostartBreak = document.getElementById("toggle-autostart-break");
+  
+  if (toggleAutostartWork) {
+    toggleAutostartWork.checked = state.autoStart;
+    toggleAutostartWork.addEventListener("change", () => {
+      syncAutoStart(toggleAutostartWork.checked);
     });
   }
+  
+  if (toggleAutostartBreak) {
+    toggleAutostartBreak.checked = state.autoStart;
+    toggleAutostartBreak.addEventListener("change", () => {
+      syncAutoStart(toggleAutostartBreak.checked);
+    });
+  }
+  
+  // Initial sync of auto-start display
+  syncAutoStart(state.autoStart);
 
   // Dark mode
   const toggleDark = document.getElementById("toggle-darkmode");
@@ -1152,17 +1183,43 @@ function initSettings() {
     });
   }
 
-  // Custom work timer (Work card)
-  const customWorkInput = document.getElementById("custom-work-minutes");
+  // Custom work timer - sync between both cards
+  const customWorkInputWork = document.getElementById("custom-work-minutes");
+  const customWorkInputBreak = document.getElementById("custom-work-minutes-break");
   const btnSetCustomWork = document.getElementById("btn-set-custom-work");
-  if (customWorkInput && btnSetCustomWork) {
+  const btnSetCustomWorkBreak = document.getElementById("btn-set-custom-work-break");
+  
+  function updateCustomWorkInputs() {
     if (state.customWorkMinutes !== null) {
-      customWorkInput.value = state.customWorkMinutes;
+      if (customWorkInputWork) customWorkInputWork.value = state.customWorkMinutes;
+      if (customWorkInputBreak) customWorkInputBreak.value = state.customWorkMinutes;
     }
+  }
+  
+  updateCustomWorkInputs();
+  
+  if (btnSetCustomWork) {
     btnSetCustomWork.addEventListener("click", () => {
-      const val = parseInt(customWorkInput.value, 10);
+      const val = parseInt(customWorkInputWork?.value, 10);
       if (val > 0 && val <= 180) {
         state.customWorkMinutes = val;
+        updateCustomWorkInputs();
+        saveState();
+        pauseTimer();
+        state.phase = "work";
+        state.timeLeft = workMinutes() * 60;
+        updateTimerUI();
+      } else {
+        alert("Please enter a value between 1 and 180 minutes");
+      }
+    });
+  }
+  if (btnSetCustomWorkBreak) {
+    btnSetCustomWorkBreak.addEventListener("click", () => {
+      const val = parseInt(customWorkInputBreak?.value, 10);
+      if (val > 0 && val <= 180) {
+        state.customWorkMinutes = val;
+        updateCustomWorkInputs();
         saveState();
         pauseTimer();
         state.phase = "work";
@@ -1174,17 +1231,27 @@ function initSettings() {
     });
   }
 
-  // Custom break timer (Work card)
+  // Custom break timer - sync between both cards
   const customBreakInputWork = document.getElementById("custom-break-minutes-work");
+  const customBreakInputBreak = document.getElementById("custom-break-minutes");
   const btnSetCustomBreakWork = document.getElementById("btn-set-custom-break-work");
-  if (customBreakInputWork && btnSetCustomBreakWork) {
+  const btnSetCustomBreak = document.getElementById("btn-set-custom-break");
+  
+  function updateCustomBreakInputs() {
     if (state.customBreakMinutes !== null) {
-      customBreakInputWork.value = state.customBreakMinutes;
+      if (customBreakInputWork) customBreakInputWork.value = state.customBreakMinutes;
+      if (customBreakInputBreak) customBreakInputBreak.value = state.customBreakMinutes;
     }
+  }
+  
+  updateCustomBreakInputs();
+  
+  if (btnSetCustomBreakWork) {
     btnSetCustomBreakWork.addEventListener("click", () => {
-      const val = parseInt(customBreakInputWork.value, 10);
+      const val = parseInt(customBreakInputWork?.value, 10);
       if (val > 0 && val <= 60) {
         state.customBreakMinutes = val;
+        updateCustomBreakInputs();
         saveState();
         pauseTimer();
         state.phase = "break";
@@ -1195,40 +1262,12 @@ function initSettings() {
       }
     });
   }
-
-  // Custom work timer (Break card)
-  const customWorkInputBreak = document.getElementById("custom-work-minutes-break");
-  const btnSetCustomWorkBreak = document.getElementById("btn-set-custom-work-break");
-  if (customWorkInputBreak && btnSetCustomWorkBreak) {
-    if (state.customWorkMinutes !== null) {
-      customWorkInputBreak.value = state.customWorkMinutes;
-    }
-    btnSetCustomWorkBreak.addEventListener("click", () => {
-      const val = parseInt(customWorkInputBreak.value, 10);
-      if (val > 0 && val <= 180) {
-        state.customWorkMinutes = val;
-        saveState();
-        pauseTimer();
-        state.phase = "work";
-        state.timeLeft = workMinutes() * 60;
-        updateTimerUI();
-      } else {
-        alert("Please enter a value between 1 and 180 minutes");
-      }
-    });
-  }
-
-  // Custom break timer (Break card)
-  const customBreakInput = document.getElementById("custom-break-minutes");
-  const btnSetCustomBreak = document.getElementById("btn-set-custom-break");
-  if (customBreakInput && btnSetCustomBreak) {
-    if (state.customBreakMinutes !== null) {
-      customBreakInput.value = state.customBreakMinutes;
-    }
+  if (btnSetCustomBreak) {
     btnSetCustomBreak.addEventListener("click", () => {
-      const val = parseInt(customBreakInput.value, 10);
+      const val = parseInt(customBreakInputBreak?.value, 10);
       if (val > 0 && val <= 60) {
         state.customBreakMinutes = val;
+        updateCustomBreakInputs();
         saveState();
         pauseTimer();
         state.phase = "break";
