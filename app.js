@@ -2093,10 +2093,20 @@ function flipCard(cardIdx) {
   if (flippedCards.has(cardIdx)) {
     flippedCards.delete(cardIdx);
     card.classList.remove("flipped");
+    card.classList.remove("drag-flip");
   } else {
     flippedCards.add(cardIdx);
     card.classList.add("flipped");
+    card.classList.remove("drag-flip");
   }
+}
+
+function dragFlipCard(cardIdx) {
+  const card = document.querySelector(`.card[data-card="${cardIdx}"]`);
+  if (!card) return;
+  
+  // Just use the regular flipCard function
+  flipCard(cardIdx);
 }
 
 function initFlipCorners() {
@@ -2155,9 +2165,10 @@ function onPointerMove(e) {
     // Left to right: slide the card out
     topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
   } else {
-    // Right to left: rotate card to peek the back (rotateY for 3D flip effect)
-    const peekRotation = Math.max(-90, dx * 0.5); // Max 90deg rotation (full flip at -180px)
-    topCard.style.transform = `perspective(1000px) rotateY(${peekRotation}deg)`;
+    // Right to left: scale the card slightly to show peek effect without mirroring
+    // Use scale to indicate the drag is happening, but don't rotate/mirror
+    const scaleAmount = Math.max(0.95, 1 + dx * 0.0005); // Slight scale down as you drag
+    topCard.style.transform = `scale(${scaleAmount})`;
   }
 }
 
@@ -2191,16 +2202,11 @@ function onPointerUp() {
     const shouldFlip = Math.abs(dx) > flipThreshold || Math.abs(vel) > 0.4;
     
     if (shouldFlip) {
-      // Animate to full 180 degree rotation
-      topCard.style.transform = `perspective(1000px) rotateY(-180deg)`;
-      setTimeout(() => {
-        flipCard(cardIdx);
-        topCard.style.transform = transformForDepth(0);
-      }, 300);
-    } else {
-      // Snap back to original position
-      topCard.style.transform = transformForDepth(0);
+      // Use dragFlipCard which flips from the right side
+      dragFlipCard(cardIdx);
     }
+    // Always reset transform back to original position
+    topCard.style.transform = transformForDepth(0);
   }
   
   drag = null;
