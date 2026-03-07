@@ -35,25 +35,11 @@
     "url": "https://alplus.io/sunflower"
   },
   {
-    "file": "Dreamscape.mp3",
-    "title": "Dreamscape",
-    "artist": "Audio Library Beats Group",
-    "license": "Music provided by Audio Library Plus",
-    "url": "https://alplus.io/dreamscape"
-  },
-  {
     "file": "For You.mp3",
     "title": "For You",
     "artist": "Audio Library Beats Group",
     "license": "Music provided by Audio Library Plus",
     "url": "https://alplus.io/you"
-  },
-  {
-    "file": "Lisbon.mp3",
-    "title": "Lisbon",
-    "artist": "Audio Library Beats Group",
-    "license": "Music provided by Audio Library Plus",
-    "url": "https://alplus.io/lisbon"
   },
   {
     "file": "ジャジーナイト (Jazzy Night).mp3",
@@ -68,5 +54,82 @@
     "artist": "Audio Library Beats Group",
     "license": "Music provided by Audio Library Plus",
     "url": "https://alplus.io/blossom"
+  },
+  {
+    "file": "Afternoon Tea.mp3",
+    "title": "Afternoon Tea",
+    "artist": "kyu & Hicks",
+    "license": "Music provided by Tama’s Little Music Shop",
+    "url": "https://lofihiphop.de/afternoontea"
+  },
+  {
+    "file": "Oregon.mp3",
+    "title": "Oregon",
+    "artist": "Bert",
+    "license": "Music provided by beatsbybert",
+    "url": "https://soundcloud.com/beatsbybert"
+  },
+  {
+    "file": "Naps.mp3",
+    "title": "Naps",
+    "artist": "Moone.wav",
+    "license": "Music provided by Moone.wav",
+    "url": "https://soundcloud.com/moone81"
+  },
+  {
+    "file": "Ooh.mp3",
+    "title": "Ooh",
+    "artist": "Will McInnis",
+    "license": "Music provided by Will McInnis",
+    "url": "https://www.youtube.com/@willmcinnis2256"
+  },
+  {
+    "file": "Only.mp3",
+    "title": "Only",
+    "artist": "Will McInnis",
+    "license": "Music provided by Will McInnis",
+    "url": "https://www.youtube.com/@willmcinnis2256"
+  },
+  {
+    "file": "Title Sequence.mp3",
+    "title": "Title Sequence",
+    "artist": "Will McInnis",
+    "license": "Music provided by Will McInnis",
+    "url": "https://www.youtube.com/@willmcinnis2256"
+  },
+  {
+    "file": "Stars.mp3",
+    "title": "Stars",
+    "artist": "Tim Diedrich",
+    "license": "Music provided by Tim Diedrich",
+    "url": "https://www.youtube.com/@timdiedrichmusic"
+  },
+  {
+    "file": "Serenity.mp3",
+    "title": "Serenity",
+    "artist": "Tim Diedrich",
+    "license": "Music provided by Tim Diedrich",
+    "url": "https://www.youtube.com/@timdiedrichmusic"
+  },
+  {
+    "file": "Jasmine.wav",
+    "title": "Jasmine",
+    "artist": "Tim Diedrich",
+    "license": "Music provided by Tim Diedrich",
+    "url": "https://www.youtube.com/@timdiedrichmusic"
+  },
+  {
+    "file": "Fading Sun.wav",
+    "title": "Fading Sun",
+    "artist": "Tim Diedrich",
+    "license": "Music provided by Tim Diedrich",
+    "url": "https://www.youtube.com/@timdiedrichmusic"
+  },
+  {
+    "file": "Evening Stroll.wav",
+    "title": "Evening Stroll",
+    "artist": "Tim Diedrich",
+    "license": "Music provided by Tim Diedrich",
+    "url": "https://www.youtube.com/@timdiedrichmusic"
   }
 ]
