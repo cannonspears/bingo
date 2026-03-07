@@ -53,6 +53,11 @@ body.dark {
   user-select: text;
 }
 
+/* ===== UTILITY CLASSES ===== */
+.hidden {
+  display: none !important;
+}
+
 /* ===== APP ZONE ===== */
 #app-zone {
   height: 100dvh;
@@ -971,11 +976,65 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   font-style: italic;
 }
 
+/* Player controls */
+.player-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.player-btn {
+  background: var(--card-bg-secondary, #f8f6fc);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+.player-btn:hover {
+  background: var(--border);
+  transform: scale(1.05);
+}
+.player-btn:active {
+  transform: scale(0.95);
+}
+.player-btn-primary {
+  background: var(--genre-color, var(--c-music));
+  color: white;
+  border-color: var(--genre-color, var(--c-music));
+  font-weight: 600;
+}
+.player-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--genre-color, var(--c-music));
+}
+.player-btn-disabled {
+  background: #e8e6ed;
+  color: #a89abc;
+  border-color: #ddd8ce;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.player-btn-disabled:hover {
+  background: #e8e6ed;
+  transform: none;
+}
+.player-btn-disabled:active {
+  transform: none;
+}
+
 /* Genre mood display */
 .genre-mood-display {
   background: var(--genre-bg, #f0ebff);
   border-radius: 12px;
   padding: 16px 18px;
+  margin-top: 12px;
   margin-bottom: 12px;
   transition: background 0.4s;
 }

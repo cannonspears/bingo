@@ -511,18 +511,53 @@
                     <span id="np-license" class="np-license"></span>
                   </div>
                 </div>
-                <div class="genre-mood-display" id="genre-mood">
-                  <div class="genre-mood-name" id="genre-mood-name">Lo-Fi</div>
-                  <div class="genre-mood-desc" id="genre-mood-desc">
-                    Mellow beats for sustained focus
+                <div class="player-controls">
+                  <button id="btn-play" class="player-btn player-btn-primary" title="Play">▶</button>
+                  <button id="btn-pause" class="player-btn player-btn-disabled" disabled title="Pause">⏸</button>
+                  <button id="btn-next-track" class="player-btn" title="Next track">⏭</button>
+                </div>
+                <div class="genre-mood-display" id="genre-mood-lofi" data-genre="lofi">
+                  <div class="genre-mood-name">Lo-Fi</div>
+                  <div class="genre-mood-desc">Mellow beats for sustained focus</div>
+                  <div class="genre-waveform">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
                   </div>
+                </div>
+                <div class="genre-mood-display hidden" id="genre-mood-guitar" data-genre="guitar">
+                  <div class="genre-mood-name">Guitar</div>
+                  <div class="genre-mood-desc">Warm acoustic tones to keep you grounded</div>
+                  <div class="genre-waveform">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="genre-mood-display hidden" id="genre-mood-classical" data-genre="classical">
+                  <div class="genre-mood-name">Classical</div>
+                  <div class="genre-mood-desc">Timeless compositions for deep thinking</div>
+                  <div class="genre-waveform">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="genre-mood-display hidden" id="genre-mood-ambient" data-genre="ambient">
+                  <div class="genre-mood-name">Ambient</div>
+                  <div class="genre-mood-desc">Atmospheric soundscapes for flow state</div>
+                  <div class="genre-waveform">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="genre-mood-display hidden" id="genre-mood-piano" data-genre="piano">
+                  <div class="genre-mood-name">Piano</div>
+                  <div class="genre-mood-desc">Solo piano for calm, steady work</div>
                   <div class="genre-waveform">
                     <span></span><span></span><span></span><span></span>
                     <span></span><span></span><span></span><span></span>
                   </div>
                 </div>
                 <p class="music-note">
-                  Music plays automatically during work sessions.
+                  Use the play button to start music during work sessions.
                 </p>
               </div>
             </div>

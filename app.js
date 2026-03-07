@@ -156,6 +156,7 @@ let state = {
   soundTheme: "chime",
 
   activeGenre: "lofi",
+  musicPlaying: false,
 
   // Custom timer settings (in minutes)
   customWorkMinutes: null,
@@ -537,6 +538,7 @@ async function playTick() {
 let genreTracks = {};
 let shuffleQueue = [];
 let musicAudio = null;
+let lastPlayedTrack = null;
 
 async function loadAllManifests() {
   await Promise.all(
@@ -570,7 +572,14 @@ function currentGenreTracks() {
 }
 
 function buildShuffleQueue() {
-  const arr = [...currentGenreTracks()];
+  let arr = [...currentGenreTracks()];
+  
+  // Remove the last played track from the shuffle if it exists
+  if (lastPlayedTrack) {
+    arr = arr.filter(track => track.file !== lastPlayedTrack.file);
+  }
+  
+  // Fisher-Yates shuffle
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -581,7 +590,9 @@ function buildShuffleQueue() {
 function pickNextTrack() {
   if (!currentGenreTracks().length) return null;
   if (!shuffleQueue.length) buildShuffleQueue();
-  return shuffleQueue.shift();
+  const track = shuffleQueue.shift();
+  lastPlayedTrack = track;
+  return track;
 }
 
 function updateNowPlaying(track) {
@@ -631,26 +642,34 @@ function startMusic(fromEnded = false) {
   audio.onerror = () => {
     if (musicAudio === audio) {
       musicAudio = null;
+      state.musicPlaying = false;
       updateNowPlaying(null);
+      updatePlayPauseButtons();
     }
   };
   audio.addEventListener("ended", () => {
     if (musicAudio !== audio) return;
     musicAudio = null;
+    state.musicPlaying = false;
+    updatePlayPauseButtons();
     if (state.running && state.phase === "work") startMusic(true);
   });
   audio
     .play()
     .then(() => {
       // Only update UI once playback actually starts
+      state.musicPlaying = true;
       updateNowPlaying(track);
       fadeInMusic();
+      updatePlayPauseButtons();
     })
     .catch((e) => {
       console.warn("Music playback failed:", e);
       if (musicAudio === audio) {
         musicAudio = null;
+        state.musicPlaying = false;
         updateNowPlaying(null);
+        updatePlayPauseButtons();
       }
     });
 }
@@ -679,7 +698,94 @@ function stopMusic() {
     musicAudio.src = "";
     musicAudio = null;
   }
+  state.musicPlaying = false;
   updateNowPlaying(null);
+  updatePlayPauseButtons();
+}
+
+function pauseMusic() {
+  if (musicAudio) {
+    musicAudio.pause();
+    state.musicPlaying = false;
+    updatePlayPauseButtons();
+  }
+}
+
+function resumeMusic() {
+  if (musicAudio) {
+    musicAudio.play().then(() => {
+      state.musicPlaying = true;
+      updatePlayPauseButtons();
+    }).catch((e) => {
+      console.warn("Music resume failed:", e);
+      state.musicPlaying = false;
+      updatePlayPauseButtons();
+    });
+  }
+}
+
+function togglePlayPause() {
+  if (!musicAudio) {
+    // No music playing, start it (works anytime, not just during work)
+    startMusic();
+  } else if (musicAudio.paused) {
+    resumeMusic();
+  } else {
+    pauseMusic();
+  }
+  updatePlayPauseButtons();
+}
+
+function skipToNextTrack() {
+  // Skip to next track anytime, not just during work sessions
+  if (musicAudio) {
+    musicAudio.pause();
+    musicAudio.src = "";
+    musicAudio = null;
+  }
+  startMusic();
+}
+
+function skipToPreviousTrack() {
+  // Replay current track from beginning, or skip to next
+  if (musicAudio && musicAudio.currentTime > 3) {
+    musicAudio.currentTime = 0;
+  } else {
+    skipToNextTrack();
+  }
+}
+
+function updatePlayPauseButtons() {
+  const playBtn = document.getElementById("btn-play");
+  const pauseBtn = document.getElementById("btn-pause");
+  
+  if (!playBtn || !pauseBtn) return;
+  
+  // If music is playing, disable play and enable pause
+  if (state.musicPlaying && musicAudio && !musicAudio.paused) {
+    playBtn.disabled = true;
+    playBtn.classList.add("player-btn-disabled");
+    pauseBtn.disabled = false;
+    pauseBtn.classList.remove("player-btn-disabled");
+  } else {
+    // Otherwise, enable play and disable pause
+    playBtn.disabled = false;
+    playBtn.classList.remove("player-btn-disabled");
+    pauseBtn.disabled = true;
+    pauseBtn.classList.add("player-btn-disabled");
+  }
+}
+
+function playMusic() {
+  if (!musicAudio) {
+    startMusic();
+  } else {
+    resumeMusic();
+  }
+}
+
+function stopMusicPlayback() {
+  pauseMusic();
 }
 
 function applyMusicVolume() {
@@ -688,21 +794,33 @@ function applyMusicVolume() {
 }
 
 function switchGenre(genre) {
+  // Check if music is currently playing before switching
+  const wasPlaying = state.musicPlaying;
+  
   state.activeGenre = genre;
   saveState();
   applyGenreTheme(genre);
   updateGenreButtons();
-  // Restart music if currently playing work session
-  if (state.running && state.phase === "work") {
-    stopMusic();
-    buildShuffleQueue();
+  
+  // Rebuild shuffle queue for new genre
+  buildShuffleQueue();
+  
+  // Always clear the current audio when switching genres
+  if (musicAudio) {
+    musicAudio.pause();
+    musicAudio.src = "";
+    musicAudio = null;
+  }
+  
+  // If music was playing, start playing the new genre
+  if (wasPlaying) {
     startMusic();
   }
 }
 
 function applyGenreTheme(genre) {
   const meta = GENRE_META[genre] || GENRE_META.lofi;
-  const card = document.querySelector(".card-music");
+  const card = document.querySelector(".card-audio");
   if (!card) return;
   card.style.setProperty("--genre-color", meta.color);
   card.style.setProperty("--genre-bg", meta.bg);
@@ -710,13 +828,16 @@ function applyGenreTheme(genre) {
   document.documentElement.style.setProperty("--genre-color", meta.color);
   document.documentElement.style.setProperty("--genre-bg", meta.bg);
   // Update stripe color
-  const stripe = card.querySelector(".card-stripe-music");
+  const stripe = card.querySelector(".card-stripe-audio");
   if (stripe) stripe.style.background = meta.color;
-  // Update mood display
-  const moodName = document.getElementById("genre-mood-name");
-  const moodDesc = document.getElementById("genre-mood-desc");
-  if (moodName) moodName.textContent = meta.label;
-  if (moodDesc) moodDesc.textContent = meta.desc;
+  // Show/hide genre mood displays
+  document.querySelectorAll(".genre-mood-display").forEach((el) => {
+    if (el.dataset.genre === genre) {
+      el.classList.remove("hidden");
+    } else {
+      el.classList.add("hidden");
+    }
+  });
   // Tint now-playing icon
   const npIcon = document.getElementById("np-icon");
   if (npIcon) npIcon.style.color = meta.color;
@@ -829,14 +950,7 @@ function startTimer() {
   updateTimerUI();
   saveState();
 
-  // Start music after a brief delay to ensure audio context is primed
-  if (state.phase === "work") {
-    setTimeout(() => {
-      if (state.running && state.phase === "work") {
-        startMusic();
-      }
-    }, 100);
-  }
+  // Music now only starts via player controls, not automatically
 
   if (timeWorker) {
     timeWorker.onmessage = (e) => {
@@ -2334,6 +2448,24 @@ async function init() {
   document.querySelectorAll(".genre-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchGenre(btn.dataset.genre));
   });
+
+  // Player control buttons
+  const btnPlay = document.getElementById("btn-play");
+  const btnPause = document.getElementById("btn-pause");
+  const btnNextTrack = document.getElementById("btn-next-track");
+
+  if (btnPlay) {
+    btnPlay.addEventListener("click", playMusic);
+  }
+  if (btnPause) {
+    btnPause.addEventListener("click", stopMusicPlayback);
+  }
+  if (btnNextTrack) {
+    btnNextTrack.addEventListener("click", skipToNextTrack);
+  }
+
+  // Initialize play/pause button states
+  updatePlayPauseButtons();
 
   // Deck engine
   layoutDeck(false);
