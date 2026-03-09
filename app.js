@@ -1909,7 +1909,6 @@ function renderHistoryChart() {
 }
 
 function toggleCell(index) {
-  // isWork param kept for compatibility but work now uses completeCurrentFocusTask
   const tab = state.activeBreakTab;
   const cells = state.breakTabs[tab];
   const cell = cells[index];
@@ -1929,11 +1928,6 @@ function toggleCell(index) {
   checkAndAwardBreakLines(tab);
   
   saveState();
-}
-
-function checkBingo() {
-  // This function is now integrated into checkAndAwardBreakLines()
-  // Kept for compatibility - does nothing
 }
 
 function showLineAnimation(line, completionNum, isBlackout = false) {
@@ -1974,10 +1968,6 @@ function showBlackoutAnimation() {
       }, 3000);
     });
   }, 50);
-}
-
-function showBingoModal() {
-  // Modal removed - using animations instead
 }
 
 // ===== CUSTOMIZE MODALS =====
