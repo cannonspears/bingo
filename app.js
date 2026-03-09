@@ -173,9 +173,8 @@ let state = {
   scoreBreakAllTimeBase: 0,
 
   // Per-tab break line/blackout tracking
-  awardedBreakLines: { all: [], body: [], mind: [], home: [] },
-  celebratedBreakLines: { all: [], body: [], mind: [], home: [] },
-  blackoutBreakAwarded: { all: false, body: false, mind: false, home: false },
+  lineCompletions: { all: {}, body: {}, mind: {}, home: {} },
+  blackoutCompletions: { all: 0, body: 0, mind: 0, home: 0 },
 };
 
 let timerInterval = null;
@@ -231,33 +230,24 @@ function loadState() {
 
   // Per-tab line tracking
   if (
-    !state.awardedBreakLines ||
-    typeof state.awardedBreakLines !== "object" ||
-    Array.isArray(state.awardedBreakLines)
+    !state.lineCompletions ||
+    typeof state.lineCompletions !== "object" ||
+    Array.isArray(state.lineCompletions)
   ) {
-    state.awardedBreakLines = { body: [], mind: [], home: [] };
+    state.lineCompletions = { all: {}, body: {}, mind: {}, home: {} };
   }
   if (
-    !state.celebratedBreakLines ||
-    typeof state.celebratedBreakLines !== "object" ||
-    Array.isArray(state.celebratedBreakLines)
+    !state.blackoutCompletions ||
+    typeof state.blackoutCompletions !== "object" ||
+    Array.isArray(state.blackoutCompletions)
   ) {
-    state.celebratedBreakLines = { body: [], mind: [], home: [] };
-  }
-  if (
-    !state.blackoutBreakAwarded ||
-    typeof state.blackoutBreakAwarded !== "object" ||
-    Array.isArray(state.blackoutBreakAwarded)
-  ) {
-    state.blackoutBreakAwarded = { body: false, mind: false, home: false };
+    state.blackoutCompletions = { all: 0, body: 0, mind: 0, home: 0 };
   }
   TABS.forEach((tab) => {
-    if (!Array.isArray(state.awardedBreakLines[tab]))
-      state.awardedBreakLines[tab] = [];
-    if (!Array.isArray(state.celebratedBreakLines[tab]))
-      state.celebratedBreakLines[tab] = [];
-    if (typeof state.blackoutBreakAwarded[tab] !== "boolean")
-      state.blackoutBreakAwarded[tab] = false;
+    if (typeof state.lineCompletions[tab] !== "object" || Array.isArray(state.lineCompletions[tab]))
+      state.lineCompletions[tab] = {};
+    if (typeof state.blackoutCompletions[tab] !== "number")
+      state.blackoutCompletions[tab] = 0;
   });
 
   if (!Array.isArray(state.scoreHistory)) state.scoreHistory = [];
@@ -303,9 +293,8 @@ function loadState() {
 
     // Reset all break tabs
     TABS.forEach((tab) => {
-      state.awardedBreakLines[tab] = [];
-      state.celebratedBreakLines[tab] = [];
-      state.blackoutBreakAwarded[tab] = false;
+      state.lineCompletions[tab] = {};
+      state.blackoutCompletions[tab] = 0;
       state.breakTabs[tab] = state.breakTabs[tab].map((c) => ({
         ...c,
         count: 0,
@@ -410,27 +399,62 @@ function lineKey(line) {
 function checkAndAwardBreakLines(tabKey) {
   const tab = tabKey || state.activeBreakTab;
   const cells = state.breakTabs[tab];
-  const awardedArr = state.awardedBreakLines[tab];
+  const lineCompletions = state.lineCompletions[tab];
 
-  let newLines = 0;
+  let completedLines = [];
+
+  // Check each line
   for (const line of BREAK_LINES) {
     const key = lineKey(line);
-    if (awardedArr.includes(key)) continue;
-    if (line.every((i) => cells[i].count >= 1)) {
-      awardedArr.push(key);
-      newLines++;
+
+    // Line is complete if ALL cells in line have count >= 1
+    const isComplete = line.every((i) => cells[i].count >= 1);
+
+    if (isComplete) {
+      // Get the minimum star count in this line
+      const minStarInLine = Math.min(...line.map((i) => cells[i].count));
+
+      // Check if this is a NEW completion at this star level
+      // If minStarInLine stars is new (we haven't tracked it yet), award it
+      const prevCompletion = lineCompletions[key] || 0;
+
+      if (minStarInLine > prevCompletion) {
+        // This is a new completion! Update the tracking
+        lineCompletions[key] = minStarInLine;
+        completedLines.push({ line: line, lineKey: key, completionNum: minStarInLine });
+      }
     }
   }
-  if (newLines > 0) {
-    const bonus = newLines * 15;
-    addScore(bonus, false);
-    showScorePopup(`+${bonus} Line Bonus! 🎯`);
+
+  // Award points for new line completions
+  if (completedLines.length > 0) {
+    for (const completed of completedLines) {
+      const points = completed.completionNum * 10; // 10, 20, 30, 40, 50
+      addScore(points, false);
+      showScorePopup(`+${points} Line! 🎯`);
+      showLineAnimation(completed.line, completed.completionNum);
+    }
   }
 
-  if (!state.blackoutBreakAwarded[tab] && cells.every((c) => c.count >= 1)) {
-    state.blackoutBreakAwarded[tab] = true;
-    addScore(60, false);
-    showScorePopup(`+60 BLACKOUT! 🔥`);
+  // Check blackout - same logic
+  const allComplete = cells.every((c) => c.count >= 1);
+  if (allComplete) {
+    const minStarOverall = Math.min(...cells.map((c) => c.count));
+    const prevBlackouts = state.blackoutCompletions[tab] || 0;
+
+    if (minStarOverall > prevBlackouts) {
+      // New blackout completion!
+      state.blackoutCompletions[tab] = minStarOverall;
+      const points = minStarOverall * 100; // 100, 200, 300, 400, 500
+      addScore(points, false);
+      showScorePopup(`+${points} BLACKOUT! 🔥`);
+      showBlackoutAnimation();
+      
+      // Also glow all the lines that make up this blackout
+      for (const line of BREAK_LINES) {
+        showLineAnimation(line, minStarOverall, true); // true = blackout glow
+      }
+    }
   }
 }
 
@@ -1420,9 +1444,8 @@ function initSettings() {
           state.breakTabs[tab] = shuffleCells(
             DEFAULT_BREAK_TABS[tab].map((text) => ({ text, count: 0 })),
           );
-          state.awardedBreakLines[tab] = [];
-          state.celebratedBreakLines[tab] = [];
-          state.blackoutBreakAwarded[tab] = false;
+          state.lineCompletions[tab] = {};
+          state.blackoutCompletions[tab] = 0;
         });
         state.bingoAcknowledged = false;
         state.scoreBreakToday = 0;
@@ -1528,9 +1551,10 @@ function renderGrid(cells, containerId, isWork) {
       e.preventDefault();
       if (cells[i].count > 0) {
         cells[i].count--;
+        renderBreakGrid();
+        checkAndAwardBreakLines(state.activeBreakTab);
         recalculateScore();
         saveState();
-        renderBreakGrid();
       }
     });
 
@@ -1742,8 +1766,12 @@ function recalculateScore() {
         breakPts +=
           basePointsForCell(n, false) - basePointsForCell(n - 1, false);
     });
-    breakPts += state.awardedBreakLines[tab].length * 15;
-    if (state.blackoutBreakAwarded[tab]) breakPts += 60;
+    // Calculate line completion points: 10, 20, 30, 40, 50
+    Object.values(state.lineCompletions[tab] || {}).forEach((completionCount) => {
+      breakPts += completionCount * 10;
+    });
+    // Calculate blackout points: 100, 200, 300, 400, 500
+    breakPts += (state.blackoutCompletions[tab] || 0) * 100;
   });
   state.scoreWorkToday = workPts;
   state.scoreBreakToday = breakPts;
@@ -1894,34 +1922,62 @@ function toggleCell(index) {
   addScore(pts, false);
   showScorePopup(`+${pts} pt${pts !== 1 ? "s" : ""}`);
 
-  checkAndAwardBreakLines(tab);
-  saveState();
+  // Render the grid FIRST so the DOM is updated
   renderBreakGrid();
-  checkBingo();
+  
+  // THEN check for lines/blackout so animations can find the updated cells
+  checkAndAwardBreakLines(tab);
+  
+  saveState();
 }
 
 function checkBingo() {
-  const tab = state.activeBreakTab;
-  const cells = state.breakTabs[tab];
-  const celebrated = state.celebratedBreakLines[tab];
-  for (const line of BREAK_LINES) {
-    const key = lineKey(line);
-    if (celebrated.includes(key)) continue;
-    if (line.every((i) => cells[i].count >= 1)) {
-      celebrated.push(key);
-      showBingoModal();
-      return;
-    }
-  }
+  // This function is now integrated into checkAndAwardBreakLines()
+  // Kept for compatibility - does nothing
+}
+
+function showLineAnimation(line, completionNum, isBlackout = false) {
+  // line is now the actual array (e.g., [0,1,2,3])
+  if (!Array.isArray(line)) return;
+
+  // Small delay to ensure DOM has updated
+  setTimeout(() => {
+    line.forEach((cellIdx) => {
+      const cellEl = document.querySelector(
+        `.bingo-cell[data-index="${cellIdx}"]`,
+      );
+      if (cellEl) {
+        if (isBlackout) {
+          cellEl.classList.add("blackout-line-glow");
+          setTimeout(() => {
+            cellEl.classList.remove("blackout-line-glow");
+          }, 3000);
+        } else {
+          cellEl.classList.add("line-complete-glow");
+          setTimeout(() => {
+            cellEl.classList.remove("line-complete-glow");
+          }, 2000);
+        }
+      }
+    });
+  }, 50); // Small delay ensures DOM is ready
+}
+
+function showBlackoutAnimation() {
+  // Apply a stronger glow/pulse to ALL cells with a small delay to ensure DOM is ready
+  setTimeout(() => {
+    const cells = document.querySelectorAll(".bingo-cell");
+    cells.forEach((cellEl) => {
+      cellEl.classList.add("blackout-complete-glow");
+      setTimeout(() => {
+        cellEl.classList.remove("blackout-complete-glow");
+      }, 3000);
+    });
+  }, 50);
 }
 
 function showBingoModal() {
-  const modal = document.getElementById("bingo-modal");
-  const title = document.getElementById("bingo-modal-title");
-  const msg = document.getElementById("bingo-modal-msg");
-  if (title) title.textContent = "🎉 BINGO!";
-  if (msg) msg.textContent = "Keep completing your break activities!";
-  if (modal) modal.classList.remove("hidden");
+  // Modal removed - using animations instead
 }
 
 // ===== CUSTOMIZE MODALS =====
@@ -2072,9 +2128,8 @@ function saveCustomize() {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     state.breakTabs[tab] = shuffled.map((text) => ({ text, count: 0 }));
-    state.awardedBreakLines[tab] = [];
-    state.celebratedBreakLines[tab] = [];
-    state.blackoutBreakAwarded[tab] = false;
+    state.lineCompletions[tab] = {};
+    state.blackoutCompletions[tab] = 0;
     renderBreakGrid();
   }
   state.bingoAcknowledged = false;
