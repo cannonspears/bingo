@@ -966,6 +966,12 @@ function startTimer() {
   if (state.tickingEnabled && state.phase === "work") {
     if (tickingWorker) tickingWorker.postMessage("ticking-start");
   }
+
+  // Auto-switch to correct card based on phase
+  const correctCard = state.phase === "work" ? 0 : 1;
+  if (activeCard !== correctCard) {
+    goTo(correctCard);
+  }
 }
 
 function pauseTimer() {
@@ -1020,20 +1026,16 @@ function phaseComplete() {
       "Work session done! ☕",
       `Enjoy your ${breakMinutes()}-minute break.`,
     );
-    // Auto-navigate to Break card only if auto-start is enabled
-    if (state.autoStart) {
-      goTo(1);
-    }
+    // Always auto-navigate to Break card
+    goTo(1);
   } else {
     state.breakCount++;
     state.phase = "work";
     state.timeLeft = workMinutes() * 60;
     updateBreakCount();
     sendNotification("Break's over! 💪", "Time to focus.");
-    // Auto-navigate to Work card only if auto-start is enabled
-    if (state.autoStart) {
-      goTo(0);
-    }
+    // Always auto-navigate to Work card
+    goTo(0);
   }
 
   updateTimerUI();
