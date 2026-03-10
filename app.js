@@ -151,6 +151,8 @@ let state = {
   mutedMusic: false,
   mutedSfx: false,
   autoStart: false,
+  autoplayWork: false,
+  autoplayBreak: false,
   notificationsEnabled: false,
   darkMode: false,
   soundTheme: "chime",
@@ -974,7 +976,11 @@ function startTimer() {
   updateTimerUI();
   saveState();
 
-  // Music now only starts via player controls, not automatically
+  // Autoplay music if enabled for this phase and music isn't already playing
+  if (!state.musicPlaying) {
+    if (state.phase === "work" && state.autoplayWork) startMusic(true);
+    else if (state.phase === "break" && state.autoplayBreak) startMusic(true);
+  }
 
   if (timeWorker) {
     timeWorker.onmessage = (e) => {
@@ -1032,7 +1038,6 @@ function tick() {
 }
 
 function phaseComplete() {
-  stopMusic();
   // Stop workers
   if (timeWorker) timeWorker.postMessage("stop-timer");
   if (tickingWorker) tickingWorker.postMessage("ticking-stop");
@@ -1041,7 +1046,9 @@ function phaseComplete() {
   state.running = false;
   playTimerDone();
 
-  if (state.phase === "work") {
+  const completedPhase = state.phase;
+
+  if (completedPhase === "work") {
     state.pomoCount++;
     state.phase = "break";
     state.timeLeft = breakMinutes() * 60;
@@ -1050,7 +1057,6 @@ function phaseComplete() {
       "Work session done! ☕",
       `Enjoy your ${breakMinutes()}-minute break.`,
     );
-    // Always auto-navigate to Break card
     goTo(1);
   } else {
     state.breakCount++;
@@ -1058,12 +1064,21 @@ function phaseComplete() {
     state.timeLeft = workMinutes() * 60;
     updateBreakCount();
     sendNotification("Break's over! 💪", "Time to focus.");
-    // Always auto-navigate to Work card
     goTo(0);
   }
 
   updateTimerUI();
   saveState();
+
+  // Determine whether to keep music playing or pause it.
+  // Seamless handoff: only if autoStart is on AND the next phase also has autoplay enabled.
+  const nextPhase = state.phase;
+  const seamless =
+    state.autoStart &&
+    ((nextPhase === "break" && state.autoplayWork && state.autoplayBreak) ||
+     (nextPhase === "work"  && state.autoplayBreak && state.autoplayWork));
+
+  if (!seamless) stopMusic();
 
   if (state.autoStart) {
     setTimeout(() => {
@@ -1286,7 +1301,28 @@ function initSettings() {
     });
   }
 
-  // Auto-start - sync both cards with unique IDs
+  // Autoplay music toggles
+  const toggleAutoplayWork = document.getElementById("toggle-autoplay-work");
+  const toggleAutoplayBreak = document.getElementById("toggle-autoplay-break");
+
+  if (toggleAutoplayWork) {
+    toggleAutoplayWork.checked = state.autoplayWork;
+    document.getElementById("autoplay-work-desc").textContent = state.autoplayWork ? "On" : "Off";
+    toggleAutoplayWork.addEventListener("change", () => {
+      state.autoplayWork = toggleAutoplayWork.checked;
+      document.getElementById("autoplay-work-desc").textContent = state.autoplayWork ? "On" : "Off";
+      saveState();
+    });
+  }
+  if (toggleAutoplayBreak) {
+    toggleAutoplayBreak.checked = state.autoplayBreak;
+    document.getElementById("autoplay-break-desc").textContent = state.autoplayBreak ? "On" : "Off";
+    toggleAutoplayBreak.addEventListener("change", () => {
+      state.autoplayBreak = toggleAutoplayBreak.checked;
+      document.getElementById("autoplay-break-desc").textContent = state.autoplayBreak ? "On" : "Off";
+      saveState();
+    });
+  }
   const syncAutoStart = (enabled) => {
     state.autoStart = enabled;
     const workToggle = document.getElementById("toggle-autostart-work");
@@ -1600,7 +1636,7 @@ function renderWorkTaskList() {
     container.appendChild(item);
   });
 
-  // Done tasks — hidden unless toggled
+  // Done tasks (hidden unless toggled)
   if (done.length > 0) {
     const divider = document.createElement("div");
     divider.className = "work-task-done-divider";
