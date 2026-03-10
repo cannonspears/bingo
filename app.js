@@ -678,7 +678,11 @@ function startMusic(fromEnded = false) {
     musicAudio = null;
     state.musicPlaying = false;
     updatePlayPauseButtons();
-    if (state.running && state.phase === "work") startMusic(true);
+    // Restart if the timer is running and autoplay is enabled for the current phase
+    if (state.running) {
+      if (state.phase === "work" && state.autoplayWork) startMusic(true);
+      else if (state.phase === "break" && state.autoplayBreak) startMusic(true);
+    }
   });
   audio
     .play()
@@ -1070,8 +1074,8 @@ function phaseComplete() {
   updateTimerUI();
   saveState();
 
-  // Determine whether to keep music playing or pause it.
-  // Seamless handoff: only if autoStart is on AND the next phase also has autoplay enabled.
+  // Seamless handoff: only keep music playing if autoStart is on
+  // AND both autoplay toggles are enabled.
   const nextPhase = state.phase;
   const seamless =
     state.autoStart &&
