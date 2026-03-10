@@ -319,11 +319,11 @@ function localDateString(dayOffset = 0) {
 }
 
 // ===== SCORING =====
-// Work: 25 pts flat per task (one completion only).
+// Work: 10 pts flat per task (one completion only).
 // Break: +1 pt per star (1,2,3,4,5 cumulative).
 function basePointsForCell(count, isWork) {
   if (count < 1 || count > 5) return 0;
-  if (isWork) return 25;
+  if (isWork) return 10;
   return count;
 }
 
