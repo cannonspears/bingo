@@ -1592,13 +1592,15 @@ function renderWorkTaskList() {
     return;
   }
 
-  // Active tasks
+  // Active tasks — hidden when viewing completed-only mode
   active.forEach((cell) => {
     const idx = state.workCells.indexOf(cell);
-    container.appendChild(buildTaskItem(cell, idx, false));
+    const item = buildTaskItem(cell, idx, false);
+    item.style.display = state.showDoneTasks ? "none" : "flex";
+    container.appendChild(item);
   });
 
-  // Done tasks (hidden unless toggled)
+  // Done tasks — hidden unless toggled
   if (done.length > 0) {
     const divider = document.createElement("div");
     divider.className = "work-task-done-divider";
