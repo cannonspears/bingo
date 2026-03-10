@@ -1646,8 +1646,8 @@ function buildTaskItem(cell, idx, isDone) {
     } else {
       // Complete task
       state.workCells[idx].count = 1;
-      addScore(25, true);
-      showScorePopup(`+25 pts ✓`);
+      addScore(10, true);
+      showScorePopup(`+10 pts ✓`);
       saveState();
       renderWorkTaskList();
     }
@@ -1747,8 +1747,8 @@ function completeCurrentFocusTask() {
   if (cell.count >= 1) return;
 
   cell.count = 1;
-  addScore(25, true);
-  showScorePopup(`+25 pts ✓`);
+  addScore(10, true);
+  showScorePopup(`+10 pts ✓`);
   saveState();
   exitFocusMode();
 }
@@ -1757,7 +1757,7 @@ function recalculateScore() {
   let workPts = 0,
     breakPts = 0;
   state.workCells.forEach((c) => {
-    if (c.count >= 1) workPts += 25;
+    if (c.count >= 1) workPts += 10;
   });
   const TABS = ["all", "body", "mind", "home"];
   TABS.forEach((tab) => {
