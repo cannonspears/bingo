@@ -277,17 +277,18 @@ function loadState() {
     );
     state.scoreWorkAllTime = state.scoreWorkAllTimeBase;
     state.scoreBreakAllTime = state.scoreBreakAllTimeBase;
+
+    // Archive before resetting so we store the actual earned values
+    const archivedDate = state.scoreCurrentDate;
+    const archivedWork = state.scoreWorkToday;
+    const archivedBrk  = state.scoreBreakToday;
+
     state.scoreWorkToday = 0;
     state.scoreBreakToday = 0;
     state.scoreCurrentDate = todayStr;
 
-    // Archive today into history before rolling over
-    if (state.scoreCurrentDate) {
-      state.scoreHistory.push({
-        date: state.scoreCurrentDate,
-        work: state.scoreWorkToday,
-        brk: state.scoreBreakToday,
-      });
+    if (archivedDate) {
+      state.scoreHistory.push({ date: archivedDate, work: archivedWork, brk: archivedBrk });
       // Keep only last 7 days
       if (state.scoreHistory.length > 7)
         state.scoreHistory = state.scoreHistory.slice(-7);
