@@ -1353,6 +1353,7 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-content: flex-end;
 }
 .custom-time-group {
   display: flex;
