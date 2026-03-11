@@ -12,7 +12,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v2.44.2</h1>
+        <h1>Bingo Break v2.44.3</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -175,26 +175,28 @@
                     id="custom-fields-work"
                   >
                     <div class="custom-time-row">
-                      <span class="custom-time-label">Work</span>
-                      <input
-                        type="number"
-                        id="custom-work-minutes"
-                        class="custom-timer-input"
-                        placeholder="min"
-                        min="1"
-                        max="180"
-                      />
-                      <span class="custom-time-unit">min</span>
-                      <span class="custom-time-label">Break</span>
-                      <input
-                        type="number"
-                        id="custom-break-minutes-work"
-                        class="custom-timer-input"
-                        placeholder="min"
-                        min="1"
-                        max="60"
-                      />
-                      <span class="custom-time-unit">min</span>
+                      <div class="custom-time-group">
+                        <span class="custom-time-label">Work</span>
+                        <input
+                          type="number"
+                          id="custom-work-minutes"
+                          class="custom-timer-input"
+                          placeholder="25"
+                          min="1"
+                          max="180"
+                        />
+                      </div>
+                      <div class="custom-time-group">
+                        <span class="custom-time-label">Break</span>
+                        <input
+                          type="number"
+                          id="custom-break-minutes-work"
+                          class="custom-timer-input"
+                          placeholder="5"
+                          min="1"
+                          max="60"
+                        />
+                      </div>
                       <button class="custom-set-btn" id="btn-set-custom-work">
                         Set
                       </button>
@@ -349,26 +351,28 @@
                     id="custom-fields-break"
                   >
                     <div class="custom-time-row">
-                      <span class="custom-time-label">Work</span>
-                      <input
-                        type="number"
-                        id="custom-work-minutes-break"
-                        class="custom-timer-input"
-                        placeholder="min"
-                        min="1"
-                        max="180"
-                      />
-                      <span class="custom-time-unit">min</span>
-                      <span class="custom-time-label">Break</span>
-                      <input
-                        type="number"
-                        id="custom-break-minutes"
-                        class="custom-timer-input"
-                        placeholder="min"
-                        min="1"
-                        max="60"
-                      />
-                      <span class="custom-time-unit">min</span>
+                      <div class="custom-time-group">
+                        <span class="custom-time-label">Work</span>
+                        <input
+                          type="number"
+                          id="custom-work-minutes-break"
+                          class="custom-timer-input"
+                          placeholder="25"
+                          min="1"
+                          max="180"
+                        />
+                      </div>
+                      <div class="custom-time-group">
+                        <span class="custom-time-label">Break</span>
+                        <input
+                          type="number"
+                          id="custom-break-minutes"
+                          class="custom-timer-input"
+                          placeholder="5"
+                          min="1"
+                          max="60"
+                        />
+                      </div>
                       <button class="custom-set-btn" id="btn-set-custom-break">
                         Set
                       </button>

@@ -1432,6 +1432,13 @@ function initSettings() {
   if (btnSetWork)  btnSetWork.addEventListener("click",  () => applyCustomTimes(customWorkInputWork,  customBreakInputWork,  btnSetWork));
   if (btnSetBreak) btnSetBreak.addEventListener("click", () => applyCustomTimes(customWorkInputBreak, customBreakInputBreak, btnSetBreak));
 
+  // Prevent card drag while typing in custom time inputs
+  [customWorkInputWork, customWorkInputBreak, customBreakInputWork, customBreakInputBreak].forEach((el) => {
+    if (!el) return;
+    el.addEventListener("mousedown", (e) => e.stopPropagation());
+    el.addEventListener("touchstart", (e) => e.stopPropagation(), { passive: true });
+  });
+
 
   // Reset break board (all tabs)
   const btnResetBreak = document.getElementById("btn-reset-break-board");
