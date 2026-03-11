@@ -1208,13 +1208,44 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   background: var(--card-bg);
   color: var(--ink);
   transition: border-color 0.15s;
-  min-width: 60px;
+  min-width: 44px;
 }
 .custom-timer-input:focus {
   border-color: var(--c-set);
 }
 .custom-timer-input::placeholder {
   color: var(--muted);
+}
+
+.custom-set-btn {
+  padding: 5px 10px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border: 1.5px solid var(--c-set);
+  background: transparent;
+  color: var(--c-set);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.custom-set-btn:hover {
+  background: var(--c-set);
+  color: white;
+}
+.custom-set-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.card-bingo .custom-set-btn {
+  border-color: var(--c-bingo);
+  color: var(--c-bingo);
+}
+.card-bingo .custom-set-btn:hover {
+  background: var(--c-bingo);
+  color: white;
 }
 
 /* ===== SETTINGS CARD ===== */

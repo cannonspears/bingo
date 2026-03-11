@@ -914,15 +914,11 @@ function sendNotification(title, body) {
 
 // ===== TIMER HELPERS =====
 function workMinutes() {
-  if (state.customWorkMinutes !== null && state.customWorkMinutes > 0) {
-    return state.customWorkMinutes;
-  }
+  if (state.mode === "custom" && state.customWorkMinutes > 0) return state.customWorkMinutes;
   return state.mode === "50/10" ? 50 : 25;
 }
 function breakMinutes() {
-  if (state.customBreakMinutes !== null && state.customBreakMinutes > 0) {
-    return state.customBreakMinutes;
-  }
+  if (state.mode === "custom" && state.customBreakMinutes > 0) return state.customBreakMinutes;
   return state.mode === "50/10" ? 10 : 5;
 }
 function totalSeconds() {
@@ -1389,65 +1385,52 @@ function initSettings() {
     });
   }
 
-  // Custom work timer - sync between both cards
-  const customWorkInputWork = document.getElementById("custom-work-minutes");
+  // Custom timer inputs - synced between both cards
+  const customWorkInputWork  = document.getElementById("custom-work-minutes");
   const customWorkInputBreak = document.getElementById("custom-work-minutes-break");
+  const customBreakInputWork  = document.getElementById("custom-break-minutes-work");
+  const customBreakInputBreak = document.getElementById("custom-break-minutes");
 
   function updateCustomWorkInputs() {
-    if (state.customWorkMinutes !== null) {
-      if (customWorkInputWork) customWorkInputWork.value = state.customWorkMinutes;
+    if (state.customWorkMinutes) {
+      if (customWorkInputWork)  customWorkInputWork.value  = state.customWorkMinutes;
       if (customWorkInputBreak) customWorkInputBreak.value = state.customWorkMinutes;
     }
   }
-  updateCustomWorkInputs();
-
-  function applyCustomWork(inputEl) {
-    const val = parseInt(inputEl.value, 10);
-    if (val >= 1 && val <= 180) {
-      state.customWorkMinutes = val;
-      updateCustomWorkInputs();
-      pauseTimer();
-      state.phase = "work";
-      state.timeLeft = workMinutes() * 60;
-      updateTimerUI();
-      saveState();
-    }
-  }
-  [customWorkInputWork, customWorkInputBreak].forEach((el) => {
-    if (!el) return;
-    el.addEventListener("change", () => applyCustomWork(el));
-    el.addEventListener("keydown", (e) => { if (e.key === "Enter") applyCustomWork(el); });
-  });
-
-  // Custom break timer - sync between both cards
-  const customBreakInputWork = document.getElementById("custom-break-minutes-work");
-  const customBreakInputBreak = document.getElementById("custom-break-minutes");
-
   function updateCustomBreakInputs() {
-    if (state.customBreakMinutes !== null) {
-      if (customBreakInputWork) customBreakInputWork.value = state.customBreakMinutes;
+    if (state.customBreakMinutes) {
+      if (customBreakInputWork)  customBreakInputWork.value  = state.customBreakMinutes;
       if (customBreakInputBreak) customBreakInputBreak.value = state.customBreakMinutes;
     }
   }
+  updateCustomWorkInputs();
   updateCustomBreakInputs();
 
-  function applyCustomBreak(inputEl) {
-    const val = parseInt(inputEl.value, 10);
-    if (val >= 1 && val <= 60) {
-      state.customBreakMinutes = val;
-      updateCustomBreakInputs();
-      pauseTimer();
-      state.phase = "break";
-      state.timeLeft = breakMinutes() * 60;
-      updateTimerUI();
-      saveState();
-    }
+  function flashSetBtn(btn) {
+    btn.textContent = "✓";
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = "Set"; btn.disabled = false; }, 1000);
   }
-  [customBreakInputWork, customBreakInputBreak].forEach((el) => {
-    if (!el) return;
-    el.addEventListener("change", () => applyCustomBreak(el));
-    el.addEventListener("keydown", (e) => { if (e.key === "Enter") applyCustomBreak(el); });
-  });
+
+  function applyCustomTimes(workInput, breakInput, btn) {
+    const wVal = parseInt(workInput?.value, 10);
+    const bVal = parseInt(breakInput?.value, 10);
+    if (wVal >= 1 && wVal <= 180) state.customWorkMinutes = wVal;
+    if (bVal >= 1 && bVal <= 60)  state.customBreakMinutes = bVal;
+    updateCustomWorkInputs();
+    updateCustomBreakInputs();
+    pauseTimer();
+    state.phase = "work";
+    state.timeLeft = workMinutes() * 60;
+    updateTimerUI();
+    saveState();
+    if (btn) flashSetBtn(btn);
+  }
+
+  const btnSetWork  = document.getElementById("btn-set-custom-work");
+  const btnSetBreak = document.getElementById("btn-set-custom-break");
+  if (btnSetWork)  btnSetWork.addEventListener("click",  () => applyCustomTimes(customWorkInputWork,  customBreakInputWork,  btnSetWork));
+  if (btnSetBreak) btnSetBreak.addEventListener("click", () => applyCustomTimes(customWorkInputBreak, customBreakInputBreak, btnSetBreak));
 
 
   // Reset break board (all tabs)
