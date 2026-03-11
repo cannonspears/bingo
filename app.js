@@ -1634,13 +1634,8 @@ function renderWorkTaskList() {
   const active = state.workCells.filter((c) => c.count === 0);
   const done = state.workCells.filter((c) => c.count > 0);
 
-  // Empty state
+  const toggleBtn = document.getElementById("btn-toggle-done-tasks");
   if (active.length === 0 && done.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "work-task-empty";
-    empty.innerHTML = `<span class="work-task-empty-icon">📋</span><span>Type a task below and press Enter to add it</span>`;
-    container.appendChild(empty);
-    const toggleBtn = document.getElementById("btn-toggle-done-tasks");
     if (toggleBtn) toggleBtn.style.opacity = "0.3";
     return;
   }
@@ -1672,7 +1667,6 @@ function renderWorkTaskList() {
   }
 
   // Update toggle button
-  const toggleBtn = document.getElementById("btn-toggle-done-tasks");
   if (toggleBtn) {
     toggleBtn.title = state.showDoneTasks ? "Hide completed" : "Show completed";
     toggleBtn.style.opacity = done.length > 0 ? "1" : "0.3";
