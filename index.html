@@ -12,7 +12,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v2.43</h1>
+        <h1>Bingo Break v2.44</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -161,86 +161,56 @@
                 </div>
                 <div class="s-section">
                   <div class="s-section-label">Timer</div>
-                  <div class="s-grid">
-                    <div class="s-cell">
-                      <div class="s-cell-label">Mode</div>
-                      <div class="s-cell-control">
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode-work"
-                            value="25/5"
-                            checked
-                          /><span>25/5</span></label
-                        >
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode-work"
-                            value="50/10"
-                          /><span>50/10</span></label
-                        >
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode-work"
-                            value="custom"
-                          /><span>Custom</span></label
-                        >
-                      </div>
+                  <div class="mode-segment">
+                    <button class="mode-seg-btn" data-mode="25/5">25/5</button>
+                    <button class="mode-seg-btn" data-mode="50/10">
+                      50/10
+                    </button>
+                    <button class="mode-seg-btn" data-mode="custom">
+                      Custom
+                    </button>
+                  </div>
+                  <div
+                    class="custom-time-fields hidden"
+                    id="custom-fields-work"
+                  >
+                    <div class="custom-time-row">
+                      <span class="custom-time-label">Work</span>
+                      <input
+                        type="number"
+                        id="custom-work-minutes"
+                        class="custom-timer-input"
+                        placeholder="min"
+                        min="1"
+                        max="180"
+                      />
+                      <span class="custom-time-unit">min</span>
                     </div>
-                    <div class="s-cell">
-                      <div class="s-cell-label">Auto-Start</div>
-                      <div class="s-cell-control">
-                        <label class="toggle-switch"
-                          ><input
-                            type="checkbox"
-                            id="toggle-autostart-work" /><span
-                            class="toggle-track"
-                          ></span
-                        ></label>
-                        <span class="toggle-desc" id="autostart-desc-work"
-                          >Off</span
-                        >
-                      </div>
+                    <div class="custom-time-row">
+                      <span class="custom-time-label">Break</span>
+                      <input
+                        type="number"
+                        id="custom-break-minutes-work"
+                        class="custom-timer-input"
+                        placeholder="min"
+                        min="1"
+                        max="60"
+                      />
+                      <span class="custom-time-unit">min</span>
                     </div>
-                    <div class="s-cell s-cell--wide">
-                      <div class="s-cell-label">Custom Work Time (minutes)</div>
-                      <div class="s-cell-control">
-                        <input
-                          type="number"
-                          id="custom-work-minutes"
-                          class="custom-timer-input"
-                          placeholder="Leave blank for preset"
-                          min="1"
-                          max="180"
-                        />
-                        <button id="btn-set-custom-work" class="action-btn">
-                          Set
-                        </button>
-                      </div>
-                    </div>
-                    <div class="s-cell s-cell--wide">
-                      <div class="s-cell-label">
-                        Custom Break Time (minutes)
-                      </div>
-                      <div class="s-cell-control">
-                        <input
-                          type="number"
-                          id="custom-break-minutes-work"
-                          class="custom-timer-input"
-                          placeholder="Leave blank for preset"
-                          min="1"
-                          max="60"
-                        />
-                        <button
-                          id="btn-set-custom-break-work"
-                          class="action-btn"
-                        >
-                          Set
-                        </button>
-                      </div>
-                    </div>
+                  </div>
+                </div>
+                <div class="s-row">
+                  <span class="s-row-label">Auto-start next session</span>
+                  <div class="s-row-control">
+                    <label class="toggle-switch"
+                      ><input type="checkbox" id="toggle-autostart-work" /><span
+                        class="toggle-track"
+                      ></span
+                    ></label>
+                    <span class="toggle-desc" id="autostart-desc-work"
+                      >Off</span
+                    >
                   </div>
                 </div>
                 <div class="s-section">
@@ -265,7 +235,7 @@
                     <div class="s-cell s-cell--wide">
                       <div class="s-cell-label">Work task value</div>
                       <div class="s-cell-note">
-                        Each completed task earns <strong>25 pts</strong>. Tasks
+                        Each completed task earns <strong>10 pts</strong>. Tasks
                         reset daily — your list is saved between days.
                       </div>
                     </div>
@@ -364,86 +334,58 @@
                 </div>
                 <div class="s-section">
                   <div class="s-section-label">Timer</div>
-                  <div class="s-grid">
-                    <div class="s-cell">
-                      <div class="s-cell-label">Mode</div>
-                      <div class="s-cell-control">
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode-break"
-                            value="25/5"
-                            checked
-                          /><span>25/5</span></label
-                        >
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode-break"
-                            value="50/10"
-                          /><span>50/10</span></label
-                        >
-                        <label class="radio-label"
-                          ><input
-                            type="radio"
-                            name="pomo-mode-break"
-                            value="custom"
-                          /><span>Custom</span></label
-                        >
-                      </div>
+                  <div class="mode-segment">
+                    <button class="mode-seg-btn" data-mode="25/5">25/5</button>
+                    <button class="mode-seg-btn" data-mode="50/10">
+                      50/10
+                    </button>
+                    <button class="mode-seg-btn" data-mode="custom">
+                      Custom
+                    </button>
+                  </div>
+                  <div
+                    class="custom-time-fields hidden"
+                    id="custom-fields-break"
+                  >
+                    <div class="custom-time-row">
+                      <span class="custom-time-label">Work</span>
+                      <input
+                        type="number"
+                        id="custom-work-minutes-break"
+                        class="custom-timer-input"
+                        placeholder="min"
+                        min="1"
+                        max="180"
+                      />
+                      <span class="custom-time-unit">min</span>
                     </div>
-                    <div class="s-cell">
-                      <div class="s-cell-label">Auto-Start</div>
-                      <div class="s-cell-control">
-                        <label class="toggle-switch"
-                          ><input
-                            type="checkbox"
-                            id="toggle-autostart-break" /><span
-                            class="toggle-track"
-                          ></span
-                        ></label>
-                        <span class="toggle-desc" id="autostart-desc-break"
-                          >Off</span
-                        >
-                      </div>
+                    <div class="custom-time-row">
+                      <span class="custom-time-label">Break</span>
+                      <input
+                        type="number"
+                        id="custom-break-minutes"
+                        class="custom-timer-input"
+                        placeholder="min"
+                        min="1"
+                        max="60"
+                      />
+                      <span class="custom-time-unit">min</span>
                     </div>
-                    <div class="s-cell s-cell--wide">
-                      <div class="s-cell-label">Custom Work Time (minutes)</div>
-                      <div class="s-cell-control">
-                        <input
-                          type="number"
-                          id="custom-work-minutes-break"
-                          class="custom-timer-input"
-                          placeholder="Leave blank for preset"
-                          min="1"
-                          max="180"
-                        />
-                        <button
-                          id="btn-set-custom-work-break"
-                          class="action-btn"
-                        >
-                          Set
-                        </button>
-                      </div>
-                    </div>
-                    <div class="s-cell s-cell--wide">
-                      <div class="s-cell-label">
-                        Custom Break Time (minutes)
-                      </div>
-                      <div class="s-cell-control">
-                        <input
-                          type="number"
-                          id="custom-break-minutes"
-                          class="custom-timer-input"
-                          placeholder="Leave blank for preset"
-                          min="1"
-                          max="60"
-                        />
-                        <button id="btn-set-custom-break" class="action-btn">
-                          Set
-                        </button>
-                      </div>
-                    </div>
+                  </div>
+                </div>
+                <div class="s-row">
+                  <span class="s-row-label">Auto-start next session</span>
+                  <div class="s-row-control">
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        id="toggle-autostart-break" /><span
+                        class="toggle-track"
+                      ></span
+                    ></label>
+                    <span class="toggle-desc" id="autostart-desc-break"
+                      >Off</span
+                    >
                   </div>
                 </div>
                 <div class="s-section">

@@ -1270,6 +1270,83 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   color: var(--ink);
 }
 
+/* ===== SEGMENTED MODE SELECTOR ===== */
+.mode-segment {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.mode-seg-btn {
+  flex: 1;
+  padding: 7px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-seg-btn.active {
+  border-color: var(--c-set);
+  background: color-mix(in srgb, var(--c-set) 10%, var(--card-bg));
+  color: var(--c-set);
+}
+.card-bingo .mode-seg-btn.active {
+  border-color: var(--c-bingo);
+  background: color-mix(in srgb, var(--c-bingo) 10%, var(--card-bg));
+  color: var(--c-bingo);
+}
+
+/* ===== CUSTOM TIME FIELDS ===== */
+.custom-time-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+.custom-time-fields.hidden {
+  display: none;
+}
+.custom-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.custom-time-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  width: 36px;
+  flex-shrink: 0;
+}
+.custom-time-unit {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ===== AUTO-START ROW ===== */
+.s-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 12px;
+}
+.s-row-label {
+  font-size: 0.8rem;
+  color: var(--ink);
+}
+.s-row-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .radio-label {
   display: flex;
   align-items: center;
