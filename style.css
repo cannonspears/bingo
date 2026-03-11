@@ -1309,6 +1309,58 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   color: var(--ink);
 }
 
+/* ===== INFO SECTION (card backs) ===== */
+.info-list {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.info-item {
+  font-size: 0.68rem;
+  font-family: var(--font-sans);
+  color: var(--muted);
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  font-size: 0.5rem;
+  color: var(--muted);
+  cursor: default;
+  position: relative;
+  flex-shrink: 0;
+}
+.info-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 5px);
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.6rem;
+  font-family: var(--font-sans);
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 20;
+}
+.info-tip:hover::after {
+  opacity: 1;
+}
+
 /* ===== SEGMENTED MODE SELECTOR ===== */
 .mode-segment {
   display: flex;
