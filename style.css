@@ -179,6 +179,14 @@ header.header-break .tagline {
   transform: rotateY(180deg);
 }
 
+/* Prevent the hidden card face from intercepting pointer events */
+.card:not(.flipped) .card-back {
+  pointer-events: none;
+}
+.card.flipped .card-face:not(.card-back) {
+  pointer-events: none;
+}
+
 .card.depth-0 {
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.07),
