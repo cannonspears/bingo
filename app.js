@@ -127,6 +127,7 @@ let state = {
   running: false,
   pomoCount: 0,
   breakCount: 0,
+  lastActivityAt: null,
 
   // Legacy single array kept for migration; tabs replace it
   breakCells: [],
@@ -309,7 +310,16 @@ function loadState() {
 
     state.bingoAcknowledged = false;
     state.workBingoAcknowledged = false;
-    state.breakCount = 0;
+
+    // Reset session counters only if inactive for 8+ hours (so working past midnight doesn't interrupt a session)
+    const hoursInactive = state.lastActivityAt
+      ? (Date.now() - state.lastActivityAt) / 3_600_000
+      : Infinity;
+    if (hoursInactive >= 8) {
+      state.pomoCount = 0;
+      state.breakCount = 0;
+    }
+
     state.focusedTaskIndex = -1;
   }
 }
@@ -976,6 +986,7 @@ self.addEventListener('message',e=>{
 
 function startTimer() {
   if (state.running) return;
+  state.lastActivityAt = Date.now();
   state.running = true;
   playStartClick();
   updateTimerUI();
@@ -1011,6 +1022,7 @@ function startTimer() {
 
 function pauseTimer() {
   if (!state.running) return;
+  state.lastActivityAt = Date.now();
   state.running = false;
   if (timeWorker) timeWorker.postMessage("stop-timer");
   clearInterval(timerInterval);
