@@ -1106,97 +1106,22 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   transform: none;
 }
 
-/* Genre mood display */
-.genre-mood-display {
-  background: var(--genre-bg, #f0ebff);
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  transition: background 0.4s;
+/* YouTube player embed */
+#yt-player-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0;
+  background: #000;
 }
-.genre-mood-name {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: var(--genre-color, var(--c-music));
-  margin-bottom: 2px;
-  transition: color 0.4s;
-}
-.genre-mood-desc {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-
-/* Animated waveform */
-.genre-waveform {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 24px;
-}
-.genre-waveform span {
+#yt-player-wrap iframe,
+#yt-player {
+  width: 100%;
+  height: 100%;
+  border: none;
   display: block;
-  width: 4px;
-  border-radius: 2px;
-  background: var(--genre-color, var(--c-music));
-  opacity: 0.6;
-  animation: wave-bar 1.2s ease-in-out infinite alternate;
-  transition: background 0.4s;
-}
-.genre-waveform span:nth-child(1) {
-  height: 8px;
-  animation-delay: 0s;
-}
-.genre-waveform span:nth-child(2) {
-  height: 16px;
-  animation-delay: 0.15s;
-}
-.genre-waveform span:nth-child(3) {
-  height: 12px;
-  animation-delay: 0.3s;
-}
-.genre-waveform span:nth-child(4) {
-  height: 20px;
-  animation-delay: 0.1s;
-}
-.genre-waveform span:nth-child(5) {
-  height: 10px;
-  animation-delay: 0.4s;
-}
-.genre-waveform span:nth-child(6) {
-  height: 18px;
-  animation-delay: 0.25s;
-}
-.genre-waveform span:nth-child(7) {
-  height: 14px;
-  animation-delay: 0.05s;
-}
-.genre-waveform span:nth-child(8) {
-  height: 8px;
-  animation-delay: 0.35s;
-}
-
-@keyframes wave-bar {
-  from {
-    transform: scaleY(0.4);
-    opacity: 0.4;
-  }
-  to {
-    transform: scaleY(1);
-    opacity: 0.8;
-  }
-}
-/* Pause waveform when music is idle */
-.now-playing-idle ~ .genre-mood-display .genre-waveform span {
-  animation-play-state: paused;
-}
-
-.music-note {
-  font-size: 0.68rem;
-  color: var(--muted);
-  text-align: center;
-  font-style: italic;
 }
 
 /* Music card back */

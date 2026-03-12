@@ -84,40 +84,13 @@ const DEFAULT_BREAK_CELLS = DEFAULT_BREAK_TABS.body;
 
 const DEFAULT_WORK_CELLS = []; // Work list is user-defined, starts empty
 
-const GENRES = ["lofi", "guitar", "classical", "ambient", "piano"];
-
-const GENRE_META = {
-  lofi: {
-    label: "Lo-Fi",
-    desc: "Mellow beats for sustained focus",
-    color: "#7c5cbf",
-    bg: "#f0ebff",
-  },
-  guitar: {
-    label: "Guitar",
-    desc: "Warm acoustic tones to keep you grounded",
-    color: "#c0622b",
-    bg: "#fff3eb",
-  },
-  classical: {
-    label: "Classical",
-    desc: "Timeless compositions for deep thinking",
-    color: "#2b6cc0",
-    bg: "#ebf3ff",
-  },
-  ambient: {
-    label: "Ambient",
-    desc: "Atmospheric soundscapes for flow state",
-    color: "#2b9c6e",
-    bg: "#ebfff6",
-  },
-  piano: {
-    label: "Piano",
-    desc: "Solo piano for calm, steady work",
-    color: "#9c2b7c",
-    bg: "#ffebf9",
-  },
-};
+const STATIONS = [
+  { id: "lofi",      label: "Lofi Girl",  videoId: "jfKfPfyJRdk", color: "#7c5cbf", bg: "#f0ebff" },
+  { id: "jazz",      label: "Jazz Café",  videoId: "HuFYqnbVbzY", color: "#c0622b", bg: "#fff3eb" },
+  { id: "classical", label: "Classical",  videoId: "DWcJFNfaw9c", color: "#2b6cc0", bg: "#ebf3ff" },
+  { id: "ambient",   label: "Ambient",    videoId: "4oStw0r33so", color: "#2b9c6e", bg: "#ebfff6" },
+  { id: "chillhop",  label: "Chillhop",   videoId: "5yx6BWlEVcY", color: "#9c2b7c", bg: "#ffebf9" },
+];
 
 // ===== STATE =====
 let state = {
@@ -572,316 +545,142 @@ async function playTick() {
 }
 
 // ===== MUSIC ENGINE =====
-let genreTracks = {};
-let shuffleQueue = [];
-let musicAudio = null;
-let lastPlayedTrack = null;
+let ytPlayer = null;
 
-async function loadAllManifests() {
-  await Promise.all(
-    GENRES.map(async (genre) => {
-      try {
-        const res = await fetch(`music/${genre}/manifest.json`);
-        if (!res.ok) return;
-        const tracks = await res.json();
-        if (Array.isArray(tracks) && tracks.length) {
-          genreTracks[genre] = tracks.map((t) =>
-            typeof t === "string"
-              ? {
-                  file: `music/${genre}/${t}`,
-                  title: t.replace(/\.mp3$/i, ""),
-                  artist: "",
-                  license: "",
-                  url: "",
-                }
-              : { ...t, file: `music/${genre}/${t.file}` },
-          );
-        }
-      } catch (e) {
-        /* genre folder missing — silent skip */
-      }
-    }),
-  );
+function currentStation() {
+  return STATIONS.find((s) => s.id === state.activeGenre) || STATIONS[0];
 }
 
-function currentGenreTracks() {
-  return genreTracks[state.activeGenre] || [];
+// Called automatically by YouTube IFrame API once script loads
+function onYouTubeIframeAPIReady() {
+  const station = currentStation();
+  ytPlayer = new YT.Player("yt-player", {
+    height: "100%",
+    width: "100%",
+    videoId: station.videoId,
+    playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange,
+    },
+  });
 }
 
-function buildShuffleQueue() {
-  let arr = [...currentGenreTracks()];
-  
-  // Remove the last played track from the shuffle if it exists
-  if (lastPlayedTrack) {
-    arr = arr.filter(track => track.file !== lastPlayedTrack.file);
+function onPlayerReady() {
+  ytPlayer.setVolume(state.volMusic ?? 60);
+  updateNowPlaying();
+}
+
+function onPlayerStateChange(event) {
+  const playing = event.data === YT.PlayerState.PLAYING;
+  const paused = event.data === YT.PlayerState.PAUSED;
+  if (playing || paused) {
+    state.musicPlaying = playing;
+    updatePlayPauseButtons();
   }
-  
-  // Fisher-Yates shuffle
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  shuffleQueue = arr;
 }
 
-function pickNextTrack() {
-  if (!currentGenreTracks().length) return null;
-  if (!shuffleQueue.length) buildShuffleQueue();
-  const track = shuffleQueue.shift();
-  lastPlayedTrack = track;
-  return track;
-}
-
-function updateNowPlaying(track) {
+function updateNowPlaying() {
   const npEl = document.getElementById("now-playing");
   const npIcon = document.getElementById("np-icon");
   const npTrack = document.getElementById("np-track");
-  const npArtist = document.getElementById("np-artist");
-  const npUrl = document.getElementById("np-url");
-  const npLicense = document.getElementById("np-license");
   if (!npEl) return;
-
-  if (!track) {
+  if (state.musicPlaying) {
+    npEl.classList.remove("now-playing-idle");
+    if (npIcon) npIcon.style.animation = "";
+    if (npTrack) npTrack.textContent = `${currentStation().label} — Live`;
+  } else {
     npEl.classList.add("now-playing-idle");
     if (npIcon) npIcon.style.animation = "none";
-    if (npTrack) npTrack.textContent = "No music playing";
-    if (npArtist) npArtist.textContent = "Select a genre and start a session";
-    if (npUrl) npUrl.classList.add("hidden");
-    if (npLicense) npLicense.textContent = "";
-    return;
+    if (npTrack) npTrack.textContent = `${currentStation().label}`;
   }
-  npEl.classList.remove("now-playing-idle");
-  if (npIcon) npIcon.style.animation = "";
-  if (npTrack) npTrack.textContent = track.title || "Unknown Track";
-  if (npArtist) npArtist.textContent = track.artist || "";
-  if (npUrl) {
-    if (track.url) {
-      npUrl.href = track.url;
-      npUrl.textContent = "↗ Source";
-      npUrl.classList.remove("hidden");
-    } else npUrl.classList.add("hidden");
-  }
-  if (npLicense) npLicense.textContent = track.license || "";
 }
 
-function startMusic(fromEnded = false) {
-  if (state.mutedMusic) return;
-  if (!fromEnded) {
-    stopMusic();
-    buildShuffleQueue();
-  }
-  const track = pickNextTrack();
-  if (!track) return;
-  const audio = new Audio(track.file);
-  audio.loop = false;
-  audio.volume = 0;
-  musicAudio = audio;
-  audio.onerror = () => {
-    if (musicAudio === audio) {
-      musicAudio = null;
-      state.musicPlaying = false;
-      updateNowPlaying(null);
-      updatePlayPauseButtons();
-    }
-  };
-  audio.addEventListener("ended", () => {
-    if (musicAudio !== audio) return;
-    musicAudio = null;
-    state.musicPlaying = false;
-    updatePlayPauseButtons();
-    // Restart if the timer is running and autoplay is enabled for the current phase
-    if (state.running) {
-      if (state.phase === "work" && state.autoplayWork) startMusic(true);
-      else if (state.phase === "break" && state.autoplayBreak) startMusic(true);
-    }
-  });
-  audio
-    .play()
-    .then(() => {
-      // Only update UI once playback actually starts
-      state.musicPlaying = true;
-      updateNowPlaying(track);
-      fadeInMusic();
-      updatePlayPauseButtons();
-    })
-    .catch((e) => {
-      console.warn("Music playback failed:", e);
-      if (musicAudio === audio) {
-        musicAudio = null;
-        state.musicPlaying = false;
-        updateNowPlaying(null);
-        updatePlayPauseButtons();
-      }
-    });
-}
-
-function fadeInMusic() {
-  if (!musicAudio) return;
-  const audio = musicAudio;
-  const target = state.mutedMusic ? 0 : state.volMusic / 100;
-  const steps = 25,
-    interval = 500 / steps;
-  let step = 0;
-  const t = setInterval(() => {
-    step++;
-    if (musicAudio !== audio) {
-      clearInterval(t);
-      return;
-    }
-    audio.volume = Math.min(target, (step / steps) * target);
-    if (step >= steps) clearInterval(t);
-  }, interval);
-}
-
-function stopMusic() {
-  if (musicAudio) {
-    musicAudio.pause();
-    musicAudio.src = "";
-    musicAudio = null;
-  }
-  state.musicPlaying = false;
-  updateNowPlaying(null);
-  updatePlayPauseButtons();
+function startMusic() {
+  if (!ytPlayer || typeof ytPlayer.playVideo !== "function") return;
+  ytPlayer.unMute();
+  ytPlayer.setVolume(state.volMusic ?? 60);
+  ytPlayer.playVideo();
 }
 
 function pauseMusic() {
-  if (musicAudio) {
-    musicAudio.pause();
-    state.musicPlaying = false;
-    updatePlayPauseButtons();
-  }
-}
-
-function resumeMusic() {
-  if (musicAudio) {
-    musicAudio.play().then(() => {
-      state.musicPlaying = true;
-      updatePlayPauseButtons();
-    }).catch((e) => {
-      console.warn("Music resume failed:", e);
-      state.musicPlaying = false;
-      updatePlayPauseButtons();
-    });
-  }
-}
-
-function togglePlayPause() {
-  if (!musicAudio) {
-    // No music playing, start it (works anytime, not just during work)
-    startMusic();
-  } else if (musicAudio.paused) {
-    resumeMusic();
-  } else {
-    pauseMusic();
-  }
-  updatePlayPauseButtons();
-}
-
-function skipToNextTrack() {
-  // Skip to next track anytime, not just during work sessions
-  if (musicAudio) {
-    musicAudio.pause();
-    musicAudio.src = "";
-    musicAudio = null;
-  }
-  startMusic();
-}
-
-function skipToPreviousTrack() {
-  // Replay current track from beginning, or skip to next
-  if (musicAudio && musicAudio.currentTime > 3) {
-    musicAudio.currentTime = 0;
-  } else {
-    skipToNextTrack();
-  }
-}
-
-function updatePlayPauseButtons() {
-  const playBtn = document.getElementById("btn-play");
-  const pauseBtn = document.getElementById("btn-pause");
-  
-  if (!playBtn || !pauseBtn) return;
-  
-  // If music is playing, disable play and enable pause
-  if (state.musicPlaying && musicAudio && !musicAudio.paused) {
-    playBtn.disabled = true;
-    playBtn.classList.add("player-btn-disabled");
-    pauseBtn.disabled = false;
-    pauseBtn.classList.remove("player-btn-disabled");
-  } else {
-    // Otherwise, enable play and disable pause
-    playBtn.disabled = false;
-    playBtn.classList.remove("player-btn-disabled");
-    pauseBtn.disabled = true;
-    pauseBtn.classList.add("player-btn-disabled");
-  }
-}
-
-function playMusic() {
-  if (!musicAudio) {
-    startMusic();
-  } else {
-    resumeMusic();
-  }
+  if (!ytPlayer || typeof ytPlayer.pauseVideo !== "function") return;
+  ytPlayer.pauseVideo();
 }
 
 function stopMusicPlayback() {
   pauseMusic();
 }
 
-function applyMusicVolume() {
-  if (musicAudio)
-    musicAudio.volume = state.mutedMusic ? 0 : state.volMusic / 100;
+function playMusic() {
+  startMusic();
 }
 
-function switchGenre(genre) {
-  // Check if music is currently playing before switching
-  const wasPlaying = state.musicPlaying;
-  
-  state.activeGenre = genre;
-  saveState();
-  applyGenreTheme(genre);
-  updateGenreButtons();
-  
-  // Rebuild shuffle queue for new genre
-  buildShuffleQueue();
-  
-  // Always clear the current audio when switching genres
-  if (musicAudio) {
-    musicAudio.pause();
-    musicAudio.src = "";
-    musicAudio = null;
-  }
-  
-  // If music was playing, start playing the new genre
-  if (wasPlaying) {
+function togglePlayPause() {
+  if (state.musicPlaying) {
+    pauseMusic();
+  } else {
     startMusic();
   }
 }
 
-function applyGenreTheme(genre) {
-  const meta = GENRE_META[genre] || GENRE_META.lofi;
+function skipToNextTrack() {
+  const idx = STATIONS.findIndex((s) => s.id === state.activeGenre);
+  const next = STATIONS[(idx + 1) % STATIONS.length];
+  switchGenre(next.id);
+}
+
+function updatePlayPauseButtons() {
+  const playBtn = document.getElementById("btn-play");
+  const pauseBtn = document.getElementById("btn-pause");
+  if (!playBtn || !pauseBtn) return;
+  if (state.musicPlaying) {
+    playBtn.disabled = true;
+    playBtn.classList.add("player-btn-disabled");
+    pauseBtn.disabled = false;
+    pauseBtn.classList.remove("player-btn-disabled");
+  } else {
+    playBtn.disabled = false;
+    playBtn.classList.remove("player-btn-disabled");
+    pauseBtn.disabled = true;
+    pauseBtn.classList.add("player-btn-disabled");
+  }
+  updateNowPlaying();
+}
+
+function applyMusicVolume() {
+  if (ytPlayer && typeof ytPlayer.setVolume === "function")
+    ytPlayer.setVolume(state.volMusic ?? 60);
+}
+
+function switchGenre(id) {
+  const station = STATIONS.find((s) => s.id === id) || STATIONS[0];
+  state.activeGenre = station.id;
+  saveState();
+  applyGenreTheme(station.id);
+  updateGenreButtons();
+  if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+    if (state.musicPlaying) {
+      ytPlayer.loadVideoById(station.videoId);
+    } else {
+      ytPlayer.cueVideoById(station.videoId);
+    }
+  }
+  updateNowPlaying();
+}
+
+function applyGenreTheme(id) {
+  const station = STATIONS.find((s) => s.id === id) || STATIONS[0];
   const card = document.querySelector(".card-audio");
   if (!card) return;
-  card.style.setProperty("--genre-color", meta.color);
-  card.style.setProperty("--genre-bg", meta.bg);
-  // Also update CSS root so genre-btn active glow works globally
-  document.documentElement.style.setProperty("--genre-color", meta.color);
-  document.documentElement.style.setProperty("--genre-bg", meta.bg);
-  // Update stripe color
+  card.style.setProperty("--genre-color", station.color);
+  card.style.setProperty("--genre-bg", station.bg);
+  document.documentElement.style.setProperty("--genre-color", station.color);
+  document.documentElement.style.setProperty("--genre-bg", station.bg);
   const stripe = card.querySelector(".card-stripe-audio");
-  if (stripe) stripe.style.background = meta.color;
-  // Show/hide genre mood displays
-  document.querySelectorAll(".genre-mood-display").forEach((el) => {
-    if (el.dataset.genre === genre) {
-      el.classList.remove("hidden");
-    } else {
-      el.classList.add("hidden");
-    }
-  });
-  // Tint now-playing icon
+  if (stripe) stripe.style.background = station.color;
   const npIcon = document.getElementById("np-icon");
-  if (npIcon) npIcon.style.color = meta.color;
+  if (npIcon) npIcon.style.color = station.color;
 }
 
 function updateGenreButtons() {
@@ -2341,9 +2140,8 @@ function initDrag() {
 // ===================================================================
 // INIT
 // ===================================================================
-async function init() {
+function init() {
   initWorkers();
-  await loadAllManifests();
   loadState();
 
   const primeOnce = () => {

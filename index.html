@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bingo Break</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://www.youtube.com/iframe_api"></script>
   </head>
   <body>
     <!-- Global score popup — floats above everything -->
@@ -12,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v2.48</h1>
+        <h1>Bingo Break v3.0</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -464,12 +465,14 @@
                     class="s-section-label"
                     style="border: none; padding: 0; margin-bottom: 8px"
                   >
-                    Genre
+                    Station
                   </div>
                   <div class="genre-grid">
-                    <button class="genre-btn" data-genre="lofi">Lo-Fi</button>
-                    <button class="genre-btn" data-genre="guitar">
-                      Guitar
+                    <button class="genre-btn" data-genre="lofi">
+                      Lofi Girl
+                    </button>
+                    <button class="genre-btn" data-genre="jazz">
+                      Jazz Café
                     </button>
                     <button class="genre-btn" data-genre="classical">
                       Classical
@@ -477,26 +480,15 @@
                     <button class="genre-btn" data-genre="ambient">
                       Ambient
                     </button>
-                    <button class="genre-btn" data-genre="piano">Piano</button>
+                    <button class="genre-btn" data-genre="chillhop">
+                      Chillhop
+                    </button>
                   </div>
                 </div>
                 <div id="now-playing" class="now-playing now-playing-idle">
                   <span class="now-playing-icon" id="np-icon">♫</span>
                   <div class="np-info">
-                    <span id="np-track">No music playing</span>
-                    <span id="np-artist"
-                      >Select a genre and start a session</span
-                    >
-                  </div>
-                  <div class="np-right">
-                    <a
-                      id="np-url"
-                      href="#"
-                      target="_blank"
-                      rel="noopener"
-                      class="np-link hidden"
-                    ></a>
-                    <span id="np-license" class="np-license"></span>
+                    <span id="np-track">No station selected</span>
                   </div>
                 </div>
                 <div class="player-controls">
@@ -523,79 +515,9 @@
                     ⏭
                   </button>
                 </div>
-                <div
-                  class="genre-mood-display"
-                  id="genre-mood-lofi"
-                  data-genre="lofi"
-                >
-                  <div class="genre-mood-name">Lo-Fi</div>
-                  <div class="genre-mood-desc">
-                    Mellow beats for sustained focus
-                  </div>
-                  <div class="genre-waveform">
-                    <span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span>
-                  </div>
+                <div id="yt-player-wrap">
+                  <div id="yt-player"></div>
                 </div>
-                <div
-                  class="genre-mood-display hidden"
-                  id="genre-mood-guitar"
-                  data-genre="guitar"
-                >
-                  <div class="genre-mood-name">Guitar</div>
-                  <div class="genre-mood-desc">
-                    Warm acoustic tones to keep you grounded
-                  </div>
-                  <div class="genre-waveform">
-                    <span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span>
-                  </div>
-                </div>
-                <div
-                  class="genre-mood-display hidden"
-                  id="genre-mood-classical"
-                  data-genre="classical"
-                >
-                  <div class="genre-mood-name">Classical</div>
-                  <div class="genre-mood-desc">
-                    Timeless compositions for deep thinking
-                  </div>
-                  <div class="genre-waveform">
-                    <span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span>
-                  </div>
-                </div>
-                <div
-                  class="genre-mood-display hidden"
-                  id="genre-mood-ambient"
-                  data-genre="ambient"
-                >
-                  <div class="genre-mood-name">Ambient</div>
-                  <div class="genre-mood-desc">
-                    Atmospheric soundscapes for flow state
-                  </div>
-                  <div class="genre-waveform">
-                    <span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span>
-                  </div>
-                </div>
-                <div
-                  class="genre-mood-display hidden"
-                  id="genre-mood-piano"
-                  data-genre="piano"
-                >
-                  <div class="genre-mood-name">Piano</div>
-                  <div class="genre-mood-desc">
-                    Solo piano for calm, steady work
-                  </div>
-                  <div class="genre-waveform">
-                    <span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span>
-                  </div>
-                </div>
-                <p class="music-note">
-                  Use the play button to start music during work sessions.
-                </p>
               </div>
             </div>
             <div class="card-face card-back card-back-audio">
