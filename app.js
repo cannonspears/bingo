@@ -1257,38 +1257,20 @@ function initSettings() {
   });
 
   // Volume toggles
-  const toggleMusic = document.getElementById("toggle-music");
   const toggleSfx = document.getElementById("toggle-sfx");
-  if (toggleMusic) {
-    toggleMusic.checked = !state.mutedMusic;
-    document.getElementById("music-desc").textContent = state.mutedMusic
-      ? "Off"
-      : "On";
-    toggleMusic.addEventListener("change", () => {
-      state.mutedMusic = !toggleMusic.checked;
-      document.getElementById("music-desc").textContent = state.mutedMusic
-        ? "Off"
-        : "On";
-      applyMusicVolume();
-      
-      // If turning music on during active work session, start music
-      if (!state.mutedMusic && state.running && state.phase === "work" && !musicAudio) {
-        startMusic();
-      }
-      
-      saveState();
-    });
-  }
+  const sfxThemeRow = document.getElementById("sfx-theme-row");
   if (toggleSfx) {
     toggleSfx.checked = !state.mutedSfx;
     document.getElementById("sfx-desc").textContent = state.mutedSfx
       ? "Off"
       : "On";
+    if (sfxThemeRow) sfxThemeRow.classList.toggle("hidden", state.mutedSfx);
     toggleSfx.addEventListener("change", () => {
       state.mutedSfx = !toggleSfx.checked;
       document.getElementById("sfx-desc").textContent = state.mutedSfx
         ? "Off"
         : "On";
+      if (sfxThemeRow) sfxThemeRow.classList.toggle("hidden", state.mutedSfx);
       saveState();
     });
   }
