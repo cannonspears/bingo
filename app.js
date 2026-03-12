@@ -311,11 +311,11 @@ function loadState() {
     state.bingoAcknowledged = false;
     state.workBingoAcknowledged = false;
 
-    // Reset session counters only if inactive for 8+ hours (so working past midnight doesn't interrupt a session)
+    // Reset session counters only if inactive for 4+ hours (so working past midnight doesn't interrupt a session)
     const hoursInactive = state.lastActivityAt
       ? (Date.now() - state.lastActivityAt) / 3_600_000
       : Infinity;
-    if (hoursInactive >= 8) {
+    if (hoursInactive >= 4) {
       state.pomoCount = 0;
       state.breakCount = 0;
     }
