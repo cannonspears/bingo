@@ -546,6 +546,7 @@ async function playTick() {
 
 // ===== MUSIC ENGINE =====
 let ytPlayer = null;
+let ytPlayerReady = false;
 
 function currentStation() {
   return STATIONS.find((s) => s.id === state.activeGenre) || STATIONS[0];
@@ -567,8 +568,17 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady() {
+  // Delegate autoplay permission from parent page to the cross-origin iframe
+  const iframe = ytPlayer.getIframe();
+  if (iframe) iframe.setAttribute("allow", "autoplay");
+  ytPlayerReady = true;
   ytPlayer.setVolume(state.volMusic ?? 60);
   updateNowPlaying();
+  // Fire deferred autoplay if the timer started before the player was ready
+  if (state.running && !state.musicPlaying) {
+    if (state.phase === "work" && state.autoplayWork) startMusic();
+    else if (state.phase === "break" && state.autoplayBreak) startMusic();
+  }
 }
 
 function onPlayerStateChange(event) {
@@ -597,7 +607,7 @@ function updateNowPlaying() {
 }
 
 function startMusic() {
-  if (!ytPlayer || typeof ytPlayer.playVideo !== "function") return;
+  if (!ytPlayer || !ytPlayerReady || typeof ytPlayer.playVideo !== "function") return;
   ytPlayer.unMute();
   ytPlayer.setVolume(state.volMusic ?? 60);
   ytPlayer.playVideo();
@@ -823,7 +833,7 @@ function pauseTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
   if (tickingWorker) tickingWorker.postMessage("ticking-stop");
-  stopMusic();
+  pauseMusic();
   playPause();
   updateTimerUI();
   saveState();
@@ -890,7 +900,7 @@ function phaseComplete() {
     ((nextPhase === "break" && state.autoplayWork && state.autoplayBreak) ||
      (nextPhase === "work"  && state.autoplayBreak && state.autoplayWork));
 
-  if (!seamless) stopMusic();
+  if (!seamless) pauseMusic();
 
   if (state.autoStart) {
     setTimeout(() => {
