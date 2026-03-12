@@ -2268,14 +2268,6 @@ function flipCard(cardIdx) {
   }
 }
 
-function dragFlipCard(cardIdx) {
-  const card = document.querySelector(`.card[data-card="${cardIdx}"]`);
-  if (!card) return;
-  
-  // Just use the regular flipCard function
-  flipCard(cardIdx);
-}
-
 function initFlipCorners() {
   document.querySelectorAll(".flip-corner").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -2326,17 +2318,7 @@ function onPointerMove(e) {
   drag.lastT = now;
   drag.currentX = dx;
   const topCard = cards()[deckOrder[0]];
-  
-  // Different behaviors for left/right drag
-  if (dx > 0) {
-    // Left to right: slide the card out
-    topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
-  } else {
-    // Right to left: scale the card slightly to show peek effect without mirroring
-    // Use scale to indicate the drag is happening, but don't rotate/mirror
-    const scaleAmount = Math.max(0.95, 1 + dx * 0.0005); // Slight scale down as you drag
-    topCard.style.transform = `scale(${scaleAmount})`;
-  }
+  topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
 }
 
 function onPointerUp() {
@@ -2344,35 +2326,19 @@ function onPointerUp() {
   const topCard = cards()[deckOrder[0]];
   const dx = drag.currentX,
     vel = drag.velocityX;
-  const cardIdx = deckOrder[0];
-  
+
   topCard.classList.add("animating");
   
-  if (dx > 0) {
-    // Left to right drag -> navigate to next card
-    const didDrag = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
-    if (didDrag) {
-      const exitX = "110vw",
-        exitRot = "8deg";
-      topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
-      setTimeout(() => {
-        topCard.style.transform = "";
-        goTo((activeCard + 1) % CARD_COUNT, 1);
-      }, 180);
-    } else {
-      topCard.style.transform = transformForDepth(0);
-    }
+  const didSwipe = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
+  if (didSwipe) {
+    const exitX = dx > 0 ? "110vw" : "-110vw";
+    const exitRot = dx > 0 ? "8deg" : "-8deg";
+    topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
+    setTimeout(() => {
+      topCard.style.transform = "";
+      goTo((activeCard + 1) % CARD_COUNT, 1);
+    }, 180);
   } else {
-    // Right to left drag -> peek and flip threshold
-    // Threshold: if dragged more than 80px to the left, commit to flip
-    const flipThreshold = 80;
-    const shouldFlip = Math.abs(dx) > flipThreshold || Math.abs(vel) > 0.4;
-    
-    if (shouldFlip) {
-      // Use dragFlipCard which flips from the right side
-      dragFlipCard(cardIdx);
-    }
-    // Always reset transform back to original position
     topCard.style.transform = transformForDepth(0);
   }
   
