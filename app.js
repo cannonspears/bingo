@@ -568,9 +568,6 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady() {
-  // Delegate autoplay permission from parent page to the cross-origin iframe
-  const iframe = ytPlayer.getIframe();
-  if (iframe) iframe.setAttribute("allow", "autoplay");
   ytPlayerReady = true;
   ytPlayer.setVolume(state.volMusic ?? 60);
   updateNowPlaying();
@@ -584,8 +581,15 @@ function onPlayerReady() {
 function onPlayerStateChange(event) {
   const playing = event.data === YT.PlayerState.PLAYING;
   const paused = event.data === YT.PlayerState.PAUSED;
-  if (playing || paused) {
-    state.musicPlaying = playing;
+  if (playing) {
+    // Unmute as soon as playback starts — the mute in startMusic() was only
+    // needed to satisfy the browser's autoplay policy for the first play.
+    ytPlayer.unMute();
+    ytPlayer.setVolume(state.volMusic ?? 60);
+    state.musicPlaying = true;
+    updatePlayPauseButtons();
+  } else if (paused) {
+    state.musicPlaying = false;
     updatePlayPauseButtons();
   }
 }
@@ -608,7 +612,9 @@ function updateNowPlaying() {
 
 function startMusic() {
   if (!ytPlayer || !ytPlayerReady || typeof ytPlayer.playVideo !== "function") return;
-  ytPlayer.unMute();
+  // Mute first so the browser allows playback without a prior iframe click
+  // (muted autoplay is always permitted). onPlayerStateChange unmutes once playing.
+  ytPlayer.mute();
   ytPlayer.setVolume(state.volMusic ?? 60);
   ytPlayer.playVideo();
 }
