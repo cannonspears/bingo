@@ -85,11 +85,41 @@ const DEFAULT_BREAK_CELLS = DEFAULT_BREAK_TABS.body;
 const DEFAULT_WORK_CELLS = []; // Work list is user-defined, starts empty
 
 const STATIONS = [
-  { id: "lofi",      label: "Lofi Girl",  videoId: "jfKfPfyJRdk", color: "#7c5cbf", bg: "#f0ebff" },
-  { id: "jazz",      label: "Jazz Café",  videoId: "HuFYqnbVbzY", color: "#c0622b", bg: "#fff3eb" },
-  { id: "classical", label: "Classical",  videoId: "DWcJFNfaw9c", color: "#2b6cc0", bg: "#ebf3ff" },
-  { id: "ambient",   label: "Ambient",    videoId: "4oStw0r33so", color: "#2b9c6e", bg: "#ebfff6" },
-  { id: "chillhop",  label: "Chillhop",   videoId: "5yx6BWlEVcY", color: "#9c2b7c", bg: "#ffebf9" },
+  {
+    id: "lofi",
+    label: "Lofi Girl",
+    videoId: "jfKfPfyJRdk",
+    color: "#7c5cbf",
+    bg: "#f0ebff",
+  },
+  {
+    id: "jazz",
+    label: "Jazz Café",
+    videoId: "HuFYqnbVbzY",
+    color: "#c0622b",
+    bg: "#fff3eb",
+  },
+  {
+    id: "classical",
+    label: "Classical",
+    videoId: "jXAEIWcGXwE",
+    color: "#2b6cc0",
+    bg: "#ebf3ff",
+  },
+  {
+    id: "ambient",
+    label: "Ambient",
+    videoId: "xORCbIptqcc",
+    color: "#2b9c6e",
+    bg: "#ebfff6",
+  },
+  {
+    id: "chillhop",
+    label: "Chillhop",
+    videoId: "5yx6BWlEVcY",
+    color: "#9c2b7c",
+    bg: "#ffebf9",
+  },
 ];
 
 // ===== STATE =====
@@ -220,7 +250,10 @@ function loadState() {
     state.blackoutCompletions = { all: 0, body: 0, mind: 0, home: 0 };
   }
   TABS.forEach((tab) => {
-    if (typeof state.lineCompletions[tab] !== "object" || Array.isArray(state.lineCompletions[tab]))
+    if (
+      typeof state.lineCompletions[tab] !== "object" ||
+      Array.isArray(state.lineCompletions[tab])
+    )
       state.lineCompletions[tab] = {};
     if (typeof state.blackoutCompletions[tab] !== "number")
       state.blackoutCompletions[tab] = 0;
@@ -255,14 +288,18 @@ function loadState() {
     // Archive before resetting so we store the actual earned values
     const archivedDate = state.scoreCurrentDate;
     const archivedWork = state.scoreWorkToday;
-    const archivedBrk  = state.scoreBreakToday;
+    const archivedBrk = state.scoreBreakToday;
 
     state.scoreWorkToday = 0;
     state.scoreBreakToday = 0;
     state.scoreCurrentDate = todayStr;
 
     if (archivedDate) {
-      state.scoreHistory.push({ date: archivedDate, work: archivedWork, brk: archivedBrk });
+      state.scoreHistory.push({
+        date: archivedDate,
+        work: archivedWork,
+        brk: archivedBrk,
+      });
       // Keep only last 7 days
       if (state.scoreHistory.length > 7)
         state.scoreHistory = state.scoreHistory.slice(-7);
@@ -407,7 +444,11 @@ function checkAndAwardBreakLines(tabKey) {
       if (minStarInLine > prevCompletion) {
         // This is a new completion! Update the tracking
         lineCompletions[key] = minStarInLine;
-        completedLines.push({ line: line, lineKey: key, completionNum: minStarInLine });
+        completedLines.push({
+          line: line,
+          lineKey: key,
+          completionNum: minStarInLine,
+        });
       }
     }
   }
@@ -435,7 +476,7 @@ function checkAndAwardBreakLines(tabKey) {
       addScore(points, false);
       showScorePopup(`+${points} BLACKOUT! 🔥`);
       showBlackoutAnimation();
-      
+
       // Also glow all the lines that make up this blackout
       for (const line of BREAK_LINES) {
         showLineAnimation(line, minStarOverall, true); // true = blackout glow
@@ -611,7 +652,8 @@ function updateNowPlaying() {
 }
 
 function startMusic() {
-  if (!ytPlayer || !ytPlayerReady || typeof ytPlayer.playVideo !== "function") return;
+  if (!ytPlayer || !ytPlayerReady || typeof ytPlayer.playVideo !== "function")
+    return;
   // Mute first so the browser allows playback without a prior iframe click
   // (muted autoplay is always permitted). onPlayerStateChange unmutes once playing.
   ytPlayer.mute();
@@ -729,11 +771,13 @@ function sendNotification(title, body) {
 
 // ===== TIMER HELPERS =====
 function workMinutes() {
-  if (state.mode === "custom" && state.customWorkMinutes > 0) return state.customWorkMinutes;
+  if (state.mode === "custom" && state.customWorkMinutes > 0)
+    return state.customWorkMinutes;
   return state.mode === "50/10" ? 50 : 25;
 }
 function breakMinutes() {
-  if (state.mode === "custom" && state.customBreakMinutes > 0) return state.customBreakMinutes;
+  if (state.mode === "custom" && state.customBreakMinutes > 0)
+    return state.customBreakMinutes;
   return state.mode === "50/10" ? 10 : 5;
 }
 function totalSeconds() {
@@ -904,7 +948,7 @@ function phaseComplete() {
   const seamless =
     state.autoStart &&
     ((nextPhase === "break" && state.autoplayWork && state.autoplayBreak) ||
-     (nextPhase === "work"  && state.autoplayBreak && state.autoplayWork));
+      (nextPhase === "work" && state.autoplayBreak && state.autoplayWork));
 
   if (!seamless) pauseMusic();
 
@@ -1120,19 +1164,23 @@ function initSettings() {
 
   if (toggleAutoplayWork) {
     toggleAutoplayWork.checked = state.autoplayWork;
-    document.getElementById("autoplay-work-desc").textContent = state.autoplayWork ? "On" : "Off";
+    document.getElementById("autoplay-work-desc").textContent =
+      state.autoplayWork ? "On" : "Off";
     toggleAutoplayWork.addEventListener("change", () => {
       state.autoplayWork = toggleAutoplayWork.checked;
-      document.getElementById("autoplay-work-desc").textContent = state.autoplayWork ? "On" : "Off";
+      document.getElementById("autoplay-work-desc").textContent =
+        state.autoplayWork ? "On" : "Off";
       saveState();
     });
   }
   if (toggleAutoplayBreak) {
     toggleAutoplayBreak.checked = state.autoplayBreak;
-    document.getElementById("autoplay-break-desc").textContent = state.autoplayBreak ? "On" : "Off";
+    document.getElementById("autoplay-break-desc").textContent =
+      state.autoplayBreak ? "On" : "Off";
     toggleAutoplayBreak.addEventListener("change", () => {
       state.autoplayBreak = toggleAutoplayBreak.checked;
-      document.getElementById("autoplay-break-desc").textContent = state.autoplayBreak ? "On" : "Off";
+      document.getElementById("autoplay-break-desc").textContent =
+        state.autoplayBreak ? "On" : "Off";
       saveState();
     });
   }
@@ -1142,7 +1190,7 @@ function initSettings() {
     const breakToggle = document.getElementById("toggle-autostart-break");
     const workDesc = document.getElementById("autostart-desc-work");
     const breakDesc = document.getElementById("autostart-desc-break");
-    
+
     if (workToggle) workToggle.checked = enabled;
     if (breakToggle) breakToggle.checked = enabled;
     if (workDesc) workDesc.textContent = enabled ? "On" : "Off";
@@ -1151,22 +1199,24 @@ function initSettings() {
   };
 
   const toggleAutostartWork = document.getElementById("toggle-autostart-work");
-  const toggleAutostartBreak = document.getElementById("toggle-autostart-break");
-  
+  const toggleAutostartBreak = document.getElementById(
+    "toggle-autostart-break",
+  );
+
   if (toggleAutostartWork) {
     toggleAutostartWork.checked = state.autoStart;
     toggleAutostartWork.addEventListener("change", () => {
       syncAutoStart(toggleAutostartWork.checked);
     });
   }
-  
+
   if (toggleAutostartBreak) {
     toggleAutostartBreak.checked = state.autoStart;
     toggleAutostartBreak.addEventListener("change", () => {
       syncAutoStart(toggleAutostartBreak.checked);
     });
   }
-  
+
   // Initial sync of auto-start display
   syncAutoStart(state.autoStart);
 
@@ -1183,21 +1233,29 @@ function initSettings() {
   }
 
   // Custom timer inputs - synced between both cards
-  const customWorkInputWork  = document.getElementById("custom-work-minutes");
-  const customWorkInputBreak = document.getElementById("custom-work-minutes-break");
-  const customBreakInputWork  = document.getElementById("custom-break-minutes-work");
+  const customWorkInputWork = document.getElementById("custom-work-minutes");
+  const customWorkInputBreak = document.getElementById(
+    "custom-work-minutes-break",
+  );
+  const customBreakInputWork = document.getElementById(
+    "custom-break-minutes-work",
+  );
   const customBreakInputBreak = document.getElementById("custom-break-minutes");
 
   function updateCustomWorkInputs() {
     if (state.customWorkMinutes) {
-      if (customWorkInputWork)  customWorkInputWork.value  = state.customWorkMinutes;
-      if (customWorkInputBreak) customWorkInputBreak.value = state.customWorkMinutes;
+      if (customWorkInputWork)
+        customWorkInputWork.value = state.customWorkMinutes;
+      if (customWorkInputBreak)
+        customWorkInputBreak.value = state.customWorkMinutes;
     }
   }
   function updateCustomBreakInputs() {
     if (state.customBreakMinutes) {
-      if (customBreakInputWork)  customBreakInputWork.value  = state.customBreakMinutes;
-      if (customBreakInputBreak) customBreakInputBreak.value = state.customBreakMinutes;
+      if (customBreakInputWork)
+        customBreakInputWork.value = state.customBreakMinutes;
+      if (customBreakInputBreak)
+        customBreakInputBreak.value = state.customBreakMinutes;
     }
   }
   updateCustomWorkInputs();
@@ -1206,14 +1264,17 @@ function initSettings() {
   function flashSetBtn(btn) {
     btn.textContent = "✓";
     btn.disabled = true;
-    setTimeout(() => { btn.textContent = "Set"; btn.disabled = false; }, 1000);
+    setTimeout(() => {
+      btn.textContent = "Set";
+      btn.disabled = false;
+    }, 1000);
   }
 
   function applyCustomTimes(workInput, breakInput, btn) {
     const wVal = parseInt(workInput?.value, 10);
     const bVal = parseInt(breakInput?.value, 10);
     if (wVal >= 1 && wVal <= 180) state.customWorkMinutes = wVal;
-    if (bVal >= 1 && bVal <= 60)  state.customBreakMinutes = bVal;
+    if (bVal >= 1 && bVal <= 60) state.customBreakMinutes = bVal;
     updateCustomWorkInputs();
     updateCustomBreakInputs();
     pauseTimer();
@@ -1224,18 +1285,34 @@ function initSettings() {
     if (btn) flashSetBtn(btn);
   }
 
-  const btnSetWork  = document.getElementById("btn-set-custom-work");
+  const btnSetWork = document.getElementById("btn-set-custom-work");
   const btnSetBreak = document.getElementById("btn-set-custom-break");
-  if (btnSetWork)  btnSetWork.addEventListener("click",  () => applyCustomTimes(customWorkInputWork,  customBreakInputWork,  btnSetWork));
-  if (btnSetBreak) btnSetBreak.addEventListener("click", () => applyCustomTimes(customWorkInputBreak, customBreakInputBreak, btnSetBreak));
+  if (btnSetWork)
+    btnSetWork.addEventListener("click", () =>
+      applyCustomTimes(customWorkInputWork, customBreakInputWork, btnSetWork),
+    );
+  if (btnSetBreak)
+    btnSetBreak.addEventListener("click", () =>
+      applyCustomTimes(
+        customWorkInputBreak,
+        customBreakInputBreak,
+        btnSetBreak,
+      ),
+    );
 
   // Prevent card drag while typing in custom time inputs
-  [customWorkInputWork, customWorkInputBreak, customBreakInputWork, customBreakInputBreak].forEach((el) => {
+  [
+    customWorkInputWork,
+    customWorkInputBreak,
+    customBreakInputWork,
+    customBreakInputBreak,
+  ].forEach((el) => {
     if (!el) return;
     el.addEventListener("mousedown", (e) => e.stopPropagation());
-    el.addEventListener("touchstart", (e) => e.stopPropagation(), { passive: true });
+    el.addEventListener("touchstart", (e) => e.stopPropagation(), {
+      passive: true,
+    });
   });
-
 
   // Reset break board (all tabs)
   const btnResetBreak = document.getElementById("btn-reset-break-board");
@@ -1498,7 +1575,7 @@ function startEditingTask(idx, textElement) {
   input.value = cell.text;
   input.maxLength = 80;
   input.className = "task-item-text-edit";
-  
+
   textElement.replaceWith(input);
   input.focus();
   input.select();
@@ -1570,9 +1647,11 @@ function recalculateScore() {
           basePointsForCell(n, false) - basePointsForCell(n - 1, false);
     });
     // Calculate line completion points: 10, 20, 30, 40, 50
-    Object.values(state.lineCompletions[tab] || {}).forEach((completionCount) => {
-      breakPts += completionCount * 10;
-    });
+    Object.values(state.lineCompletions[tab] || {}).forEach(
+      (completionCount) => {
+        breakPts += completionCount * 10;
+      },
+    );
     // Calculate blackout points: 100, 200, 300, 400, 500
     breakPts += (state.blackoutCompletions[tab] || 0) * 100;
   });
@@ -1726,10 +1805,10 @@ function toggleCell(index) {
 
   // Render the grid FIRST so the DOM is updated
   renderBreakGrid();
-  
+
   // THEN check for lines/blackout so animations can find the updated cells
   checkAndAwardBreakLines(tab);
-  
+
   saveState();
 }
 
@@ -2024,7 +2103,7 @@ function initKeyboard() {
   document.addEventListener("keydown", (e) => {
     // Don't navigate if user is editing a task input field
     if (e.target.classList.contains("task-item-text-edit")) return;
-    
+
     if (e.key === "ArrowRight") goTo((activeCard + 1) % CARD_COUNT, 1);
     if (e.key === "ArrowLeft")
       goTo((activeCard - 1 + CARD_COUNT) % CARD_COUNT, -1);
@@ -2125,7 +2204,7 @@ function onPointerUp() {
     vel = drag.velocityX;
 
   topCard.classList.add("animating");
-  
+
   const didSwipe = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
   if (didSwipe) {
     const exitX = dx > 0 ? "110vw" : "-110vw";
@@ -2138,7 +2217,7 @@ function onPointerUp() {
   } else {
     topCard.style.transform = transformForDepth(0);
   }
-  
+
   drag = null;
 }
 
@@ -2167,24 +2246,24 @@ function init() {
   document.addEventListener("pointerdown", primeOnce);
 
   // Timer buttons - now global, work from any card
-  document
-    .querySelectorAll(".btn-start")
-    .forEach((btn) => btn.addEventListener("click", (e) => {
+  document.querySelectorAll(".btn-start").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
       e.stopPropagation();
       startTimer();
-    }));
-  document
-    .querySelectorAll(".btn-pause")
-    .forEach((btn) => btn.addEventListener("click", (e) => {
+    }),
+  );
+  document.querySelectorAll(".btn-pause").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
       e.stopPropagation();
       pauseTimer();
-    }));
-  document
-    .querySelectorAll(".btn-reset")
-    .forEach((btn) => btn.addEventListener("click", (e) => {
+    }),
+  );
+  document.querySelectorAll(".btn-reset").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
       e.stopPropagation();
       resetTimer(true);
-    }));
+    }),
+  );
 
   // Settings
   initSettings();
