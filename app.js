@@ -1406,7 +1406,7 @@ function initSettings() {
         scoreWorkAllTimeBase: state.scoreWorkAllTimeBase,
         scoreBreakAllTimeBase: state.scoreBreakAllTimeBase,
       };
-      localStorage.clear();
+      localStorage.removeItem("bingoBreakState2");
       sessionStorage.clear();
       localStorage.setItem("bingoBreakState2", JSON.stringify(scoreFields));
       window.location.reload();
@@ -1422,16 +1422,7 @@ function initSettings() {
           "This will delete EVERYTHING — all scores, tasks, bingo boards, and settings. This cannot be undone. Are you sure?",
         )
       ) {
-        localStorage.clear();
-        sessionStorage.clear();
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.getRegistrations().then((regs) =>
-            regs.forEach((r) => r.unregister()),
-          );
-        }
-        if ("caches" in window) {
-          caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
-        }
+        localStorage.removeItem("bingoBreakState2");
         window.location.reload();
       }
     });
