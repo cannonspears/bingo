@@ -155,8 +155,9 @@ let state = {
   mutedMusic: false,
   mutedSfx: false,
   autoStart: false,
-  autoplayWork: false,
-  autoplayBreak: false,
+  autoplayWork: true,
+  autoplayBreak: true,
+  autoplayDefaulted: true,
   notificationsEnabled: false,
   darkMode: false,
   soundTheme: "chime",
@@ -200,6 +201,13 @@ function loadState() {
     } catch (e) {
       console.warn("Could not parse saved state", e);
     }
+  }
+
+  // Migrate existing users to autoplay-on defaults (one-time, if they haven't explicitly changed it)
+  if (!state.autoplayDefaulted) {
+    state.autoplayWork = true;
+    state.autoplayBreak = true;
+    state.autoplayDefaulted = true;
   }
 
   // Work cells — user-defined task list, no defaults
