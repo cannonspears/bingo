@@ -75,10 +75,29 @@ body.dark {
 body.dark {
   --cream: #1a1a2e;
   --ink: #e0e0e0;
-  --muted: #7a7a9a;
+  --muted: #c8c8e0;
   --rule: #2a2a4a;
   --card-bg: #16213e;
   --body-bg: #1a1a2e;
+}
+
+body.dark .timer-block.timer-dimmed::before {
+  background: color-mix(in srgb, var(--card-bg) 70%, transparent);
+}
+
+body.dark .player-btn {
+  background: color-mix(in srgb, var(--rule) 60%, var(--card-bg));
+  border-color: var(--rule);
+  color: var(--ink);
+}
+body.dark .player-btn:hover {
+  background: color-mix(in srgb, var(--rule) 120%, var(--card-bg));
+  border-color: var(--muted);
+}
+body.dark .player-btn-disabled {
+  background: color-mix(in srgb, var(--rule) 40%, var(--card-bg));
+  color: var(--muted);
+  border-color: var(--rule);
 }
 
 /* ===== HEADER ===== */
