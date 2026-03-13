@@ -2144,7 +2144,12 @@ function syncBottomNav() {
 }
 
 function initBottomNav() {
-  navBtns().forEach((btn, i) => btn.addEventListener("click", () => goTo(i)));
+  navBtns().forEach((btn, i) =>
+    btn.addEventListener("click", () => {
+      if (i === activeCard) flipCard(i);
+      else goTo(i);
+    }),
+  );
 }
 
 function initKeyboard() {
@@ -2203,7 +2208,12 @@ function initFlipCorners() {
 
 function initCardTitleShortcuts() {
   function openSettingsForCard(cardIdx) {
-    // Pre-set the card to its flipped/settings state with no transition,
+    if (activeCard === cardIdx) {
+      // Already on this card — toggle the flip with animation
+      flipCard(cardIdx);
+      return;
+    }
+    // Navigating to a different card — pre-set to settings side with no transition
     // so it arrives already showing settings when the deck slides it in.
     const card = document.querySelector(`.card[data-card="${cardIdx}"]`);
     if (card && !flippedCards.has(cardIdx)) {
@@ -2216,7 +2226,7 @@ function initCardTitleShortcuts() {
         requestAnimationFrame(() => { flipper.style.transition = ""; })
       );
     }
-    if (activeCard !== cardIdx) goTo(cardIdx);
+    goTo(cardIdx);
   }
 
   // Right-click bottom nav button
