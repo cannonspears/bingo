@@ -2153,6 +2153,56 @@ function initFlipCorners() {
   });
 }
 
+function initCardTitleShortcuts() {
+  function openSettingsForCard(cardIdx) {
+    // Pre-set the card to its flipped/settings state with no transition,
+    // so it arrives already showing settings when the deck slides it in.
+    const card = document.querySelector(`.card[data-card="${cardIdx}"]`);
+    if (card && !flippedCards.has(cardIdx)) {
+      const flipper = card.querySelector(".card-flipper");
+      flipper.style.transition = "none";
+      flippedCards.add(cardIdx);
+      card.classList.add("flipped");
+      card.classList.remove("drag-flip", "flipping");
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => { flipper.style.transition = ""; })
+      );
+    }
+    if (activeCard !== cardIdx) goTo(cardIdx);
+  }
+
+  // Right-click bottom nav button
+  document.addEventListener("mousedown", (e) => {
+    if (e.button !== 2) return;
+    const btn = e.target.closest(".bnav");
+    if (!btn) return;
+    e.preventDefault();
+    openSettingsForCard(parseInt(btn.dataset.i));
+  }, true);
+
+  // Suppress the context menu on nav buttons
+  document.addEventListener("contextmenu", (e) => {
+    if (!e.target.closest(".bnav")) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  // Long-press on mobile
+  let longPressTimer = null;
+  document.addEventListener("touchstart", (e) => {
+    const btn = e.target.closest(".bnav");
+    if (!btn) return;
+    longPressTimer = setTimeout(() => {
+      longPressTimer = null;
+      openSettingsForCard(parseInt(btn.dataset.i));
+    }, 500);
+  }, { passive: true });
+  const cancelLongPress = () => { clearTimeout(longPressTimer); longPressTimer = null; };
+  document.addEventListener("touchmove", cancelLongPress, { passive: true });
+  document.addEventListener("touchend", cancelLongPress);
+  document.addEventListener("touchcancel", cancelLongPress);
+}
+
 // Drag/swipe
 let drag = null;
 
@@ -2367,6 +2417,7 @@ function init() {
   initKeyboard();
   initCardClicks();
   initFlipCorners();
+  initCardTitleShortcuts();
   initDrag();
 
   // Apply saved genre theme
