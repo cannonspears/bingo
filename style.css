@@ -1432,6 +1432,14 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   background: var(--c-set);
   color: white;
 }
+.action-btn-warn {
+  border-color: var(--c-set);
+  color: var(--c-set);
+}
+.action-btn-warn:hover {
+  background: var(--c-set) !important;
+  color: white !important;
+}
 .action-btn-danger {
   border-color: var(--c-work);
   color: var(--c-work);

@@ -1383,6 +1383,36 @@ function initSettings() {
     });
   }
 
+  // Reset to defaults (keep scores)
+  const btnResetDefaults = document.getElementById("btn-reset-defaults");
+  if (btnResetDefaults) {
+    btnResetDefaults.addEventListener("click", () => {
+      if (
+        !confirm(
+          "This will reset all settings and custom lists to defaults. Your scores and history will be kept. Continue?",
+        )
+      )
+        return;
+      const scoreFields = {
+        pomoCount: state.pomoCount,
+        breakCount: state.breakCount,
+        scoreHistory: state.scoreHistory,
+        scoreWorkToday: state.scoreWorkToday,
+        scoreBreakToday: state.scoreBreakToday,
+        scoreWorkYesterday: state.scoreWorkYesterday,
+        scoreBreakYesterday: state.scoreBreakYesterday,
+        scoreWorkAllTime: state.scoreWorkAllTime,
+        scoreBreakAllTime: state.scoreBreakAllTime,
+        scoreWorkAllTimeBase: state.scoreWorkAllTimeBase,
+        scoreBreakAllTimeBase: state.scoreBreakAllTimeBase,
+      };
+      localStorage.clear();
+      sessionStorage.clear();
+      localStorage.setItem("bingoBreakState2", JSON.stringify(scoreFields));
+      window.location.reload();
+    });
+  }
+
   // Wipe all data (scores, tasks, break activities, everything)
   const btnWipeAllData = document.getElementById("btn-wipe-all-data");
   if (btnWipeAllData) {
@@ -1392,9 +1422,16 @@ function initSettings() {
           "This will delete EVERYTHING — all scores, tasks, bingo boards, and settings. This cannot be undone. Are you sure?",
         )
       ) {
-        // Reset to default state
-        localStorage.removeItem("bingoBreakState2");
-        // Reload the page to reinitialize
+        localStorage.clear();
+        sessionStorage.clear();
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((regs) =>
+            regs.forEach((r) => r.unregister()),
+          );
+        }
+        if ("caches" in window) {
+          caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+        }
         window.location.reload();
       }
     });
