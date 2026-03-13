@@ -1471,7 +1471,16 @@ function renderWorkTaskList() {
     return;
   }
 
-  // Active tasks — hidden when viewing completed-only mode
+  // Incomplete divider
+  if (active.length > 0) {
+    const incompleteDivider = document.createElement("div");
+    incompleteDivider.className = "work-task-done-divider";
+    incompleteDivider.innerHTML = `<span>Incomplete (${active.length})</span>`;
+    incompleteDivider.style.display = state.showDoneTasks ? "none" : "flex";
+    container.appendChild(incompleteDivider);
+  }
+
+  // Active tasks — visible when not in "Show Done" mode
   active.forEach((cell) => {
     const idx = state.workCells.indexOf(cell);
     const item = buildTaskItem(cell, idx, false);
@@ -1500,9 +1509,10 @@ function renderWorkTaskList() {
   // Update toggle button
   if (toggleBtn) {
     const hasDone = done.length > 0;
-    toggleBtn.disabled = !hasDone;
-    toggleBtn.title = state.showDoneTasks ? "Hide completed" : "Show completed";
-    toggleBtn.style.opacity = hasDone ? "1" : "0.3";
+    const canToggle = hasDone || state.showDoneTasks;
+    toggleBtn.disabled = !canToggle;
+    toggleBtn.textContent = state.showDoneTasks ? "Hide Done" : "Show Done";
+    toggleBtn.style.opacity = canToggle ? "1" : "0.3";
     toggleBtn.style.color = state.showDoneTasks ? "var(--c-work)" : "";
     toggleBtn.style.borderColor = state.showDoneTasks ? "var(--c-work)" : "";
   }
@@ -2329,7 +2339,7 @@ function init() {
     ?.addEventListener("click", (e) => {
       e.stopPropagation();
       const hasDone = state.workCells.some(c => c.count > 0);
-      if (!hasDone) return;
+      if (!hasDone && !state.showDoneTasks) return;
       state.showDoneTasks = !state.showDoneTasks;
       saveState();
       renderWorkTaskList();
