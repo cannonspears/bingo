@@ -1467,7 +1467,7 @@ function renderWorkTaskList() {
 
   const toggleBtn = document.getElementById("btn-toggle-done-tasks");
   if (active.length === 0 && done.length === 0) {
-    if (toggleBtn) toggleBtn.style.opacity = "0.3";
+    if (toggleBtn) { toggleBtn.style.opacity = "0.3"; toggleBtn.disabled = true; }
     return;
   }
 
@@ -1499,8 +1499,10 @@ function renderWorkTaskList() {
 
   // Update toggle button
   if (toggleBtn) {
+    const hasDone = done.length > 0;
+    toggleBtn.disabled = !hasDone;
     toggleBtn.title = state.showDoneTasks ? "Hide completed" : "Show completed";
-    toggleBtn.style.opacity = done.length > 0 ? "1" : "0.3";
+    toggleBtn.style.opacity = hasDone ? "1" : "0.3";
     toggleBtn.style.color = state.showDoneTasks ? "var(--c-work)" : "";
     toggleBtn.style.borderColor = state.showDoneTasks ? "var(--c-work)" : "";
   }
@@ -2326,6 +2328,8 @@ function init() {
     .getElementById("btn-toggle-done-tasks")
     ?.addEventListener("click", (e) => {
       e.stopPropagation();
+      const hasDone = state.workCells.some(c => c.count > 0);
+      if (!hasDone) return;
       state.showDoneTasks = !state.showDoneTasks;
       saveState();
       renderWorkTaskList();

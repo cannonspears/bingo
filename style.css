@@ -1838,6 +1838,10 @@ body.dark .bnav {
   flex-shrink: 0;
   padding: 0;
 }
+.header-edit-btn:disabled {
+  pointer-events: none;
+  cursor: default;
+}
 .header-edit-btn:hover {
   border-color: var(--c-work);
   color: var(--c-work);
