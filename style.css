@@ -1572,7 +1572,6 @@ body.dark .bnav {
 }
 
 /* ===== MODALS ===== */
-/* ===== MODALS ===== */
 .modal {
   position: fixed;
   inset: 0;
@@ -1604,6 +1603,20 @@ body.dark .bnav {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+#phase-modal-emoji {
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+}
+#phase-modal-msg {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+#btn-close-phase-modal {
+  min-width: 120px;
 }
 
 /* Customize modal */
@@ -1696,6 +1709,7 @@ body.dark .bnav {
 .customize-actions button {
   flex: 1;
   min-width: 100px;
+  white-space: normal;
 }
 #btn-customize-save {
   background: var(--c-set);
@@ -1705,23 +1719,14 @@ body.dark .bnav {
 #btn-customize-save:hover {
   background: #1a252f;
   border-color: #1a252f;
+  color: white;
 }
-#btn-customize-cancel {
-  background: transparent;
-  border-color: var(--rule);
-  color: var(--muted);
-}
-#btn-customize-cancel:hover {
-  border-color: var(--muted);
-  color: var(--ink);
-  background: transparent;
-}
+#btn-customize-cancel,
 #btn-customize-defaults {
-  background: transparent;
   border-color: var(--rule);
   color: var(--muted);
-  font-size: 0.78rem;
 }
+#btn-customize-cancel:hover,
 #btn-customize-defaults:hover {
   border-color: var(--muted);
   color: var(--ink);

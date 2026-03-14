@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.12</h1>
+        <h1>Bingo Break v3.13</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -327,10 +327,12 @@
                 </div>
                 <!-- Physical tab bar -->
                 <div class="break-tab-bar">
-                  <button class="break-tab active" data-tab="all">All</button>
-                  <button class="break-tab" data-tab="body">🏃 Body</button>
-                  <button class="break-tab" data-tab="mind">🧠 Mind</button>
-                  <button class="break-tab" data-tab="home">🏠 Home</button>
+                  <button class="break-tab active" data-tab="all">
+                    Custom
+                  </button>
+                  <button class="break-tab" data-tab="body">Body</button>
+                  <button class="break-tab" data-tab="mind">Mind</button>
+                  <button class="break-tab" data-tab="home">Home</button>
                 </div>
                 <div class="break-tab-panel">
                   <div id="break-grid" class="bingo-grid"></div>
@@ -974,9 +976,13 @@
         </p>
         <div id="customize-list"></div>
         <div class="customize-actions">
-          <button id="btn-customize-save">🔀 Save &amp; Apply</button>
-          <button id="btn-customize-cancel">Cancel</button>
-          <button id="btn-customize-defaults">Reset to Defaults</button>
+          <button id="btn-customize-save" class="action-btn">
+            Save &amp; Apply
+          </button>
+          <button id="btn-customize-cancel" class="action-btn">Cancel</button>
+          <button id="btn-customize-defaults" class="action-btn">
+            Reset to Defaults
+          </button>
         </div>
       </div>
     </div>
@@ -986,7 +992,7 @@
       <div class="modal-content">
         <h2 id="phase-modal-emoji"></h2>
         <p id="phase-modal-msg"></p>
-        <button id="btn-close-phase-modal">Let's go!</button>
+        <button id="btn-close-phase-modal" class="action-btn">Let's go!</button>
       </div>
     </div>
 

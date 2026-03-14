@@ -1503,7 +1503,10 @@ function renderWorkTaskList() {
 
   const toggleBtn = document.getElementById("btn-toggle-done-tasks");
   if (active.length === 0 && done.length === 0) {
-    if (toggleBtn) { toggleBtn.style.opacity = "0.3"; toggleBtn.disabled = true; }
+    if (toggleBtn) {
+      toggleBtn.style.opacity = "0.3";
+      toggleBtn.disabled = true;
+    }
     return;
   }
 
@@ -1907,15 +1910,18 @@ function openCustomizeModal(isWork, breakTabKey) {
   if (isWork) {
     cells = state.workCells;
     defaults = [];
-    titleText = "✏ Today's Tasks";
+    titleText = "Today's Tasks";
   } else {
     const tab = breakTabKey || state.activeBreakTab;
     cells = state.breakTabs[tab];
     defaults = DEFAULT_BREAK_TABS[tab];
-    const tabLabel = { all: "All", body: "Body", mind: "Mind", home: "Home" }[
-      tab
-    ];
-    titleText = `✏ Edit ${tabLabel} Activities`;
+    const tabLabel = {
+      all: "Custom",
+      body: "Body",
+      mind: "Mind",
+      home: "Home",
+    }[tab];
+    titleText = `Edit ${tabLabel} Activities`;
     breakTabKey = tab;
   }
 
@@ -2223,39 +2229,56 @@ function initCardTitleShortcuts() {
       card.classList.add("flipped");
       card.classList.remove("drag-flip", "flipping");
       requestAnimationFrame(() =>
-        requestAnimationFrame(() => { flipper.style.transition = ""; })
+        requestAnimationFrame(() => {
+          flipper.style.transition = "";
+        }),
       );
     }
     goTo(cardIdx);
   }
 
   // Right-click bottom nav button
-  document.addEventListener("mousedown", (e) => {
-    if (e.button !== 2) return;
-    const btn = e.target.closest(".bnav");
-    if (!btn) return;
-    e.preventDefault();
-    openSettingsForCard(parseInt(btn.dataset.i));
-  }, true);
+  document.addEventListener(
+    "mousedown",
+    (e) => {
+      if (e.button !== 2) return;
+      const btn = e.target.closest(".bnav");
+      if (!btn) return;
+      e.preventDefault();
+      openSettingsForCard(parseInt(btn.dataset.i));
+    },
+    true,
+  );
 
   // Suppress the context menu on nav buttons
-  document.addEventListener("contextmenu", (e) => {
-    if (!e.target.closest(".bnav")) return;
-    e.preventDefault();
-    e.stopPropagation();
-  }, true);
+  document.addEventListener(
+    "contextmenu",
+    (e) => {
+      if (!e.target.closest(".bnav")) return;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    true,
+  );
 
   // Long-press on mobile
   let longPressTimer = null;
-  document.addEventListener("touchstart", (e) => {
-    const btn = e.target.closest(".bnav");
-    if (!btn) return;
-    longPressTimer = setTimeout(() => {
-      longPressTimer = null;
-      openSettingsForCard(parseInt(btn.dataset.i));
-    }, 500);
-  }, { passive: true });
-  const cancelLongPress = () => { clearTimeout(longPressTimer); longPressTimer = null; };
+  document.addEventListener(
+    "touchstart",
+    (e) => {
+      const btn = e.target.closest(".bnav");
+      if (!btn) return;
+      longPressTimer = setTimeout(() => {
+        longPressTimer = null;
+        openSettingsForCard(parseInt(btn.dataset.i));
+      }, 500);
+    },
+    { passive: true },
+  );
+  const cancelLongPress = () => {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  };
   document.addEventListener("touchmove", cancelLongPress, { passive: true });
   document.addEventListener("touchend", cancelLongPress);
   document.addEventListener("touchcancel", cancelLongPress);
@@ -2384,7 +2407,7 @@ function init() {
     .getElementById("btn-toggle-done-tasks")
     ?.addEventListener("click", (e) => {
       e.stopPropagation();
-      const hasDone = state.workCells.some(c => c.count > 0);
+      const hasDone = state.workCells.some((c) => c.count > 0);
       if (!hasDone && !state.showDoneTasks) return;
       state.showDoneTasks = !state.showDoneTasks;
       saveState();
