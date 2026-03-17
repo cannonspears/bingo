@@ -71,6 +71,7 @@ function buildTaskItem(cell, idx, isDone) {
   const item = document.createElement("div");
   item.className = "work-task-item" + (isDone ? " completed" : "");
   item.dataset.index = idx;
+  item.dataset.difficulty = cell.difficulty || "easy";
 
   const icon = document.createElement("div");
   icon.className = "task-item-icon";

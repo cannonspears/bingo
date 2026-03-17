@@ -1942,7 +1942,15 @@ body.dark .bnav {
   transition: all 0.15s;
   user-select: none;
 }
-.work-task-item:hover {
+.work-task-item[data-difficulty="easy"]:not(.completed):hover {
+  border-color: #22c55e;
+  background: color-mix(in srgb, #22c55e 6%, var(--card-bg));
+}
+.work-task-item[data-difficulty="medium"]:not(.completed):hover {
+  border-color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 6%, var(--card-bg));
+}
+.work-task-item[data-difficulty="hard"]:not(.completed):hover {
   border-color: var(--c-work);
   background: color-mix(in srgb, var(--c-work) 6%, var(--card-bg));
 }
@@ -1972,9 +1980,9 @@ body.dark .bnav {
   font-size: 0.65rem;
   transition: all 0.15s;
 }
-.work-task-item:not(.completed):hover .task-item-icon {
-  border-color: var(--c-work);
-}
+.work-task-item[data-difficulty="easy"]:not(.completed):hover .task-item-icon   { border-color: #22c55e; }
+.work-task-item[data-difficulty="medium"]:not(.completed):hover .task-item-icon { border-color: #f59e0b; }
+.work-task-item[data-difficulty="hard"]:not(.completed):hover .task-item-icon   { border-color: var(--c-work); }
 .work-task-item.completed .task-item-icon {
   background: color-mix(in srgb, var(--c-work) 20%, transparent);
   border-color: var(--c-work);
@@ -2044,12 +2052,13 @@ body.dark .bnav {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.task-diff-badge--easy   { border-color: #22c55e; }
+.task-diff-badge { border-color: transparent; }
 .task-diff-badge--easy   .task-diff-dot { background: #22c55e; }
-.task-diff-badge--medium { border-color: #f59e0b; }
 .task-diff-badge--medium .task-diff-dot { background: #f59e0b; }
-.task-diff-badge--hard   { border-color: var(--c-work); }
 .task-diff-badge--hard   .task-diff-dot { background: var(--c-work); }
+.work-task-item:not(.completed):hover .task-diff-badge--easy   { border-color: #22c55e; }
+.work-task-item:not(.completed):hover .task-diff-badge--medium { border-color: #f59e0b; }
+.work-task-item:not(.completed):hover .task-diff-badge--hard   { border-color: var(--c-work); }
 .work-task-item.completed .task-diff-badge {
   opacity: 0.35;
   cursor: default;
