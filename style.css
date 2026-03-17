@@ -73,7 +73,9 @@ body.dark {
   overflow: hidden;
 }
 
-input, textarea, [contenteditable] {
+input,
+textarea,
+[contenteditable] {
   user-select: text;
   -webkit-user-select: text;
   -webkit-touch-callout: default;
@@ -312,7 +314,7 @@ header.header-break .tagline {
 /* Reduced top padding when a card-header precedes card-body */
 /* On the work card, inner layout controls scrolling — body itself doesn't scroll */
 .card-body--notop {
-  padding-top: 8px;
+  padding-top: 0px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -532,7 +534,7 @@ body.dark .card-title {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin: 10px 0 6px;
+  margin: 0 10px 06px 6px;
   flex-shrink: 0;
 }
 .grid-header-left {
@@ -1987,7 +1989,6 @@ body.dark .bnav {
   border-color: #a63224;
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-work) 10%, transparent);
 }
-
 
 .task-item-focus-hint {
   font-size: 0.6rem;
