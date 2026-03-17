@@ -2019,6 +2019,43 @@ body.dark .bnav {
   opacity: 1;
 }
 
+/* ===== TASK DIFFICULTY BADGE ===== */
+.task-diff-badge {
+  width: 32px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.task-diff-badge:active {
+  transform: scale(0.88);
+}
+.task-diff-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.task-diff-badge--easy   { border-color: #22c55e; }
+.task-diff-badge--easy   .task-diff-dot { background: #22c55e; }
+.task-diff-badge--medium { border-color: #f59e0b; }
+.task-diff-badge--medium .task-diff-dot { background: #f59e0b; }
+.task-diff-badge--hard   { border-color: var(--c-work); }
+.task-diff-badge--hard   .task-diff-dot { background: var(--c-work); }
+.work-task-item.completed .task-diff-badge {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
 .task-item-undo {
   font-size: 0.65rem;
   color: var(--muted);

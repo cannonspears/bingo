@@ -90,11 +90,11 @@ function loadState() {
   if (!Array.isArray(state.workCells)) {
     state.workCells = [];
   }
-  state.workCells = state.workCells.map((c) =>
-    typeof c.count !== "number"
-      ? { text: c.text, count: c.completed ? 1 : 0 }
-      : c,
-  );
+  state.workCells = state.workCells.map((c) => ({
+    text: c.text,
+    count: typeof c.count === "number" ? c.count : (c.completed ? 1 : 0),
+    difficulty: c.difficulty || "easy",
+  }));
 
   // Break tabs — migrate from legacy single breakCells if needed
   const TABS = ["all", "body", "mind", "home"];

@@ -1,3 +1,9 @@
+// ===== DIFFICULTY HELPERS =====
+function pointsForTask(cell) {
+  const map = { easy: 10, medium: 20, hard: 30 };
+  return map[cell.difficulty || "easy"];
+}
+
 // ===== WORK TASK LIST RENDERER =====
 function renderWorkTaskList() {
   const container = document.getElementById("work-task-list");
@@ -80,9 +86,10 @@ function buildTaskItem(cell, idx, isDone) {
       exitFocusMode();
     } else {
       // Complete task
+      const pts = pointsForTask(state.workCells[idx]);
       state.workCells[idx].count = 1;
-      addScore(10, true);
-      showScorePopup(`+10 pts ✓`);
+      addScore(pts, true);
+      showScorePopup(`+${pts} pts ✓`);
       saveState();
       renderWorkTaskList();
     }
@@ -97,6 +104,27 @@ function buildTaskItem(cell, idx, isDone) {
     if (!isDone) startEditingTask(idx, text);
   });
   item.appendChild(text);
+
+  // Difficulty badge (shown for all tasks; non-interactive when done)
+  const diffBadge = document.createElement("span");
+  const diff = cell.difficulty || "easy";
+  diffBadge.className = `task-diff-badge task-diff-badge--${diff}`;
+  const dotCount = { easy: 1, medium: 2, hard: 3 }[diff];
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement("span");
+    dot.className = "task-diff-dot";
+    diffBadge.appendChild(dot);
+  }
+  if (!isDone) {
+    diffBadge.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const order = ["easy", "medium", "hard"];
+      state.workCells[idx].difficulty = order[(order.indexOf(diff) + 1) % 3];
+      saveState();
+      renderWorkTaskList();
+    });
+  }
+  item.appendChild(diffBadge);
 
   if (!isDone) {
     // Focus hint
@@ -160,6 +188,8 @@ function enterFocusMode(taskIdx) {
   const focusName = document.getElementById("focus-task-name");
 
   if (focusName) focusName.textContent = task.text || "Unnamed task";
+  const ptsLabel = document.getElementById("complete-pts-label");
+  if (ptsLabel) ptsLabel.textContent = `+${pointsForTask(task)} pts`;
   if (listView) listView.classList.add("hidden");
   if (focusView) focusView.classList.remove("hidden");
 }
@@ -181,9 +211,10 @@ function completeCurrentFocusTask() {
   const cell = state.workCells[idx];
   if (cell.count >= 1) return;
 
+  const pts = pointsForTask(cell);
   cell.count = 1;
-  addScore(10, true);
-  showScorePopup(`+10 pts ✓`);
+  addScore(pts, true);
+  showScorePopup(`+${pts} pts ✓`);
   saveState();
   exitFocusMode();
 }
@@ -192,7 +223,7 @@ function recalculateScore() {
   let workPts = 0,
     breakPts = 0;
   state.workCells.forEach((c) => {
-    if (c.count >= 1) workPts += 10;
+    if (c.count >= 1) workPts += pointsForTask(c);
   });
   const TABS = ["all", "body", "mind", "home"];
   TABS.forEach((tab) => {
@@ -228,7 +259,7 @@ function initInlineTaskAdd() {
   function addTask() {
     const text = input?.value.trim();
     if (!text) return;
-    state.workCells.push({ text, count: 0 });
+    state.workCells.push({ text, count: 0, difficulty: "easy" });
     saveState();
     renderWorkTaskList();
     if (input) input.value = "";
