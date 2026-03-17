@@ -125,15 +125,17 @@ function buildTaskItem(cell, idx, isDone) {
       renderWorkTaskList();
     });
   }
-  item.appendChild(diffBadge);
-
   if (!isDone) {
     // Focus hint
     const hint = document.createElement("span");
     hint.className = "task-item-focus-hint";
     hint.textContent = "Focus →";
     item.appendChild(hint);
+  }
 
+  item.appendChild(diffBadge);
+
+  if (!isDone) {
     item.addEventListener("click", () => enterFocusMode(idx));
 
     // Right-click to delete
