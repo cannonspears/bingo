@@ -1284,6 +1284,21 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   align-items: center;
   gap: 5px;
 }
+.info-item--menu {
+  align-items: baseline;
+  gap: 0;
+}
+.menu-label {
+  white-space: nowrap;
+}
+.menu-dots {
+  flex: 1;
+  border-bottom: 1.5px dotted var(--rule);
+  margin: 0 5px 2px;
+}
+.menu-value {
+  white-space: nowrap;
+}
 
 /* ===== SEGMENTED MODE SELECTOR ===== */
 .mode-segment {
