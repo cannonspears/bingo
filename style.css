@@ -1756,7 +1756,7 @@ body.dark .bnav {
   padding: 7px 10px;
   border: 1.5px dashed var(--rule);
   border-radius: 9px;
-  margin-top: 6px;
+  margin-bottom: 6px;
   background: color-mix(in srgb, var(--rule) 10%, var(--card-bg));
   transition: border-color 0.2s;
   flex-shrink: 0;
@@ -2018,6 +2018,7 @@ body.dark .bnav {
   align-items: center;
   gap: 8px;
   margin: 6px 0 2px;
+  flex-shrink: 0;
 }
 .work-task-done-divider span {
   font-size: 0.55rem;

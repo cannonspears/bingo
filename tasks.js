@@ -8,21 +8,28 @@ function renderWorkTaskList() {
   const done = state.workCells.filter((c) => c.count > 0);
 
   const toggleBtn = document.getElementById("btn-toggle-done-tasks");
+  const sectionLabel = document.getElementById("work-section-label");
+
   if (active.length === 0 && done.length === 0) {
     if (toggleBtn) {
       toggleBtn.style.opacity = "0.3";
       toggleBtn.disabled = true;
     }
+    if (sectionLabel) sectionLabel.style.display = "none";
     return;
   }
 
-  // Incomplete divider
-  if (active.length > 0) {
-    const incompleteDivider = document.createElement("div");
-    incompleteDivider.className = "work-task-done-divider";
-    incompleteDivider.innerHTML = `<span>Incomplete (${active.length})</span>`;
-    incompleteDivider.style.display = state.showDoneTasks ? "none" : "flex";
-    container.appendChild(incompleteDivider);
+  // Update pinned section label
+  if (sectionLabel) {
+    if (state.showDoneTasks && done.length > 0) {
+      sectionLabel.querySelector("span").textContent = `Completed (${done.length})`;
+      sectionLabel.style.display = "flex";
+    } else if (!state.showDoneTasks && active.length > 0) {
+      sectionLabel.querySelector("span").textContent = `Incomplete (${active.length})`;
+      sectionLabel.style.display = "flex";
+    } else {
+      sectionLabel.style.display = "none";
+    }
   }
 
   // Active tasks — visible when not in "Show Done" mode
@@ -34,22 +41,13 @@ function renderWorkTaskList() {
   });
 
   // Done tasks (hidden unless toggled)
-  if (done.length > 0) {
-    const divider = document.createElement("div");
-    divider.className = "work-task-done-divider";
-    divider.id = "work-done-divider";
-    divider.innerHTML = `<span>Completed (${done.length})</span>`;
-    divider.style.display = state.showDoneTasks ? "flex" : "none";
-    container.appendChild(divider);
-
-    done.forEach((cell) => {
-      const idx = state.workCells.indexOf(cell);
-      const item = buildTaskItem(cell, idx, true);
-      item.style.display = state.showDoneTasks ? "flex" : "none";
-      item.dataset.isDone = "1";
-      container.appendChild(item);
-    });
-  }
+  done.forEach((cell) => {
+    const idx = state.workCells.indexOf(cell);
+    const item = buildTaskItem(cell, idx, true);
+    item.style.display = state.showDoneTasks ? "flex" : "none";
+    item.dataset.isDone = "1";
+    container.appendChild(item);
+  });
 
   // Update toggle button
   if (toggleBtn) {

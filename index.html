@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.15</h1>
+        <h1>Bingo Break v3.15.1</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -105,8 +105,6 @@
                       </div>
                     </div>
                   </div>
-                  <!-- Task list -->
-                  <div id="work-task-list" class="work-task-list"></div>
                   <!-- Inline add row -->
                   <div class="work-add-row" id="work-add-row">
                     <div class="work-add-icon">+</div>
@@ -126,6 +124,16 @@
                       ↵
                     </button>
                   </div>
+                  <!-- Pinned section label (Incomplete / Completed) -->
+                  <div
+                    id="work-section-label"
+                    class="work-task-done-divider"
+                    style="display: none"
+                  >
+                    <span></span>
+                  </div>
+                  <!-- Task list -->
+                  <div id="work-task-list" class="work-task-list"></div>
                 </div>
 
                 <!-- FOCUS MODE VIEW (when a task is focused) -->
