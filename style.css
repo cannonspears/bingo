@@ -1744,6 +1744,10 @@ body.dark .bnav {
   flex: 1;
   min-height: 0;
 }
+.work-tasklist-view .grid-header-row {
+  padding-left: 2px;
+  padding-right: 2px;
+}
 .work-tasklist-view.hidden {
   display: none;
 }
