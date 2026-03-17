@@ -310,8 +310,12 @@ header.header-break .tagline {
 }
 
 /* Reduced top padding when a card-header precedes card-body */
+/* On the work card, inner layout controls scrolling — body itself doesn't scroll */
 .card-body--notop {
   padding-top: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Card nav */
@@ -529,6 +533,7 @@ body.dark .card-title {
   align-items: flex-end;
   justify-content: space-between;
   margin: 10px 0 6px;
+  flex-shrink: 0;
 }
 .grid-header-left {
   display: flex;
@@ -1734,7 +1739,10 @@ body.dark .bnav {
 }
 
 .work-tasklist-view {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 .work-tasklist-view.hidden {
   display: none;
@@ -1751,6 +1759,7 @@ body.dark .bnav {
   margin-top: 6px;
   background: color-mix(in srgb, var(--rule) 10%, var(--card-bg));
   transition: border-color 0.2s;
+  flex-shrink: 0;
 }
 .work-add-row:focus-within {
   border-color: var(--c-work);
@@ -1888,7 +1897,14 @@ body.dark .bnav {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.work-task-list::-webkit-scrollbar {
+  display: none;
 }
 
 .work-task-item {
@@ -2023,6 +2039,7 @@ body.dark .bnav {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
   padding: 8px 0 0;
   animation: focusIn 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
