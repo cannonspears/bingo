@@ -2039,7 +2039,7 @@ body.dark .bnav {
   gap: 3px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: opacity 0.15s, transform 0.1s;
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.2s;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -2056,9 +2056,21 @@ body.dark .bnav {
 .task-diff-badge--easy   .task-diff-dot { background: #22c55e; }
 .task-diff-badge--medium .task-diff-dot { background: #f59e0b; }
 .task-diff-badge--hard   .task-diff-dot { background: var(--c-work); }
-.work-task-item:not(.completed):hover .task-diff-badge--easy   { border-color: #22c55e; }
-.work-task-item:not(.completed):hover .task-diff-badge--medium { border-color: #f59e0b; }
-.work-task-item:not(.completed):hover .task-diff-badge--hard   { border-color: var(--c-work); }
+.work-task-item:not(.completed) .task-diff-badge--easy:hover {
+  box-shadow: 0 3px 10px color-mix(in srgb, #22c55e 45%, transparent),
+              0 1px 4px  color-mix(in srgb, #22c55e 25%, transparent);
+  transform: translateY(-1px);
+}
+.work-task-item:not(.completed) .task-diff-badge--medium:hover {
+  box-shadow: 0 3px 10px color-mix(in srgb, #f59e0b 45%, transparent),
+              0 1px 4px  color-mix(in srgb, #f59e0b 25%, transparent);
+  transform: translateY(-1px);
+}
+.work-task-item:not(.completed) .task-diff-badge--hard:hover {
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--c-work) 45%, transparent),
+              0 1px 4px  color-mix(in srgb, var(--c-work) 25%, transparent);
+  transform: translateY(-1px);
+}
 .work-task-item.completed .task-diff-badge {
   opacity: 0.35;
   cursor: default;
