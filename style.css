@@ -1878,11 +1878,13 @@ body.dark .bnav {
   pointer-events: none;
   cursor: default;
 }
-#btn-toggle-done-tasks {
+#btn-toggle-done-tasks,
+#btn-edit-break-tab {
   width: auto;
   padding: 0 8px;
   font-size: 0.54rem;
   letter-spacing: 2px;
+  text-indent: 2px;
   line-height: 1;
   text-transform: uppercase;
   font-weight: 600;
