@@ -47,10 +47,11 @@ function totalYesterday() {
 // ===== POINTS CARD RENDERING =====
 function getTodaySessions() {
   const currentWork = state.scoreWorkToday - (state.scoreBankedWorkToday || 0);
-  const currentBrk  = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
-  const current = (currentWork > 0 || currentBrk > 0)
-    ? [{ work: currentWork, brk: currentBrk }]
-    : [];
+  const currentBrk = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
+  const current =
+    currentWork > 0 || currentBrk > 0
+      ? [{ work: currentWork, brk: currentBrk }]
+      : [];
   return [...(state.sessionsToday || []), ...current];
 }
 
@@ -60,11 +61,10 @@ function getBestDay() {
     brk: state.scoreBreakToday,
     sessions: getTodaySessions(),
   };
-  return [...(state.scoreHistory || []), todayEntry]
-    .reduce(
-      (best, d) => (d.work + d.brk) > (best.work + best.brk) ? d : best,
-      { work: 0, brk: 0, sessions: [] },
-    );
+  return [...(state.scoreHistory || []), todayEntry].reduce(
+    (best, d) => (d.work + d.brk > best.work + best.brk ? d : best),
+    { work: 0, brk: 0, sessions: [] },
+  );
 }
 
 function renderSessionList(id, sessions) {
@@ -74,15 +74,19 @@ function renderSessionList(id, sessions) {
     el.innerHTML = `<div class="pts-sessions-empty">No sessions recorded</div>`;
     return;
   }
-  el.innerHTML = sessions.map((s, i) => `
+  el.innerHTML = sessions
+    .map(
+      (s, i) => `
     <div class="pts-session-row">
       <div>
         <div class="pts-session-label">Session ${i + 1}</div>
-        <div class="pts-session-detail">${s.work} work · ${s.brk} break</div>
+        <div class="pts-session-detail">${s.work} pts (work) · ${s.brk} pts (break)</div>
       </div>
       <div class="pts-session-total">${s.work + s.brk} pts</div>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 }
 
 function renderPtsCard() {
@@ -96,7 +100,7 @@ function renderPtsCard() {
   });
 
   // Today
-  setEl("pts-work-today",  state.scoreWorkToday);
+  setEl("pts-work-today", state.scoreWorkToday);
   setEl("pts-break-today", state.scoreBreakToday);
   setEl("pts-total-today", totalToday());
   renderSessionList("pts-sessions-today", getTodaySessions());
@@ -105,8 +109,8 @@ function renderPtsCard() {
   const ydayStr = localDateString(-1);
   const yday = (state.scoreHistory || []).find((h) => h.date === ydayStr);
   const ydayWork = yday?.work ?? 0;
-  const ydayBrk  = yday?.brk  ?? 0;
-  setEl("pts-work-yesterday",  ydayWork);
+  const ydayBrk = yday?.brk ?? 0;
+  setEl("pts-work-yesterday", ydayWork);
   setEl("pts-break-yesterday", ydayBrk);
   setEl("pts-total-yesterday", ydayWork + ydayBrk);
   renderSessionList("pts-sessions-yesterday", yday?.sessions ?? []);
@@ -116,7 +120,7 @@ function renderPtsCard() {
 
   // Best Day
   const best = getBestDay();
-  setEl("pts-work-best",  best.work);
+  setEl("pts-work-best", best.work);
   setEl("pts-break-best", best.brk);
   setEl("pts-total-best", best.work + best.brk);
   renderSessionList("pts-sessions-best", best.sessions ?? []);
