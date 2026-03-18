@@ -5,6 +5,11 @@ function localDateString(dayOffset = 0) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
 // ===== SCORING =====
 // Work: 10 pts flat per task (one completion only).
 // Break: +1 pt per star (1,2,3,4,5 cumulative).
@@ -38,8 +43,83 @@ function totalToday() {
 function totalYesterday() {
   return state.scoreWorkYesterday + state.scoreBreakYesterday;
 }
-function totalAllTime() {
-  return state.scoreWorkAllTime + state.scoreBreakAllTime;
+
+// ===== POINTS CARD RENDERING =====
+function getTodaySessions() {
+  const currentWork = state.scoreWorkToday - (state.scoreBankedWorkToday || 0);
+  const currentBrk  = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
+  const current = (currentWork > 0 || currentBrk > 0)
+    ? [{ work: currentWork, brk: currentBrk }]
+    : [];
+  return [...(state.sessionsToday || []), ...current];
+}
+
+function getBestDay() {
+  const todayEntry = {
+    work: state.scoreWorkToday,
+    brk: state.scoreBreakToday,
+    sessions: getTodaySessions(),
+  };
+  return [...(state.scoreHistory || []), todayEntry]
+    .reduce(
+      (best, d) => (d.work + d.brk) > (best.work + best.brk) ? d : best,
+      { work: 0, brk: 0, sessions: [] },
+    );
+}
+
+function renderSessionList(id, sessions) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!sessions || !sessions.length) {
+    el.innerHTML = `<div class="pts-sessions-empty">No sessions recorded</div>`;
+    return;
+  }
+  el.innerHTML = sessions.map((s, i) => `
+    <div class="pts-session-row">
+      <div>
+        <div class="pts-session-label">Session ${i + 1}</div>
+        <div class="pts-session-detail">${s.work} work · ${s.brk} break</div>
+      </div>
+      <div class="pts-session-total">${s.work + s.brk} pts</div>
+    </div>
+  `).join("");
+}
+
+function renderPtsCard() {
+  // Sync active tab
+  const active = state.activePtsTab || "today";
+  document.querySelectorAll(".pts-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.ptsTab === active);
+  });
+  document.querySelectorAll(".pts-tab-panel").forEach((panel) => {
+    panel.hidden = panel.id !== `pts-panel-${active}`;
+  });
+
+  // Today
+  setEl("pts-work-today",  state.scoreWorkToday);
+  setEl("pts-break-today", state.scoreBreakToday);
+  setEl("pts-total-today", totalToday());
+  renderSessionList("pts-sessions-today", getTodaySessions());
+
+  // Yesterday — prefer scoreHistory lookup so day-gap edge cases work correctly
+  const ydayStr = localDateString(-1);
+  const yday = (state.scoreHistory || []).find((h) => h.date === ydayStr);
+  const ydayWork = yday?.work ?? 0;
+  const ydayBrk  = yday?.brk  ?? 0;
+  setEl("pts-work-yesterday",  ydayWork);
+  setEl("pts-break-yesterday", ydayBrk);
+  setEl("pts-total-yesterday", ydayWork + ydayBrk);
+  renderSessionList("pts-sessions-yesterday", yday?.sessions ?? []);
+
+  // Last 7 Days
+  renderHistoryChart();
+
+  // Best Day
+  const best = getBestDay();
+  setEl("pts-work-best",  best.work);
+  setEl("pts-break-best", best.brk);
+  setEl("pts-total-best", best.work + best.brk);
+  renderSessionList("pts-sessions-best", best.sessions ?? []);
 }
 
 function updateScoreUI() {
@@ -49,19 +129,5 @@ function updateScoreUI() {
   if (workInline) workInline.textContent = state.scoreWorkToday;
   if (breakInline) breakInline.textContent = state.scoreBreakToday;
 
-  // Full breakdown on Points card (card 3)
-  const ids = {
-    "pts-work-today": state.scoreWorkToday,
-    "pts-break-today": state.scoreBreakToday,
-    "pts-total-today": totalToday(),
-    "pts-total-yesterday": totalYesterday(),
-    "pts-total-alltime": totalAllTime(),
-    "pts-work-alltime": state.scoreWorkAllTime,
-    "pts-break-alltime": state.scoreBreakAllTime,
-  };
-  for (const [id, val] of Object.entries(ids)) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-  renderHistoryChart();
+  renderPtsCard();
 }

@@ -25,7 +25,7 @@ function renderHistoryChart() {
 
   const maxVal = Math.max(...days.map((d) => d.total), 1);
   const W = 300,
-    H = 72,
+    H = 130,
     barW = 28,
     gap = (W - 7 * barW) / 8;
 

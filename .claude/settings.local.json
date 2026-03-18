@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"scoreBankedWorkToday\\\\|scoreBankedBreakToday\" /c/Users/canno/OneDrive/Documents/Code/pomobingo/*.js)"
+    ]
+  }
+}

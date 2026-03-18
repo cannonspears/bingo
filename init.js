@@ -65,9 +65,20 @@ function init() {
   document.querySelectorAll(".break-tab").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
+      if (btn.classList.contains("pts-tab")) return; // handled separately
       state.activeBreakTab = btn.dataset.tab;
       saveState();
       renderBreakGrid();
+    });
+  });
+
+  // Points tab buttons
+  document.querySelectorAll(".pts-tab").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.activePtsTab = btn.dataset.ptsTab;
+      saveState();
+      renderPtsCard();
     });
   });
 

@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.19</h1>
+        <h1>Bingo Break v3.20</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -624,80 +624,121 @@
                   <button class="flip-corner" data-card="3">Settings</button>
                 </div>
 
-                <div class="pts-section-label">Today</div>
-                <div class="pts-today-grid">
-                  <div class="pts-today-block pts-today-work">
-                    <span class="pts-today-amount" id="pts-work-today">0</span>
-                    <span class="pts-today-label">Work</span>
+                <!-- Points tab bar -->
+                <div class="break-tab-bar pts-tab-bar">
+                  <button class="break-tab pts-tab active" data-pts-tab="today">
+                    Today
+                  </button>
+                  <button class="break-tab pts-tab" data-pts-tab="yesterday">
+                    Yesterday
+                  </button>
+                  <button class="break-tab pts-tab" data-pts-tab="week">
+                    Last 7 Days
+                  </button>
+                  <button class="break-tab pts-tab" data-pts-tab="best">
+                    Best Day
+                  </button>
+                </div>
+
+                <!-- Today panel -->
+                <div class="pts-tab-panel" id="pts-panel-today">
+                  <div class="pts-today-grid">
+                    <div class="pts-today-block pts-today-work">
+                      <span class="pts-today-amount" id="pts-work-today"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Work</span>
+                    </div>
+                    <div class="pts-today-op">+</div>
+                    <div class="pts-today-block pts-today-break">
+                      <span class="pts-today-amount" id="pts-break-today"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Break</span>
+                    </div>
+                    <div class="pts-today-op">=</div>
+                    <div class="pts-today-block pts-today-total">
+                      <span
+                        class="pts-today-amount pts-today-amount--total"
+                        id="pts-total-today"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Total</span>
+                    </div>
                   </div>
-                  <div class="pts-today-op">+</div>
-                  <div class="pts-today-block pts-today-break">
-                    <span class="pts-today-amount" id="pts-break-today">0</span>
-                    <span class="pts-today-label">Break</span>
+                  <div class="pts-sessions-wrap" id="pts-sessions-today"></div>
+                </div>
+
+                <!-- Yesterday panel -->
+                <div class="pts-tab-panel" id="pts-panel-yesterday" hidden>
+                  <div class="pts-today-grid">
+                    <div class="pts-today-block pts-today-work">
+                      <span class="pts-today-amount" id="pts-work-yesterday"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Work</span>
+                    </div>
+                    <div class="pts-today-op">+</div>
+                    <div class="pts-today-block pts-today-break">
+                      <span class="pts-today-amount" id="pts-break-yesterday"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Break</span>
+                    </div>
+                    <div class="pts-today-op">=</div>
+                    <div class="pts-today-block pts-today-total">
+                      <span
+                        class="pts-today-amount pts-today-amount--total"
+                        id="pts-total-yesterday"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Total</span>
+                    </div>
                   </div>
-                  <div class="pts-today-op">=</div>
-                  <div class="pts-today-block pts-today-total">
-                    <span
-                      class="pts-today-amount pts-today-amount--total"
-                      id="pts-total-today"
-                      >0</span
-                    >
-                    <span class="pts-today-label">Total</span>
+                  <div
+                    class="pts-sessions-wrap"
+                    id="pts-sessions-yesterday"
+                  ></div>
+                </div>
+
+                <!-- Last 7 Days panel -->
+                <div class="pts-tab-panel" id="pts-panel-week" hidden>
+                  <div class="pts-chart-wrap pts-chart-wrap--tall">
+                    <svg
+                      id="pts-history-chart"
+                      class="pts-history-chart"
+                      viewBox="0 0 300 130"
+                      preserveAspectRatio="none"
+                    ></svg>
+                    <div class="pts-chart-labels" id="pts-chart-labels"></div>
                   </div>
                 </div>
 
-                <div class="pts-section-label" style="margin-top: 14px">
-                  Last 7 Days
-                </div>
-                <div class="pts-chart-wrap">
-                  <svg
-                    id="pts-history-chart"
-                    class="pts-history-chart"
-                    viewBox="0 0 300 80"
-                    preserveAspectRatio="none"
-                  ></svg>
-                  <div class="pts-chart-labels" id="pts-chart-labels"></div>
-                </div>
-
-                <div class="pts-history" style="margin-top: 10px">
-                  <div class="pts-history-row">
-                    <span class="pts-history-label">Yesterday</span>
-                    <span class="pts-history-value" id="pts-total-yesterday"
-                      >0</span
-                    >
+                <!-- Best Day panel -->
+                <div class="pts-tab-panel" id="pts-panel-best" hidden>
+                  <div class="pts-today-grid">
+                    <div class="pts-today-block pts-today-work">
+                      <span class="pts-today-amount" id="pts-work-best">0</span>
+                      <span class="pts-today-label">Work</span>
+                    </div>
+                    <div class="pts-today-op">+</div>
+                    <div class="pts-today-block pts-today-break">
+                      <span class="pts-today-amount" id="pts-break-best"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Break</span>
+                    </div>
+                    <div class="pts-today-op">=</div>
+                    <div class="pts-today-block pts-today-total">
+                      <span
+                        class="pts-today-amount pts-today-amount--total"
+                        id="pts-total-best"
+                        >0</span
+                      >
+                      <span class="pts-today-label">Total</span>
+                    </div>
                   </div>
-                  <div class="pts-history-divider"></div>
-                  <div class="pts-history-row">
-                    <span class="pts-history-label">All-Time Best Day</span>
-                    <span
-                      class="pts-history-value pts-history-gold"
-                      id="pts-total-alltime"
-                      >0</span
-                    >
-                  </div>
-                </div>
-
-                <div class="pts-section-label" style="margin-top: 12px">
-                  All-Time Breakdown
-                </div>
-                <div class="pts-alltime-row">
-                  <div class="pts-alltime-block">
-                    <span class="pts-alltime-label">Work Best</span>
-                    <span
-                      class="pts-alltime-value score-value--work"
-                      id="pts-work-alltime"
-                      >0</span
-                    >
-                  </div>
-                  <div class="pts-alltime-sep"></div>
-                  <div class="pts-alltime-block">
-                    <span class="pts-alltime-label">Break Best</span>
-                    <span
-                      class="pts-alltime-value score-value--break"
-                      id="pts-break-alltime"
-                      >0</span
-                    >
-                  </div>
+                  <div class="pts-sessions-wrap" id="pts-sessions-best"></div>
                 </div>
               </div>
             </div>

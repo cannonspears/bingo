@@ -25,8 +25,10 @@ let state = {
 
   tickingEnabled: false,
 
-  // 7-day history [{date, work, brk}] — most recent last
+  // 7-day history [{date, work, brk, sessions}] — most recent last
   scoreHistory: [],
+  sessionsToday: [],
+  activePtsTab: "today",
   volSfx: 80,
   mutedMusic: false,
   mutedSfx: false,
@@ -187,11 +189,13 @@ function loadState() {
         date: archivedDate,
         work: archivedWork,
         brk: archivedBrk,
+        sessions: state.sessionsToday,
       });
       // Keep only last 7 days
       if (state.scoreHistory.length > 7)
         state.scoreHistory = state.scoreHistory.slice(-7);
     }
+    state.sessionsToday = [];
 
     // Reset all break tabs
     TABS.forEach((tab) => {
@@ -215,6 +219,11 @@ function loadState() {
       ? (Date.now() - state.lastActivityAt) / 3_600_000
       : Infinity;
     if (hoursInactive >= 4) {
+      const sessionWork = state.scoreWorkToday - (state.scoreBankedWorkToday || 0);
+      const sessionBrk  = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
+      if (sessionWork > 0 || sessionBrk > 0)
+        state.sessionsToday.push({ work: sessionWork, brk: sessionBrk });
+
       state.scoreBankedWorkToday = state.scoreWorkToday;
       state.scoreBankedBreakToday = state.scoreBreakToday;
 

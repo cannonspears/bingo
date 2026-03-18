@@ -1853,6 +1853,60 @@ body.dark .bnav {
   font-weight: 700;
 }
 
+/* Points card tabs */
+.pts-tab-bar {
+  margin-top: 0;
+}
+.pts-tab-panel {
+  padding-top: 12px;
+}
+.pts-tab-panel[hidden] {
+  display: none;
+}
+
+/* Taller chart for Last 7 Days tab */
+.pts-chart-wrap--tall .pts-history-chart {
+  height: 140px;
+}
+
+/* Focus session breakdown */
+.pts-sessions-wrap {
+  margin-top: 10px;
+  background: color-mix(in srgb, var(--rule) 20%, var(--card-bg));
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pts-session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+}
+.pts-session-row + .pts-session-row {
+  border-top: 1px solid var(--rule);
+}
+.pts-session-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.pts-session-detail {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.pts-session-total {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--ink);
+}
+.pts-sessions-empty {
+  padding: 10px 14px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: center;
+}
+
 .work-task-empty {
   display: flex;
   flex-direction: column;
