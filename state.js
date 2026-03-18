@@ -48,6 +48,8 @@ let state = {
   volMusic: 60,
   scoreWorkToday: 0,
   scoreBreakToday: 0,
+  scoreBankedWorkToday: 0,
+  scoreBankedBreakToday: 0,
   scoreWorkYesterday: 0,
   scoreBreakYesterday: 0,
   scoreWorkAllTime: 0,
@@ -176,6 +178,8 @@ function loadState() {
 
     state.scoreWorkToday = 0;
     state.scoreBreakToday = 0;
+    state.scoreBankedWorkToday = 0;
+    state.scoreBankedBreakToday = 0;
     state.scoreCurrentDate = todayStr;
 
     if (archivedDate) {
@@ -199,21 +203,33 @@ function loadState() {
       }));
     });
 
-    // Reset work task completions (keep the task list itself)
-    state.workCells = state.workCells.map((c) => ({ ...c, count: 0 }));
+    // Remove completed work tasks, keep incomplete ones
+    state.workCells = state.workCells.filter((c) => c.count < 1);
 
     state.bingoAcknowledged = false;
     state.workBingoAcknowledged = false;
-
-    // Reset session counters only if inactive for 4+ hours (so working past midnight doesn't interrupt a session)
+    state.focusedTaskIndex = -1;
+  } else {
+    // Same-day: check for 4-hour lapse focus session reset
     const hoursInactive = state.lastActivityAt
       ? (Date.now() - state.lastActivityAt) / 3_600_000
       : Infinity;
     if (hoursInactive >= 4) {
+      state.scoreBankedWorkToday = state.scoreWorkToday;
+      state.scoreBankedBreakToday = state.scoreBreakToday;
+
+      // Reset grids (keep tiles, clear counts) and remove completed tasks
+      TABS.forEach((tab) => {
+        state.lineCompletions[tab] = {};
+        state.blackoutCompletions[tab] = 0;
+        state.breakTabs[tab] = state.breakTabs[tab].map((c) => ({ ...c, count: 0 }));
+      });
+      state.workCells = state.workCells.filter((c) => c.count < 1);
+      state.bingoAcknowledged = false;
+      state.workBingoAcknowledged = false;
       state.pomoCount = 0;
       state.breakCount = 0;
+      state.focusedTaskIndex = -1;
     }
-
-    state.focusedTaskIndex = -1;
   }
 }

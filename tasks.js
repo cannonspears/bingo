@@ -244,12 +244,12 @@ function recalculateScore() {
     // Calculate blackout points: 100, 200, 300, 400, 500
     breakPts += (state.blackoutCompletions[tab] || 0) * 100;
   });
-  state.scoreWorkToday = workPts;
-  state.scoreBreakToday = breakPts;
-  state.scoreWorkAllTime = Math.max(state.scoreWorkAllTimeBase || 0, workPts);
+  state.scoreWorkToday = workPts + (state.scoreBankedWorkToday || 0);
+  state.scoreBreakToday = breakPts + (state.scoreBankedBreakToday || 0);
+  state.scoreWorkAllTime = Math.max(state.scoreWorkAllTimeBase || 0, state.scoreWorkToday);
   state.scoreBreakAllTime = Math.max(
     state.scoreBreakAllTimeBase || 0,
-    breakPts,
+    state.scoreBreakToday,
   );
   updateScoreUI();
 }
