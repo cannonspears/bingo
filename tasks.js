@@ -130,13 +130,20 @@ function buildTaskItem(cell, idx, isDone) {
     const hint = document.createElement("span");
     hint.className = "task-item-focus-hint";
     hint.textContent = "Focus →";
+    // Prevent clicking the hint from blurring (and thus exiting) an active edit
+    hint.addEventListener("mousedown", (e) => {
+      if (item.querySelector(".task-item-text-edit")) e.preventDefault();
+    });
     item.appendChild(hint);
   }
 
   item.appendChild(diffBadge);
 
   if (!isDone) {
-    item.addEventListener("click", () => enterFocusMode(idx));
+    item.addEventListener("click", () => {
+      if (item.querySelector(".task-item-text-edit")) return;
+      enterFocusMode(idx);
+    });
 
     // Right-click to delete
     item.addEventListener("contextmenu", (e) => {
@@ -165,6 +172,7 @@ function startEditingTask(idx, textElement) {
   textElement.replaceWith(input);
   input.focus();
   input.select();
+  input.addEventListener("click", (e) => e.stopPropagation());
 
   function saveEdit() {
     cell.text = input.value.trim() || "Unnamed task";
