@@ -1,15 +1,13 @@
 // ===== CUSTOMIZE MODALS =====
 function openCustomizeModal(isWork, breakTabKey) {
-  let cells, defaults, titleText;
+  let cells, titleText;
 
   if (isWork) {
     cells = state.workCells;
-    defaults = [];
     titleText = "Today's Tasks";
   } else {
     const tab = breakTabKey || state.activeBreakTab;
     cells = state.breakTabs[tab];
-    defaults = DEFAULT_BREAK_TABS[tab];
     breakTabKey = tab;
   }
 
@@ -179,4 +177,7 @@ function loadDefaultsIntoModal() {
   defaults.forEach((text, i) => {
     if (inputs[i]) inputs[i].value = text;
   });
+  const defaultNames = { all: "Custom", body: "Body", mind: "Mind", home: "Home" };
+  const nameInput = document.getElementById("customize-tab-name");
+  if (nameInput) nameInput.value = defaultNames[tab] || tab;
 }
