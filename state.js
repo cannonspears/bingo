@@ -221,8 +221,8 @@ function loadState() {
     if (hoursInactive >= 4) {
       const sessionWork = state.scoreWorkToday - (state.scoreBankedWorkToday || 0);
       const sessionBrk  = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
-      if (sessionWork > 0 || sessionBrk > 0)
-        state.sessionsToday.push({ work: sessionWork, brk: sessionBrk });
+      if (sessionWork > 0 || sessionBrk > 0 || state.pomoCount > 0 || state.breakCount > 0)
+        state.sessionsToday.push({ work: sessionWork, brk: sessionBrk, pomos: state.pomoCount || 0, breaks: state.breakCount || 0 });
 
       state.scoreBankedWorkToday = state.scoreWorkToday;
       state.scoreBankedBreakToday = state.scoreBreakToday;
@@ -239,6 +239,7 @@ function loadState() {
       state.pomoCount = 0;
       state.breakCount = 0;
       state.focusedTaskIndex = -1;
+      saveState();
     }
   }
 }

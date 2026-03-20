@@ -49,8 +49,8 @@ function getTodaySessions() {
   const currentWork = state.scoreWorkToday - (state.scoreBankedWorkToday || 0);
   const currentBrk = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
   const current =
-    currentWork > 0 || currentBrk > 0
-      ? [{ work: currentWork, brk: currentBrk }]
+    currentWork > 0 || currentBrk > 0 || state.pomoCount > 0 || state.breakCount > 0
+      ? [{ work: currentWork, brk: currentBrk, pomos: state.pomoCount || 0, breaks: state.breakCount || 0 }]
       : [];
   return [...(state.sessionsToday || []), ...current];
 }
@@ -76,15 +76,21 @@ function renderSessionList(id, sessions) {
   }
   el.innerHTML = sessions
     .map(
-      (s, i) => `
+      (s, i) => {
+        const countDetail = (s.pomos != null)
+          ? `<div class="pts-session-counts">${s.pomos} focus · ${s.breaks} break</div>`
+          : "";
+        return `
     <div class="pts-session-row">
       <div>
         <div class="pts-session-label">Session ${i + 1}</div>
+        ${countDetail}
         <div class="pts-session-detail">${s.work} pts (work) · ${s.brk} pts (break)</div>
       </div>
       <div class="pts-session-total">${s.work + s.brk} pts</div>
     </div>
-  `,
+  `;
+      },
     )
     .join("");
 }

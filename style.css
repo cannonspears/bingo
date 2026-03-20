@@ -1890,6 +1890,11 @@ body.dark .bnav {
   font-size: 0.75rem;
   color: var(--muted);
 }
+.pts-session-counts {
+  font-size: 0.72rem;
+  color: var(--ink);
+  margin-top: 1px;
+}
 .pts-session-detail {
   font-size: 0.65rem;
   color: var(--muted);
