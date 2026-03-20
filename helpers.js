@@ -12,11 +12,12 @@ function setEl(id, val) {
 
 // ===== SCORING =====
 // Work: 10 pts flat per task (one completion only).
-// Break: +1 pt per star (1,2,3,4,5 cumulative).
+// Break: each star click awards that star's number of pts (1st=1, 2nd=2, 3rd=3, 4th=4, 5th=5).
+// Base is the cumulative triangular number so the delta equals the star number.
 function basePointsForCell(count, isWork) {
   if (count < 1 || count > 5) return 0;
   if (isWork) return 10;
-  return count;
+  return (count * (count + 1)) / 2; // 1, 3, 6, 10, 15
 }
 
 function addScore(pts, isWork) {
