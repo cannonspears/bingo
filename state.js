@@ -15,6 +15,7 @@ let state = {
   // Break tabs: body / mind / home
   breakTabs: { all: [], body: [], mind: [], home: [] },
   activeBreakTab: "all",
+  breakTabNames: { all: "Custom", body: "Body", mind: "Mind", home: "Home" },
 
   // Work focus mode
   focusedTaskIndex: -1,

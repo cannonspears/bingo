@@ -10,13 +10,6 @@ function openCustomizeModal(isWork, breakTabKey) {
     const tab = breakTabKey || state.activeBreakTab;
     cells = state.breakTabs[tab];
     defaults = DEFAULT_BREAK_TABS[tab];
-    const tabLabel = {
-      all: "Custom",
-      body: "Body",
-      mind: "Mind",
-      home: "Home",
-    }[tab];
-    titleText = `Edit ${tabLabel} Activities`;
     breakTabKey = tab;
   }
 
@@ -26,7 +19,14 @@ function openCustomizeModal(isWork, breakTabKey) {
   const saveBtn = document.getElementById("btn-customize-save");
   const instructionsEl = document.querySelector(".customize-instructions");
 
-  if (title) title.textContent = titleText;
+  if (title) {
+    if (isWork) {
+      title.textContent = titleText;
+    } else {
+      const currentName = (state.breakTabNames || {})[breakTabKey] || breakTabKey;
+      title.innerHTML = `✏ Edit Activities for <input type="text" id="customize-tab-name" class="tab-name-edit" value="${currentName}" maxlength="20" />`;
+    }
+  }
   if (instructionsEl) {
     instructionsEl.textContent = isWork
       ? "Add or edit your tasks for today. Empty rows are removed on save."
@@ -140,6 +140,15 @@ function saveCustomize() {
     renderWorkTaskList();
   } else {
     const tab = saveBtn.dataset.breakTab || state.activeBreakTab;
+
+    // Save tab name if edited
+    const nameInput = document.getElementById("customize-tab-name");
+    if (nameInput) {
+      const newName = nameInput.value.trim();
+      if (!state.breakTabNames) state.breakTabNames = {};
+      state.breakTabNames[tab] = newName || (state.breakTabNames[tab] || tab);
+    }
+
     const defaults = DEFAULT_BREAK_TABS[tab];
     const filled = texts.map((t, i) => t || defaults[i] || "");
     // shuffle break items

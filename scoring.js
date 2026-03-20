@@ -165,8 +165,10 @@ function renderBreakGrid() {
   const tab = state.activeBreakTab;
   renderGrid(state.breakTabs[tab], "break-grid", false);
 
-  // Sync tab bar
+  // Sync tab bar — active state and custom names
   document.querySelectorAll(".break-tab").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.tab === tab);
+    const name = state.breakTabNames?.[btn.dataset.tab];
+    if (name) btn.textContent = name;
   });
 }

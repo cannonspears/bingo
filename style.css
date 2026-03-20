@@ -1654,6 +1654,17 @@ body.dark .bnav {
   font-size: 1.3rem;
   margin-bottom: 6px;
 }
+.tab-name-edit {
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  color: var(--c-bingo);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 2px;
+  width: 120px;
+}
 .customize-instructions {
   font-size: 0.78rem;
   color: var(--muted);
