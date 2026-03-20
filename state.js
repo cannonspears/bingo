@@ -19,6 +19,7 @@ let state = {
   // Work focus mode
   focusedTaskIndex: -1,
   showDoneTasks: false,
+  taskSortDir: null,
 
   bingoAcknowledged: false,
   workBingoAcknowledged: false,

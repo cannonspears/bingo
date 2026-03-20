@@ -1953,6 +1953,7 @@ body.dark .bnav {
   cursor: default;
 }
 #btn-toggle-done-tasks,
+#btn-sort-tasks,
 #btn-edit-break-tab {
   width: auto;
   padding: 0 8px;
@@ -1962,6 +1963,15 @@ body.dark .bnav {
   line-height: 1;
   text-transform: uppercase;
   font-weight: 600;
+}
+#btn-toggle-done-tasks {
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  text-indent: 0;
+}
+#btn-sort-tasks.active {
+  color: var(--c-work);
+  border-color: var(--c-work);
 }
 .header-edit-btn:hover {
   border-color: var(--c-work);

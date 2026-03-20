@@ -37,6 +37,21 @@ function init() {
   // Inline task add
   initInlineTaskAdd();
 
+  // Sort tasks by difficulty
+  document.getElementById("btn-sort-tasks")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const diffOrder = { hard: 0, medium: 1, easy: 2 };
+    if (state.taskSortDir !== "hard") {
+      state.taskSortDir = "hard";
+      state.workCells.sort((a, b) => (diffOrder[a.difficulty] ?? 2) - (diffOrder[b.difficulty] ?? 2));
+    } else {
+      state.taskSortDir = "easy";
+      state.workCells.sort((a, b) => (diffOrder[b.difficulty] ?? 2) - (diffOrder[a.difficulty] ?? 2));
+    }
+    saveState();
+    renderWorkTaskList();
+  });
+
   // Toggle done tasks
   document
     .getElementById("btn-toggle-done-tasks")

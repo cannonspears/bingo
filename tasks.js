@@ -10,10 +10,7 @@ function renderWorkTaskList() {
   if (!container) return;
   container.innerHTML = "";
 
-  const diffOrder = { hard: 0, medium: 1, easy: 2 };
-  const active = state.workCells
-    .filter((c) => c.count === 0)
-    .sort((a, b) => (diffOrder[a.difficulty] ?? 2) - (diffOrder[b.difficulty] ?? 2));
+  const active = state.workCells.filter((c) => c.count === 0);
   const done = state.workCells.filter((c) => c.count > 0);
 
   const toggleBtn = document.getElementById("btn-toggle-done-tasks");
@@ -31,10 +28,12 @@ function renderWorkTaskList() {
   // Update pinned section label
   if (sectionLabel) {
     if (state.showDoneTasks && done.length > 0) {
-      sectionLabel.querySelector("span").textContent = `Completed (${done.length})`;
+      sectionLabel.querySelector("span").textContent =
+        `Completed (${done.length})`;
       sectionLabel.style.display = "flex";
     } else if (!state.showDoneTasks && active.length > 0) {
-      sectionLabel.querySelector("span").textContent = `Incomplete (${active.length})`;
+      sectionLabel.querySelector("span").textContent =
+        `Incomplete (${active.length})`;
       sectionLabel.style.display = "flex";
     } else {
       sectionLabel.style.display = "none";
@@ -63,10 +62,17 @@ function renderWorkTaskList() {
     const hasDone = done.length > 0;
     const canToggle = hasDone || state.showDoneTasks;
     toggleBtn.disabled = !canToggle;
-    toggleBtn.textContent = state.showDoneTasks ? "Hide Done" : "Show Done";
+    toggleBtn.textContent = state.showDoneTasks ? "☐" : "☑";
     toggleBtn.style.opacity = canToggle ? "1" : "0.3";
     toggleBtn.style.color = state.showDoneTasks ? "var(--c-work)" : "";
     toggleBtn.style.borderColor = state.showDoneTasks ? "var(--c-work)" : "";
+  }
+
+  // Update sort button label and active state
+  const sortBtn = document.getElementById("btn-sort-tasks");
+  if (sortBtn) {
+    sortBtn.textContent = state.taskSortDir === "easy" ? "Sort △" : "Sort ▽";
+    sortBtn.classList.toggle("active", state.taskSortDir != null);
   }
 }
 
@@ -257,7 +263,10 @@ function recalculateScore() {
   });
   state.scoreWorkToday = workPts + (state.scoreBankedWorkToday || 0);
   state.scoreBreakToday = breakPts + (state.scoreBankedBreakToday || 0);
-  state.scoreWorkAllTime = Math.max(state.scoreWorkAllTimeBase || 0, state.scoreWorkToday);
+  state.scoreWorkAllTime = Math.max(
+    state.scoreWorkAllTimeBase || 0,
+    state.scoreWorkToday,
+  );
   state.scoreBreakAllTime = Math.max(
     state.scoreBreakAllTimeBase || 0,
     state.scoreBreakToday,
@@ -273,7 +282,7 @@ function initInlineTaskAdd() {
   function addTask() {
     const text = input?.value.trim();
     if (!text) return;
-    state.workCells.push({ text, count: 0, difficulty: "easy" });
+    state.workCells.unshift({ text, count: 0, difficulty: "easy" });
     saveState();
     renderWorkTaskList();
     if (input) input.value = "";
