@@ -23,14 +23,15 @@ function openCustomizeModal(isWork, breakTabKey) {
     if (isWork) {
       title.textContent = titleText;
     } else {
-      const currentName = (state.breakTabNames || {})[breakTabKey] || breakTabKey;
-      title.innerHTML = `✏ Edit Activities for <input type="text" id="customize-tab-name" class="tab-name-edit" value="${currentName}" maxlength="20" />`;
+      const currentName =
+        (state.breakTabNames || {})[breakTabKey] || breakTabKey;
+      title.innerHTML = `Edit Activities for <input type="text" id="customize-tab-name" class="tab-name-edit" value="${currentName}" maxlength="20" />`;
     }
   }
   if (instructionsEl) {
     instructionsEl.textContent = isWork
       ? "Add or edit your tasks for today. Empty rows are removed on save."
-      : "Edit your activities below. Blank fields use defaults. Shuffled on save.";
+      : "Edit your card name and activities. Blank fields use defaults.";
   }
   list.innerHTML = "";
   saveBtn.dataset.isWork = isWork ? "1" : "0";
@@ -146,7 +147,7 @@ function saveCustomize() {
     if (nameInput) {
       const newName = nameInput.value.trim();
       if (!state.breakTabNames) state.breakTabNames = {};
-      state.breakTabNames[tab] = newName || (state.breakTabNames[tab] || tab);
+      state.breakTabNames[tab] = newName || state.breakTabNames[tab] || tab;
     }
 
     const defaults = DEFAULT_BREAK_TABS[tab];
