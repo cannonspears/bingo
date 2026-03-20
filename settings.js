@@ -161,6 +161,30 @@ function initSettings() {
   // Initial sync of auto-start display
   syncAutoStart(state.autoStart);
 
+  // Long Break toggle — synced between Work and Break cards
+  const syncLongBreak = (enabled) => {
+    state.longBreak = enabled;
+    const workToggle = document.getElementById("toggle-longbreak-work");
+    const breakToggle = document.getElementById("toggle-longbreak-break");
+    const workDesc = document.getElementById("longbreak-desc-work");
+    const breakDesc = document.getElementById("longbreak-desc-break");
+    if (workToggle) workToggle.checked = enabled;
+    if (breakToggle) breakToggle.checked = enabled;
+    if (workDesc) workDesc.textContent = enabled ? "On" : "Off";
+    if (breakDesc) breakDesc.textContent = enabled ? "On" : "Off";
+    saveState();
+  };
+
+  const toggleLongBreakWork = document.getElementById("toggle-longbreak-work");
+  const toggleLongBreakBreak = document.getElementById("toggle-longbreak-break");
+  if (toggleLongBreakWork) {
+    toggleLongBreakWork.addEventListener("change", () => syncLongBreak(toggleLongBreakWork.checked));
+  }
+  if (toggleLongBreakBreak) {
+    toggleLongBreakBreak.addEventListener("change", () => syncLongBreak(toggleLongBreakBreak.checked));
+  }
+  syncLongBreak(state.longBreak);
+
   // Dark mode
   const toggleDark = document.getElementById("toggle-darkmode");
   if (toggleDark) {

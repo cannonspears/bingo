@@ -173,12 +173,15 @@ function phaseComplete() {
 
   if (completedPhase === "work") {
     state.pomoCount++;
+    const isLongBreak = state.longBreak && state.pomoCount % 4 === 0;
     state.phase = "break";
-    state.timeLeft = breakMinutes() * 60;
+    state.timeLeft = breakMinutes() * (isLongBreak ? 3 : 1) * 60;
     updatePomoCount();
     sendNotification(
       "Work session done! ☕",
-      `Enjoy your ${breakMinutes()}-minute break.`,
+      isLongBreak
+        ? `Long break! Enjoy your ${breakMinutes() * 3}-minute break.`
+        : `Enjoy your ${breakMinutes()}-minute break.`,
     );
     goTo(1);
   } else {

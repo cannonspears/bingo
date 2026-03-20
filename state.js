@@ -20,6 +20,7 @@ let state = {
   focusedTaskIndex: -1,
   showDoneTasks: false,
   taskSortDir: null,
+  longBreak: true,
 
   bingoAcknowledged: false,
   workBingoAcknowledged: false,
