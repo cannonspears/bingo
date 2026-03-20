@@ -21,6 +21,11 @@ function renderWorkTaskList() {
       toggleBtn.style.opacity = "0.3";
       toggleBtn.disabled = true;
     }
+    const sortBtnEarly = document.getElementById("btn-sort-tasks");
+    if (sortBtnEarly) {
+      sortBtnEarly.disabled = true;
+      sortBtnEarly.style.opacity = "0.3";
+    }
     if (sectionLabel) sectionLabel.style.display = "none";
     return;
   }
@@ -68,11 +73,14 @@ function renderWorkTaskList() {
     toggleBtn.style.borderColor = state.showDoneTasks ? "var(--c-work)" : "";
   }
 
-  // Update sort button label and active state
+  // Update sort button label, active state, and disabled state
   const sortBtn = document.getElementById("btn-sort-tasks");
   if (sortBtn) {
+    const hasSortable = active.length > 1;
     sortBtn.textContent = state.taskSortDir === "easy" ? "Sort △" : "Sort ▽";
     sortBtn.classList.toggle("active", state.taskSortDir != null);
+    sortBtn.disabled = !hasSortable;
+    sortBtn.style.opacity = hasSortable ? "1" : "0.3";
   }
 }
 
