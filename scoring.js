@@ -15,6 +15,23 @@ function lineKey(line) {
   return line.join(",");
 }
 
+// Rebuild lineCompletions and blackoutCompletions for a tab from current cell state.
+// Call this after decrementing cells so removed lines lose their stored bonus.
+function syncLineCompletions(tabKey) {
+  const tab = tabKey || state.activeBreakTab;
+  const cells = state.breakTabs[tab];
+  const newLineCompletions = {};
+  for (const line of BREAK_LINES) {
+    const isComplete = line.every((i) => cells[i].count >= 1);
+    if (isComplete) {
+      newLineCompletions[lineKey(line)] = Math.min(...line.map((i) => cells[i].count));
+    }
+  }
+  state.lineCompletions[tab] = newLineCompletions;
+  const allComplete = cells.every((c) => c.count >= 1);
+  state.blackoutCompletions[tab] = allComplete ? Math.min(...cells.map((c) => c.count)) : 0;
+}
+
 function checkAndAwardBreakLines(tabKey) {
   const tab = tabKey || state.activeBreakTab;
   const cells = state.breakTabs[tab];
@@ -133,8 +150,8 @@ function renderGrid(cells, containerId, isWork) {
       e.preventDefault();
       if (cells[i].count > 0) {
         cells[i].count--;
+        syncLineCompletions(state.activeBreakTab);
         renderBreakGrid();
-        checkAndAwardBreakLines(state.activeBreakTab);
         recalculateScore();
         saveState();
       }
