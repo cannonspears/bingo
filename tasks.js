@@ -10,7 +10,10 @@ function renderWorkTaskList() {
   if (!container) return;
   container.innerHTML = "";
 
-  const active = state.workCells.filter((c) => c.count === 0);
+  const diffOrder = { hard: 0, medium: 1, easy: 2 };
+  const active = state.workCells
+    .filter((c) => c.count === 0)
+    .sort((a, b) => (diffOrder[a.difficulty] ?? 2) - (diffOrder[b.difficulty] ?? 2));
   const done = state.workCells.filter((c) => c.count > 0);
 
   const toggleBtn = document.getElementById("btn-toggle-done-tasks");
