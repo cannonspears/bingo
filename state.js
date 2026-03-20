@@ -240,6 +240,13 @@ function loadState() {
       state.pomoCount = 0;
       state.breakCount = 0;
       state.focusedTaskIndex = -1;
+      // Reset timer to work phase so the work card renders correctly on next load
+      state.phase = "work";
+      const workMins = (state.mode === "custom" && state.customWorkMinutes > 0)
+        ? state.customWorkMinutes
+        : (state.mode === "50/10" ? 50 : 25);
+      state.timeLeft = workMins * 60;
+      state.running = false;
       saveState();
     }
   }
