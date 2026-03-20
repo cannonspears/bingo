@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.28</h1>
+        <h1>Bingo Break v3.28.1</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -221,26 +221,39 @@
                     </div>
                   </div>
                 </div>
-                <div class="s-row">
-                  <div class="s-row-control">
-                    <label class="toggle-switch"
-                      ><input type="checkbox" id="toggle-longbreak-work" /><span
-                        class="toggle-track"
-                      ></span
-                    ></label>
-                    <span class="toggle-desc" id="longbreak-desc-work">On</span>
-                    <span class="s-row-label">Long Break</span>
-                  </div>
-                  <div class="s-row-control">
-                    <span class="s-row-label">Auto-start</span>
-                    <label class="toggle-switch"
-                      ><input type="checkbox" id="toggle-autostart-work" /><span
-                        class="toggle-track"
-                      ></span
-                    ></label>
-                    <span class="toggle-desc" id="autostart-desc-work"
-                      >Off</span
-                    >
+                <div class="s-section">
+                  <div class="s-section-label">Session</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Long Break</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input
+                            type="checkbox"
+                            id="toggle-longbreak-work" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="longbreak-desc-work"
+                          >On</span
+                        >
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">Auto-start</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input
+                            type="checkbox"
+                            id="toggle-autostart-work" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="autostart-desc-work"
+                          >Off</span
+                        >
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="s-section">
@@ -265,7 +278,9 @@
                     <div class="info-item">
                       Timer mode is synced with Break Settings.
                     </div>
-
+                    <div class="info-item">
+                      Long Break: After 4 work sessions, 3x break time
+                    </div>
                     <div class="info-item">
                       Task list saves between sessions; only scores reset daily.
                     </div>
@@ -414,32 +429,39 @@
                     </div>
                   </div>
                 </div>
-                <div class="s-row">
-                  <div class="s-row-control">
-                    <label class="toggle-switch"
-                      ><input
-                        type="checkbox"
-                        id="toggle-longbreak-break" /><span
-                        class="toggle-track"
-                      ></span
-                    ></label>
-                    <span class="toggle-desc" id="longbreak-desc-break"
-                      >On</span
-                    >
-                    <span class="s-row-label">Long Break</span>
-                  </div>
-                  <div class="s-row-control">
-                    <span class="s-row-label">Auto-start</span>
-                    <label class="toggle-switch"
-                      ><input
-                        type="checkbox"
-                        id="toggle-autostart-break" /><span
-                        class="toggle-track"
-                      ></span
-                    ></label>
-                    <span class="toggle-desc" id="autostart-desc-break"
-                      >Off</span
-                    >
+                <div class="s-section">
+                  <div class="s-section-label">Session</div>
+                  <div class="s-grid">
+                    <div class="s-cell">
+                      <div class="s-cell-label">Long Break</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input
+                            type="checkbox"
+                            id="toggle-longbreak-break" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="longbreak-desc-break"
+                          >On</span
+                        >
+                      </div>
+                    </div>
+                    <div class="s-cell">
+                      <div class="s-cell-label">Auto-start</div>
+                      <div class="s-cell-control">
+                        <label class="toggle-switch"
+                          ><input
+                            type="checkbox"
+                            id="toggle-autostart-break" /><span
+                            class="toggle-track"
+                          ></span
+                        ></label>
+                        <span class="toggle-desc" id="autostart-desc-break"
+                          >Off</span
+                        >
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="s-section">
@@ -461,9 +483,12 @@
                 <div class="s-section">
                   <div class="s-section-label">Info</div>
                   <div class="info-list">
-                    <div class="info-item">All break tabs share one score.</div>
                     <div class="info-item">
                       Timer mode is synced with Work Settings.
+                    </div>
+                    <div class="info-item">All break tabs share one score.</div>
+                    <div class="info-item">
+                      Long Break: After 4 work sessions, 3x break time
                     </div>
                   </div>
                 </div>
