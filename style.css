@@ -1781,8 +1781,6 @@ body.dark .bnav {
   display: flex;
   min-width: 0;
   overflow: hidden;
-  width: calc(50% - 3px);
-  flex-shrink: 0;
 }
 .customize-cell input {
   flex: 1;
