@@ -1143,6 +1143,23 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
   transform: none;
 }
 
+/* Audio card: iframe + buttons side by side */
+.audio-player-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.audio-player-row #yt-player-wrap {
+  flex: 1;
+  margin: 0;
+}
+.audio-player-row .player-controls {
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+
 /* YouTube player embed */
 #yt-player-wrap {
   position: relative;
