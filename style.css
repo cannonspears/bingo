@@ -2455,13 +2455,22 @@ body.dark .break-tab {
 }
 
 /* ===== SAFARI 3D BACKFACE FIX ===== */
-/* Safari composites elements with z-index stacking contexts (break-tab-bar, break-tab,
-   break-tab-panel) as separate GPU layers that bypass the parent card-front's
-   backface-visibility: hidden. Explicitly applying it to all descendants forces each
-   layer to hide itself when the card is flipped. */
+/* Safari composites overflow/scroll elements as separate native GPU layers that bypass
+   backface-visibility. Applying backface-visibility to all descendants covers the
+   non-scroll elements. For the remaining scroll layers, visibility:hidden after the
+   flip animation completes cascades into native layers in a way backface-visibility
+   cannot. The 0.55s delay matches the flip animation duration. */
 .card-bingo .card-front * {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+.card-bingo.flipped .card-front {
+  visibility: hidden;
+  transition: visibility 0s 0.55s;
+}
+.card-bingo:not(.flipped) .card-front {
+  visibility: visible;
+  transition: visibility 0s;
 }
 
 /* ===== SELECTIVE SCROLL REGIONS ===== */
