@@ -87,14 +87,14 @@ const DEFAULT_WORK_CELLS = []; // Work list is user-defined, starts empty
 const STATIONS = [
   {
     id: "lofi",
-    label: "Lofi Girl",
+    label: "Lofi",
     videos: ["jfKfPfyJRdk", "oJnF5VxTO5g", "jpaNXwW0iZk"],
     color: "#7c5cbf",
     bg: "#f0ebff",
   },
   {
     id: "jazz",
-    label: "Jazz Café",
+    label: "Jazz",
     videos: ["HuFYqnbVbzY", "CfPxlb8-ZQ0", "5yx6BWlEVcY"],
     color: "#c0622b",
     bg: "#fff3eb",
