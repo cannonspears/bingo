@@ -2,7 +2,7 @@
 // CARD DECK ENGINE
 // ===================================================================
 const CARD_COUNT = 5;
-const MAX_VISIBLE_DEPTH = 3;
+const MAX_VISIBLE_DEPTH = 4;
 
 function getPeek(prop) {
   return (

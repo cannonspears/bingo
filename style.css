@@ -25,8 +25,8 @@
   --c-ach: #c9960a;
 
   --card-w: 460px;
-  --peek-x: 11px;
-  --peek-y: 10px;
+  --peek-x: 8px;
+  --peek-y: 8px;
 
   --font-serif: "DM Serif Display", serif;
   --font-sans: "DM Sans", sans-serif;
@@ -120,7 +120,7 @@ header {
   margin-bottom: 8px;
   transition: all 0.4s ease;
   width: 100%;
-  max-width: calc(var(--card-w) + var(--peek-x) * 3);
+  max-width: calc(var(--card-w) + var(--peek-x) * 4);
   padding: 6px 20px;
   border-radius: 12px;
   background: transparent;
@@ -158,7 +158,7 @@ header.header-break .tagline {
 /* ===== DECK STAGE ===== */
 #deck-stage {
   position: relative;
-  width: calc(var(--card-w) + var(--peek-x) * 3);
+  width: calc(var(--card-w) + var(--peek-x) * 4);
   /* Height = whatever vertical space remains in the 100dvh app-zone */
   flex: 1;
   min-height: 0;
@@ -169,7 +169,7 @@ header.header-break .tagline {
   position: absolute;
   width: var(--card-w);
   /* Fill the deck-stage height minus peek offset for stacked cards */
-  height: calc(100% - var(--peek-y) * 3);
+  height: calc(100% - var(--peek-y) * 4);
   border-radius: 18px;
   cursor: grab;
   touch-action: pan-y;
@@ -2541,8 +2541,8 @@ body.dark .break-tab {
 @media (max-width: 520px) {
   :root {
     --card-w: min(88vw, 360px);
-    --peek-x: 8px;
-    --peek-y: 8px;
+    --peek-x: 6px;
+    --peek-y: 6px;
   }
   /* App zone — tighter top/bottom padding */
   #app-zone {
