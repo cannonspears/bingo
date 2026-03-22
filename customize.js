@@ -43,7 +43,7 @@ function openCustomizeModal(isWork, breakTabKey) {
     // 2-column grid: 8 rows × 2 inputs = 16 cells
     list.style.display = "grid";
     list.style.width = "100%";
-    list.style.gridTemplateColumns = "1fr 1fr";
+    list.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
     list.style.gap = "5px";
     rowTexts.forEach((text, i) => {
       list.appendChild(buildCustomizeCell(i, text, false));
