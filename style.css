@@ -1882,7 +1882,6 @@ body.dark .bnav {
 
 /* Focus session breakdown */
 .pts-sessions-wrap {
-  margin-top: 10px;
   background: color-mix(in srgb, var(--rule) 20%, var(--card-bg));
   border: 1px solid var(--rule);
   border-radius: 10px;
@@ -1923,10 +1922,26 @@ body.dark .bnav {
   text-align: center;
 }
 .pts-count-summary {
-  margin-top: 6px;
   font-size: 0.72rem;
   color: var(--muted);
   text-align: center;
+  padding: 4px 0 2px;
+}
+.pts-subarea {
+  margin-top: 10px;
+}
+.pts-subarea-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.pts-chart-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1.5px solid var(--rule);
 }
 
 .work-task-empty {
