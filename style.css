@@ -2154,9 +2154,16 @@ body.dark .bnav {
   font-size: 0.65rem;
   transition: all 0.15s;
 }
-.work-task-item[data-difficulty="easy"]:not(.completed):hover .task-item-icon   { border-color: #22c55e; }
-.work-task-item[data-difficulty="medium"]:not(.completed):hover .task-item-icon { border-color: #f59e0b; }
-.work-task-item[data-difficulty="hard"]:not(.completed):hover .task-item-icon   { border-color: var(--c-work); }
+.work-task-item[data-difficulty="easy"]:not(.completed):hover .task-item-icon {
+  border-color: #22c55e;
+}
+.work-task-item[data-difficulty="medium"]:not(.completed):hover
+  .task-item-icon {
+  border-color: #f59e0b;
+}
+.work-task-item[data-difficulty="hard"]:not(.completed):hover .task-item-icon {
+  border-color: var(--c-work);
+}
 .work-task-item.completed .task-item-icon {
   background: color-mix(in srgb, var(--c-work) 20%, transparent);
   border-color: var(--c-work);
@@ -2200,7 +2207,9 @@ body.dark .bnav {
   border-radius: 5px;
   border: 1px solid transparent;
   opacity: 0.3;
-  transition: opacity 0.15s, border-color 0.15s;
+  transition:
+    opacity 0.15s,
+    border-color 0.15s;
   flex-shrink: 0;
 }
 .work-task-item:not(.completed):hover .task-item-focus-hint {
@@ -2220,7 +2229,10 @@ body.dark .bnav {
   gap: 3px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: opacity 0.15s, transform 0.1s, box-shadow 0.2s;
+  transition:
+    opacity 0.15s,
+    transform 0.1s,
+    box-shadow 0.2s;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -2233,23 +2245,34 @@ body.dark .bnav {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.task-diff-badge { border-color: transparent; }
-.task-diff-badge--easy   .task-diff-dot { background: #22c55e; }
-.task-diff-badge--medium .task-diff-dot { background: #f59e0b; }
-.task-diff-badge--hard   .task-diff-dot { background: var(--c-work); }
+.task-diff-badge {
+  border-color: transparent;
+}
+.task-diff-badge--easy .task-diff-dot {
+  background: #22c55e;
+}
+.task-diff-badge--medium .task-diff-dot {
+  background: #f59e0b;
+}
+.task-diff-badge--hard .task-diff-dot {
+  background: var(--c-work);
+}
 .work-task-item:not(.completed) .task-diff-badge--easy:hover {
-  box-shadow: 0 3px 10px color-mix(in srgb, #22c55e 45%, transparent),
-              0 1px 4px  color-mix(in srgb, #22c55e 25%, transparent);
+  box-shadow:
+    0 3px 10px color-mix(in srgb, #22c55e 45%, transparent),
+    0 1px 4px color-mix(in srgb, #22c55e 25%, transparent);
   transform: translateY(-1px);
 }
 .work-task-item:not(.completed) .task-diff-badge--medium:hover {
-  box-shadow: 0 3px 10px color-mix(in srgb, #f59e0b 45%, transparent),
-              0 1px 4px  color-mix(in srgb, #f59e0b 25%, transparent);
+  box-shadow:
+    0 3px 10px color-mix(in srgb, #f59e0b 45%, transparent),
+    0 1px 4px color-mix(in srgb, #f59e0b 25%, transparent);
   transform: translateY(-1px);
 }
 .work-task-item:not(.completed) .task-diff-badge--hard:hover {
-  box-shadow: 0 3px 10px color-mix(in srgb, var(--c-work) 45%, transparent),
-              0 1px 4px  color-mix(in srgb, var(--c-work) 25%, transparent);
+  box-shadow:
+    0 3px 10px color-mix(in srgb, var(--c-work) 45%, transparent),
+    0 1px 4px color-mix(in srgb, var(--c-work) 25%, transparent);
   transform: translateY(-1px);
 }
 .work-task-item.completed .task-diff-badge {
@@ -2459,14 +2482,14 @@ body.dark .break-tab {
    backface-visibility. Applying backface-visibility to all descendants covers the
    non-scroll elements. For the remaining scroll layers, visibility:hidden after the
    flip animation completes cascades into native layers in a way backface-visibility
-   cannot. The 0.55s delay matches the flip animation duration. */
+   cannot. The 0.275s delay is half of the flip animation duration */
 .card-bingo .card-front * {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 .card-bingo.flipped .card-front {
   visibility: hidden;
-  transition: visibility 0s 0.55s;
+  transition: visibility 0s 0.275s;
 }
 .card-bingo:not(.flipped) .card-front {
   visibility: visible;
