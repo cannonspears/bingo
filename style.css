@@ -49,6 +49,10 @@ body {
 body.dark {
   background-image: none;
 }
+body:has(.modal:not(.hidden)) {
+  overflow: hidden;
+  touch-action: none;
+}
 #blog {
   user-select: text;
 }
