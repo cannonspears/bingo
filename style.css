@@ -2463,26 +2463,15 @@ body.dark .break-tab {
 
 /* ===== SELECTIVE SCROLL REGIONS ===== */
 
-/* Break card front: pin everything above the bingo grid; only the grid panel scrolls */
-.card-bingo .card-front .card-body {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.card-bingo .card-front .card-body > .phase-counter-row,
-.card-bingo .card-front .card-body > .timer-block,
-.card-bingo .card-front .card-body > .grid-header-row,
-.card-bingo .card-front .card-body > .break-tab-bar {
-  flex-shrink: 0;
-}
-.card-bingo .card-front .card-body > .break-tab-panel {
+/* Break card front: grid panel fills the card-body--notop and scrolls */
+.card-bingo .card-front .break-tab-panel {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-.card-bingo .card-front .card-body > .break-tab-panel::-webkit-scrollbar {
+.card-bingo .card-front .break-tab-panel::-webkit-scrollbar {
   display: none;
 }
 
