@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.32.3</h1>
+        <h1>Bingo Break v3.33</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -686,6 +686,9 @@
                   <button class="break-tab pts-tab" data-pts-tab="best">
                     Best Day
                   </button>
+                  <button class="break-tab pts-tab" data-pts-tab="week">
+                    Last 7 Days
+                  </button>
                 </div>
 
                 <!-- Today panel -->
@@ -814,9 +817,8 @@
                   </div>
                 </div>
 
-                <!-- Last 7 Days chart — always visible -->
-                <div class="pts-chart-section">
-                  <div class="pts-subarea-title">Last 7 Days</div>
+                <!-- Last 7 Days panel -->
+                <div class="pts-tab-panel" id="pts-panel-week" hidden>
                   <div class="pts-chart-wrap pts-chart-wrap--tall">
                     <svg
                       id="pts-history-chart"

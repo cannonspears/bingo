@@ -1938,11 +1938,6 @@ body.dark .bnav {
   color: var(--muted);
   margin-bottom: 5px;
 }
-.pts-chart-section {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1.5px solid var(--rule);
-}
 
 .work-task-empty {
   display: flex;
