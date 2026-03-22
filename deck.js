@@ -258,7 +258,7 @@ function onPointerMove(e) {
     topCard.style.transform = transformForDepth(0);
   } else {
     // Left drag: existing behaviour — top card follows finger
-    topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
+    topCard.style.transform = `translate(${dx}px, 0px)`;
   }
 }
 
@@ -276,7 +276,7 @@ function onPointerUp() {
   if (didSwipe) {
     if (dx < 0) {
       // Forward (left swipe)
-      topCard.style.transform = `translate(-110vw, 0px) rotate(-8deg)`;
+      topCard.style.transform = `translate(-110vw, 0px)`;
       setTimeout(() => {
         topCard.style.transform = "";
         goTo((activeCard + 1) % CARD_COUNT, 1);
