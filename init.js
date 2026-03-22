@@ -138,7 +138,8 @@ function init() {
       if (btn.dataset.genre === "custom") {
         const hasVideos = (state.customVideos || []).some(Boolean);
         if (!hasVideos) {
-          openCustomStationModal();
+          if (!flippedCards.has(2)) flipCard(2);
+          setTimeout(openCustomStationModal, 580);
           return;
         }
       }

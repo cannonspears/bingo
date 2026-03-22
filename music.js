@@ -33,7 +33,6 @@ function currentVideoId() {
 
 // Called automatically by YouTube IFrame API once script loads
 function onYouTubeIframeAPIReady() {
-  const station = currentStation();
   ytPlayer = new YT.Player("yt-player", {
     height: "100%",
     width: "100%",
@@ -209,6 +208,4 @@ function updateGenreButtons() {
   document.querySelectorAll(".genre-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.genre === state.activeGenre);
   });
-  const editBtn = document.getElementById("btn-edit-custom-station");
-  if (editBtn) editBtn.classList.toggle("hidden", state.activeGenre !== "custom");
 }

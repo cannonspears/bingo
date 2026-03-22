@@ -1246,6 +1246,9 @@ body.dark .bingo-cell.work-cell.completed-1 .cell-text {
 .s-cell--wide {
   grid-column: 1 / -1;
 }
+.s-cell--custom-station {
+  margin-bottom: 6px;
+}
 .s-cell-label {
   font-size: 0.6rem;
   font-weight: 600;
