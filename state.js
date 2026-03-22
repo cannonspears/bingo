@@ -44,6 +44,7 @@ let state = {
   soundTheme: "chime",
 
   activeGenre: "lofi",
+  activeVideoIdx: 0,
   musicPlaying: false,
 
   // Custom timer settings (in minutes)

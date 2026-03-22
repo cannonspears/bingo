@@ -6,13 +6,19 @@ function currentStation() {
   return STATIONS.find((s) => s.id === state.activeGenre) || STATIONS[0];
 }
 
+function currentVideoId() {
+  const station = currentStation();
+  const idx = state.activeVideoIdx ?? 0;
+  return station.videos[idx] || station.videos[0];
+}
+
 // Called automatically by YouTube IFrame API once script loads
 function onYouTubeIframeAPIReady() {
   const station = currentStation();
   ytPlayer = new YT.Player("yt-player", {
     height: "100%",
     width: "100%",
-    videoId: station.videoId,
+    videoId: currentVideoId(),
     playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
     events: {
       onReady: onPlayerReady,
@@ -35,6 +41,7 @@ function onPlayerReady() {
 function onPlayerStateChange(event) {
   const playing = event.data === YT.PlayerState.PLAYING;
   const paused = event.data === YT.PlayerState.PAUSED;
+  const ended = event.data === YT.PlayerState.ENDED;
   if (playing) {
     // Unmute as soon as playback starts — the mute in startMusic() was only
     // needed to satisfy the browser's autoplay policy for the first play.
@@ -45,6 +52,10 @@ function onPlayerStateChange(event) {
   } else if (paused) {
     state.musicPlaying = false;
     updatePlayPauseButtons();
+  } else if (ended) {
+    // Livestreams never fire ENDED; regular videos do — loop from the beginning
+    ytPlayer.seekTo(0);
+    ytPlayer.playVideo();
   }
 }
 
@@ -53,14 +64,17 @@ function updateNowPlaying() {
   const npIcon = document.getElementById("np-icon");
   const npTrack = document.getElementById("np-track");
   if (!npEl) return;
+  const station = currentStation();
+  const idx = (state.activeVideoIdx ?? 0) + 1;
+  const total = station.videos.length;
   if (state.musicPlaying) {
     npEl.classList.remove("now-playing-idle");
     if (npIcon) npIcon.style.animation = "";
-    if (npTrack) npTrack.textContent = `${currentStation().label} — Live`;
+    if (npTrack) npTrack.textContent = `${station.label} — ${idx} / ${total}`;
   } else {
     npEl.classList.add("now-playing-idle");
     if (npIcon) npIcon.style.animation = "none";
-    if (npTrack) npTrack.textContent = `${currentStation().label}`;
+    if (npTrack) npTrack.textContent = `${station.label} — ${idx} / ${total}`;
   }
 }
 
@@ -96,9 +110,19 @@ function togglePlayPause() {
 }
 
 function skipToNextTrack() {
-  const idx = STATIONS.findIndex((s) => s.id === state.activeGenre);
-  const next = STATIONS[(idx + 1) % STATIONS.length];
-  switchGenre(next.id);
+  const station = currentStation();
+  const nextIdx = ((state.activeVideoIdx ?? 0) + 1) % station.videos.length;
+  state.activeVideoIdx = nextIdx;
+  saveState();
+  const videoId = currentVideoId();
+  if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+    if (state.musicPlaying) {
+      ytPlayer.loadVideoById(videoId);
+    } else {
+      ytPlayer.cueVideoById(videoId);
+    }
+  }
+  updateNowPlaying();
 }
 
 function updatePlayPauseButtons() {
@@ -127,14 +151,16 @@ function applyMusicVolume() {
 function switchGenre(id) {
   const station = STATIONS.find((s) => s.id === id) || STATIONS[0];
   state.activeGenre = station.id;
+  state.activeVideoIdx = 0;
   saveState();
   applyGenreTheme(station.id);
   updateGenreButtons();
   if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+    const videoId = currentVideoId();
     if (state.musicPlaying) {
-      ytPlayer.loadVideoById(station.videoId);
+      ytPlayer.loadVideoById(videoId);
     } else {
-      ytPlayer.cueVideoById(station.videoId);
+      ytPlayer.cueVideoById(videoId);
     }
   }
   updateNowPlaying();
