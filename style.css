@@ -1922,6 +1922,12 @@ body.dark .bnav {
   color: var(--muted);
   text-align: center;
 }
+.pts-count-summary {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: center;
+}
 
 .work-task-empty {
   display: flex;
