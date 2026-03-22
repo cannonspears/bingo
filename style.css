@@ -2459,6 +2459,16 @@ body.dark .break-tab {
   background: color-mix(in srgb, var(--rule) 50%, var(--card-bg));
 }
 
+/* ===== SAFARI 3D BACKFACE FIX ===== */
+/* Safari composites elements with z-index stacking contexts (break-tab-bar, break-tab,
+   break-tab-panel) as separate GPU layers that bypass the parent card-front's
+   backface-visibility: hidden. Explicitly applying it to all descendants forces each
+   layer to hide itself when the card is flipped. */
+.card-bingo .card-front * {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* ===== SELECTIVE SCROLL REGIONS ===== */
 
 /* Break card front: grid panel fills the card-body--notop and scrolls */
