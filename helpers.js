@@ -104,7 +104,8 @@ function sumCounts(sessions) {
 }
 
 function renderPtsCard() {
-  // Sync active tab
+  // Sync active tab (guard against legacy "week" value in saved state)
+  if (state.activePtsTab === "week") state.activePtsTab = "today";
   const active = state.activePtsTab || "today";
   document.querySelectorAll(".pts-tab").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.ptsTab === active);

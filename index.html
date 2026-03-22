@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.30</h1>
+        <h1>Bingo Break v3.31</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -689,9 +689,6 @@
                   <button class="break-tab pts-tab" data-pts-tab="yesterday">
                     Yesterday
                   </button>
-                  <button class="break-tab pts-tab" data-pts-tab="week">
-                    Last 7 Days
-                  </button>
                   <button class="break-tab pts-tab" data-pts-tab="best">
                     Best Day
                   </button>
@@ -760,20 +757,6 @@
                   ></div>
                 </div>
 
-                <!-- Last 7 Days panel -->
-                <div class="pts-tab-panel" id="pts-panel-week" hidden>
-                  <div class="pts-chart-wrap pts-chart-wrap--tall">
-                    <svg
-                      id="pts-history-chart"
-                      class="pts-history-chart"
-                      viewBox="0 0 300 130"
-                      preserveAspectRatio="none"
-                    ></svg>
-                    <div class="pts-chart-labels" id="pts-chart-labels"></div>
-                  </div>
-                  <div class="pts-count-summary" id="pts-count-week"></div>
-                </div>
-
                 <!-- Best Day panel -->
                 <div class="pts-tab-panel" id="pts-panel-best" hidden>
                   <div class="pts-today-grid">
@@ -801,6 +784,18 @@
                   <div class="pts-count-summary" id="pts-count-best"></div>
                   <div class="pts-sessions-wrap" id="pts-sessions-best"></div>
                 </div>
+
+                <!-- Last 7 Days chart — always visible -->
+                <div class="pts-chart-wrap pts-chart-wrap--tall">
+                  <svg
+                    id="pts-history-chart"
+                    class="pts-history-chart"
+                    viewBox="0 0 300 130"
+                    preserveAspectRatio="none"
+                  ></svg>
+                  <div class="pts-chart-labels" id="pts-chart-labels"></div>
+                </div>
+                <div class="pts-count-summary" id="pts-count-week"></div>
               </div>
             </div>
             <div class="card-face card-back card-back-pts">
