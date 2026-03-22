@@ -326,6 +326,7 @@ header.header-break .tagline {
   align-items: baseline;
   justify-content: space-between;
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 .card-nav-left {
   display: flex;
@@ -1650,8 +1651,9 @@ body.dark .bnav {
   width: 92vw;
   max-height: 88vh;
   overflow-y: auto;
+  overflow-x: hidden;
   text-align: left;
-  padding: 28px 32px;
+  padding: 20px;
 }
 .custom-station-modal-content {
   max-width: 380px;
@@ -1759,6 +1761,7 @@ body.dark .bnav {
 }
 .customize-row input {
   flex: 1;
+  min-width: 0;
   padding: 7px 10px;
   border: 1px solid var(--rule);
   border-radius: 6px;
@@ -2447,6 +2450,59 @@ body.dark .break-tab-panel {
 }
 body.dark .break-tab {
   background: color-mix(in srgb, var(--rule) 50%, var(--card-bg));
+}
+
+/* ===== SELECTIVE SCROLL REGIONS ===== */
+
+/* Break card front: pin everything above the bingo grid; only the grid panel scrolls */
+.card-bingo .card-front .card-body {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card-bingo .card-front .card-body > .phase-counter-row,
+.card-bingo .card-front .card-body > .timer-block,
+.card-bingo .card-front .card-body > .grid-header-row,
+.card-bingo .card-front .card-body > .break-tab-bar {
+  flex-shrink: 0;
+}
+.card-bingo .card-front .card-body > .break-tab-panel {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.card-bingo .card-front .card-body > .break-tab-panel::-webkit-scrollbar {
+  display: none;
+}
+
+/* Settings cards (Work, Break, Audio backs): pin controls; only Info section scrolls */
+.card-back-work .card-body,
+.card-back-bingo .card-body,
+.card-back-audio .card-body {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card-back-work .card-body > .s-section:not(:last-child),
+.card-back-bingo .card-body > .s-section:not(:last-child),
+.card-back-audio .card-body > .s-section:not(:last-child) {
+  flex-shrink: 0;
+}
+.card-back-work .card-body > .s-section:last-child,
+.card-back-bingo .card-body > .s-section:last-child,
+.card-back-audio .card-body > .s-section:last-child {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.card-back-work .card-body > .s-section:last-child::-webkit-scrollbar,
+.card-back-bingo .card-body > .s-section:last-child::-webkit-scrollbar,
+.card-back-audio .card-body > .s-section:last-child::-webkit-scrollbar {
+  display: none;
 }
 
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
