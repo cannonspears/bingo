@@ -2405,7 +2405,6 @@ body.dark .bnav {
   margin: 8px 0 0;
   padding: 0;
   position: relative;
-  z-index: 1;
   border-bottom: 1.5px solid var(--rule);
 }
 .break-tab {
@@ -2428,7 +2427,6 @@ body.dark .bnav {
   position: relative;
   margin-right: 0;
   letter-spacing: 0.2px;
-  z-index: 1;
 }
 .break-tab:hover {
   background: color-mix(in srgb, var(--rule) 15%, var(--card-bg));
@@ -2439,15 +2437,12 @@ body.dark .bnav {
   border-color: var(--rule);
   color: var(--ink);
   font-weight: 700;
-  z-index: 3;
   border-bottom: 1.5px solid var(--card-bg);
   margin-bottom: -1.5px;
 }
 .break-tab-panel {
-  position: relative;
   padding: 0;
   margin-bottom: 4px;
-  z-index: 2;
   background: var(--card-bg);
   border-radius: 0;
 }
@@ -2476,7 +2471,6 @@ body.dark .break-tab {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 .card-bingo .card-front .break-tab-panel::-webkit-scrollbar {
