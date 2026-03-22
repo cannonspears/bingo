@@ -2456,11 +2456,60 @@ body.dark .break-tab {
     --peek-x: 8px;
     --peek-y: 8px;
   }
+  /* App zone — tighter top/bottom padding */
+  #app-zone {
+    padding: 6px 12px 8px;
+  }
+  /* Header — hide tagline, shrink title, tighten margin */
+  header {
+    margin-bottom: 4px;
+  }
+  header h1 {
+    font-size: 1.3rem;
+  }
+  .tagline {
+    display: none;
+  }
+  /* Card structure — tighter padding */
+  .card-header {
+    padding: 10px 14px 0;
+  }
+  .card-body {
+    padding: 10px 14px 12px;
+  }
+  /* Timer area — reduced spacing */
   .timer-display {
     font-size: 3.4rem;
   }
+  .timer-block {
+    margin-bottom: 6px;
+  }
+  .timer-progress-bar {
+    margin-bottom: 8px;
+  }
+  .timer-btns {
+    margin-bottom: 6px;
+  }
+  .phase-counter-row {
+    margin-bottom: 2px;
+  }
+  /* Grid header — tighter bottom margin */
+  .grid-header-row {
+    margin-bottom: 3px;
+  }
+  /* Bingo cells — shorter min-height and padding */
+  .bingo-cell {
+    min-height: 44px;
+    padding: 4px 3px;
+  }
+  /* Work task items — tighter padding */
+  .work-task-item {
+    padding: 7px 10px;
+  }
+  /* Bottom nav — tighter margin and spacing */
   #bottom-nav {
     gap: 3px;
+    margin-bottom: 4px;
   }
   .bnav {
     padding: 7px 7px;
