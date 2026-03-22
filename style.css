@@ -395,11 +395,9 @@ body.dark .card-title {
   background: rgba(255, 255, 255, 0.65);
   pointer-events: none;
   border-radius: 0;
-  z-index: 0;
 }
 .timer-block.timer-dimmed > * {
   position: relative;
-  z-index: 1;
 }
 #timer-block-break.timer-dimmed .phase-counter-row {
   opacity: 1; /* Already bright from overlay technique */
