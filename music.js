@@ -3,7 +3,26 @@ let ytPlayer = null;
 let ytPlayerReady = false;
 
 function currentStation() {
+  if (state.activeGenre === "custom") {
+    return {
+      id: "custom",
+      label: "Custom",
+      videos: (state.customVideos || []).filter(Boolean),
+      color: "#5a5a72",
+      bg: "#f2f2f6",
+    };
+  }
   return STATIONS.find((s) => s.id === state.activeGenre) || STATIONS[0];
+}
+
+function extractYtId(input) {
+  if (!input) return "";
+  const m = input.match(
+    /(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+  if (m) return m[1];
+  if (/^[A-Za-z0-9_-]{11}$/.test(input.trim())) return input.trim();
+  return "";
 }
 
 function currentVideoId() {
@@ -111,6 +130,10 @@ function togglePlayPause() {
 
 function skipToNextTrack() {
   const station = currentStation();
+  if (state.activeGenre === "custom" && station.videos.length === 0) {
+    switchGenre(STATIONS[0].id);
+    return;
+  }
   const nextIdx = ((state.activeVideoIdx ?? 0) + 1) % station.videos.length;
   state.activeVideoIdx = nextIdx;
   saveState();
@@ -149,7 +172,9 @@ function applyMusicVolume() {
 }
 
 function switchGenre(id) {
-  const station = STATIONS.find((s) => s.id === id) || STATIONS[0];
+  const station = id === "custom"
+    ? { id: "custom", color: "#5a5a72", bg: "#f2f2f6" }
+    : (STATIONS.find((s) => s.id === id) || STATIONS[0]);
   state.activeGenre = station.id;
   state.activeVideoIdx = 0;
   saveState();
@@ -184,4 +209,6 @@ function updateGenreButtons() {
   document.querySelectorAll(".genre-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.genre === state.activeGenre);
   });
+  const editBtn = document.getElementById("btn-edit-custom-station");
+  if (editBtn) editBtn.classList.toggle("hidden", state.activeGenre !== "custom");
 }

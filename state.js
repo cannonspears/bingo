@@ -45,6 +45,7 @@ let state = {
 
   activeGenre: "lofi",
   activeVideoIdx: 0,
+  customVideos: ["", "", ""],
   musicPlaying: false,
 
   // Custom timer settings (in minutes)

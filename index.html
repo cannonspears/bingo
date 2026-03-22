@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v3.33.1</h1>
+        <h1>Bingo Break v3.34</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -523,7 +523,16 @@
                     <button class="genre-btn" data-genre="ambient">
                       Ambient
                     </button>
+                    <button class="genre-btn" data-genre="custom">
+                      Custom
+                    </button>
                   </div>
+                  <button
+                    id="btn-edit-custom-station"
+                    class="custom-station-edit-btn hidden"
+                  >
+                    Edit Custom Station
+                  </button>
                 </div>
                 <div class="player-controls">
                   <button
@@ -1120,6 +1129,54 @@
     </section>
 
     <!-- MODAL: Customize items -->
+    <!-- MODAL: Custom Station -->
+    <div id="custom-station-modal" class="modal hidden">
+      <div class="modal-content custom-station-modal-content">
+        <h2>Custom Station</h2>
+        <p class="customize-instructions">
+          Paste up to 3 YouTube URLs or video IDs. Skip cycles through them.
+        </p>
+        <div class="custom-station-list">
+          <div class="custom-station-row">
+            <span class="custom-station-num">1</span>
+            <input
+              class="custom-station-input"
+              id="custom-video-0"
+              type="text"
+              placeholder="YouTube URL or video ID…"
+            />
+            <span class="custom-station-status" id="custom-status-0"></span>
+          </div>
+          <div class="custom-station-row">
+            <span class="custom-station-num">2</span>
+            <input
+              class="custom-station-input"
+              id="custom-video-1"
+              type="text"
+              placeholder="YouTube URL or video ID…"
+            />
+            <span class="custom-station-status" id="custom-status-1"></span>
+          </div>
+          <div class="custom-station-row">
+            <span class="custom-station-num">3</span>
+            <input
+              class="custom-station-input"
+              id="custom-video-2"
+              type="text"
+              placeholder="YouTube URL or video ID…"
+            />
+            <span class="custom-station-status" id="custom-status-2"></span>
+          </div>
+        </div>
+        <div class="customize-actions">
+          <button id="btn-custom-station-save" class="action-btn">Save</button>
+          <button id="btn-custom-station-cancel" class="action-btn">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="customize-modal" class="modal hidden">
       <div class="modal-content customize-modal-content">
         <h2 id="customize-modal-title">✏ Customize Items</h2>

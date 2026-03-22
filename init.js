@@ -134,8 +134,30 @@ function init() {
 
   // Genre buttons
   document.querySelectorAll(".genre-btn").forEach((btn) => {
-    btn.addEventListener("click", () => switchGenre(btn.dataset.genre));
+    btn.addEventListener("click", () => {
+      if (btn.dataset.genre === "custom") {
+        const hasVideos = (state.customVideos || []).some(Boolean);
+        if (!hasVideos) {
+          openCustomStationModal();
+          return;
+        }
+      }
+      switchGenre(btn.dataset.genre);
+    });
   });
+
+  // Custom station modal
+  document.getElementById("btn-edit-custom-station")
+    ?.addEventListener("click", openCustomStationModal);
+  document.getElementById("btn-custom-station-save")
+    ?.addEventListener("click", saveCustomStation);
+  document.getElementById("btn-custom-station-cancel")
+    ?.addEventListener("click", closeCustomStationModal);
+  document.getElementById("custom-station-modal")
+    ?.addEventListener("click", (e) => {
+      if (e.target === document.getElementById("custom-station-modal"))
+        closeCustomStationModal();
+    });
 
   // Player control buttons
   const btnPlay = document.getElementById("btn-play");

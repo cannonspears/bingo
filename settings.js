@@ -385,3 +385,46 @@ function initSettings() {
     });
   }
 }
+
+// ===== CUSTOM STATION MODAL =====
+function openCustomStationModal() {
+  [0, 1, 2].forEach((i) => {
+    const id = (state.customVideos || [])[i] || "";
+    const input = document.getElementById(`custom-video-${i}`);
+    const status = document.getElementById(`custom-status-${i}`);
+    if (input) input.value = id;
+    if (status) status.textContent = id ? `✓ ${id}` : "";
+  });
+  // Wire real-time status updates
+  [0, 1, 2].forEach((i) => {
+    const input = document.getElementById(`custom-video-${i}`);
+    if (!input || input._customWired) return;
+    input._customWired = true;
+    input.addEventListener("input", (e) => {
+      const id = extractYtId(e.target.value.trim());
+      const status = document.getElementById(`custom-status-${i}`);
+      if (status) status.textContent = id ? `✓ ${id}` : "";
+    });
+  });
+  document.getElementById("custom-station-modal").classList.remove("hidden");
+}
+
+function closeCustomStationModal() {
+  document.getElementById("custom-station-modal").classList.add("hidden");
+}
+
+function saveCustomStation() {
+  const ids = [0, 1, 2].map((i) => {
+    const raw = document.getElementById(`custom-video-${i}`)?.value.trim() || "";
+    return extractYtId(raw);
+  });
+  state.customVideos = ids;
+  saveState();
+  closeCustomStationModal();
+  if (state.activeGenre === "custom") {
+    state.activeVideoIdx = 0;
+    switchGenre("custom");
+  } else if (ids.some(Boolean)) {
+    switchGenre("custom");
+  }
+}
