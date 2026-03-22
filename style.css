@@ -1778,6 +1778,7 @@ body.dark .bnav {
 /* 2-col break customize grid */
 .customize-cell {
   display: flex;
+  min-width: 0;
 }
 .customize-cell input {
   flex: 1;
