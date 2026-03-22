@@ -40,15 +40,17 @@ function openCustomizeModal(isWork, breakTabKey) {
     : cells.map((c) => c.text);
 
   if (!isWork) {
-    // 2-column grid: 8 rows × 2 inputs = 16 cells
-    list.style.display = "grid";
-    list.style.gridTemplateColumns = "1fr 1fr";
-    list.style.gap = "5px";
+    // 2-column flex wrap: 8 rows × 2 inputs = 16 cells
+    list.style.display = "flex";
+    list.style.flexWrap = "wrap";
+    list.style.gridTemplateColumns = "";
+    list.style.gap = "6px";
     rowTexts.forEach((text, i) => {
       list.appendChild(buildCustomizeCell(i, text, false));
     });
   } else {
     list.style.display = "";
+    list.style.flexWrap = "";
     list.style.gridTemplateColumns = "";
     list.style.gap = "";
     rowTexts.forEach((text, i) => {
