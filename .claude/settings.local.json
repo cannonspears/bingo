@@ -4,7 +4,8 @@
       "Bash(grep -n \"scoreBankedWorkToday\\\\|scoreBankedBreakToday\" /c/Users/canno/OneDrive/Documents/Code/pomobingo/*.js)",
       "Bash(grep -n \"openCustomizeModal\\\\|closeCustomizeModal\" /c/Users/canno/OneDrive/Documents/Code/pomobingo/*.js)",
       "Bash(grep -n \"btn-edit-break-tab\\\\|btn-close\\\\|btn-customize\" /c/Users/canno/OneDrive/Documents/Code/pomobingo/*.js)",
-      "Bash(grep -n \"renderBreakGrid\\\\|function renderBreak\" /c/Users/canno/OneDrive/Documents/Code/pomobingo/*.js)"
+      "Bash(grep -n \"renderBreakGrid\\\\|function renderBreak\" /c/Users/canno/OneDrive/Documents/Code/pomobingo/*.js)",
+      "Bash(find /c/Users/canno/OneDrive/Documents/Code/pomobingo -type f -name *.html -o -name *.js -o -name *.css)"
     ]
   }
 }

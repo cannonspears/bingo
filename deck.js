@@ -260,13 +260,21 @@ function onPointerUp() {
 
   const didSwipe = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
   if (didSwipe) {
-    const exitX = dx > 0 ? "110vw" : "-110vw";
-    const exitRot = dx > 0 ? "8deg" : "-8deg";
-    topCard.style.transform = `translate(${exitX}, 0px) rotate(${exitRot})`;
-    setTimeout(() => {
-      topCard.style.transform = "";
-      goTo((activeCard + 1) % CARD_COUNT, 1);
-    }, 180);
+    if (dx < 0) {
+      // Forward (left swipe)
+      topCard.style.transform = `translate(-110vw, 0px) rotate(-8deg)`;
+      setTimeout(() => {
+        topCard.style.transform = "";
+        goTo((activeCard + 1) % CARD_COUNT, 1);
+      }, 180);
+    } else {
+      // Backward (right swipe) — incoming card emerges from right side of stack
+      const allCards = cards();
+      const incomingCard = allCards[deckOrder[deckOrder.length - 1]];
+      const px = getPeek("--peek-x"), py = getPeek("--peek-y");
+      incomingCard.style.transform = `translate(${px * (MAX_VISIBLE_DEPTH + 2)}px, ${py * (MAX_VISIBLE_DEPTH + 2)}px)`;
+      goTo((activeCard - 1 + CARD_COUNT) % CARD_COUNT, -1);
+    }
   } else {
     topCard.style.transform = transformForDepth(0);
   }
