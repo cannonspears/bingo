@@ -246,8 +246,20 @@ function onPointerMove(e) {
   drag.lastX = clientX;
   drag.lastT = now;
   drag.currentX = dx;
-  const topCard = cards()[deckOrder[0]];
-  topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
+  const allCards = cards();
+  const topCard = allCards[deckOrder[0]];
+  if (dx > 0) {
+    // Right drag: back card peeks out further from the right edge of the stack
+    const incomingCard = allCards[deckOrder[deckOrder.length - 1]];
+    incomingCard.classList.remove("animating");
+    const px = getPeek("--peek-x"), py = getPeek("--peek-y");
+    const restX = px * MAX_VISIBLE_DEPTH, restY = py * MAX_VISIBLE_DEPTH;
+    incomingCard.style.transform = `translate(${restX + dx * 0.3}px, ${restY}px)`;
+    topCard.style.transform = transformForDepth(0);
+  } else {
+    // Left drag: existing behaviour — top card follows finger
+    topCard.style.transform = `translate(${dx}px, 0px) rotate(${dx * 0.012}deg)`;
+  }
 }
 
 function onPointerUp() {
@@ -258,6 +270,8 @@ function onPointerUp() {
 
   topCard.classList.add("animating");
 
+  const allCards = cards();
+  const incomingCard = allCards[deckOrder[deckOrder.length - 1]];
   const didSwipe = Math.abs(dx) > 80 || Math.abs(vel) > 0.4;
   if (didSwipe) {
     if (dx < 0) {
@@ -268,15 +282,19 @@ function onPointerUp() {
         goTo((activeCard + 1) % CARD_COUNT, 1);
       }, 180);
     } else {
-      // Backward (right swipe) — incoming card emerges from right side of stack
-      const allCards = cards();
-      const incomingCard = allCards[deckOrder[deckOrder.length - 1]];
-      const px = getPeek("--peek-x"), py = getPeek("--peek-y");
-      incomingCard.style.transform = `translate(${px * (MAX_VISIBLE_DEPTH + 2)}px, ${py * (MAX_VISIBLE_DEPTH + 2)}px)`;
+      // Backward (right swipe) — jump back card off-screen right, then slide it in from there
+      incomingCard.classList.remove("animating");
+      incomingCard.style.transform = "translate(110vw, 0px)";
+      incomingCard.getBoundingClientRect(); // flush so browser sees 110vw as the start of the transition
       goTo((activeCard - 1 + CARD_COUNT) % CARD_COUNT, -1);
     }
   } else {
     topCard.style.transform = transformForDepth(0);
+    if (dx > 0) {
+      // Snap back card back to its resting position
+      incomingCard.classList.add("animating");
+      incomingCard.style.transform = transformForDepth(CARD_COUNT - 1);
+    }
   }
 
   drag = null;
