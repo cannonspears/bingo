@@ -122,12 +122,14 @@ window.onFbSignIn = async function (user) {
 };
 
 window.onFbSignOut = function () {
-  if (localStorage.getItem("bingoBreakState2")) {
-    localStorage.removeItem("bingoBreakState2");
-    window.location.reload();
-  } else {
+  localStorage.removeItem("bingoBreakState2");
+  if (sessionStorage.getItem("justSignedOut")) {
+    sessionStorage.removeItem("justSignedOut");
     renderAuthUI();
     _setSyncStatus("");
+  } else {
+    sessionStorage.setItem("justSignedOut", "1");
+    window.location.reload();
   }
 };
 
