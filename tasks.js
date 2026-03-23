@@ -106,6 +106,7 @@ function buildTaskItem(cell, idx, isDone) {
       // Complete task
       const pts = pointsForTask(state.workCells[idx]);
       state.workCells[idx].count = 1;
+      window.cloudLogTask?.({ text: state.workCells[idx].text, difficulty: state.workCells[idx].difficulty, points: pts });
       addScore(pts, true);
       showScorePopup(`+${pts} pts ✓`);
       saveState();
@@ -241,6 +242,7 @@ function completeCurrentFocusTask() {
 
   const pts = pointsForTask(cell);
   cell.count = 1;
+  window.cloudLogTask?.({ text: cell.text, difficulty: cell.difficulty, points: pts });
   addScore(pts, true);
   showScorePopup(`+${pts} pts ✓`);
   saveState();

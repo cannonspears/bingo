@@ -100,6 +100,7 @@ function toggleCell(index) {
   cell.count = prevCount + 1;
   const pts =
     basePointsForCell(cell.count, false) - basePointsForCell(prevCount, false);
+  window.cloudLogBreakItem?.({ text: cell.text, tab, starIndex: cell.count, points: pts });
   addScore(pts, false);
   showScorePopup(`+${pts} pt${pts !== 1 ? "s" : ""}`);
 

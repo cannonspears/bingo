@@ -74,6 +74,7 @@ let timerInterval = null;
 // ===== LOCAL STORAGE =====
 function saveState() {
   localStorage.setItem("bingoBreakState2", JSON.stringify(state));
+  window.cloudSave?.(state);
 }
 
 function loadState() {
