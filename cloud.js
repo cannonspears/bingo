@@ -122,8 +122,13 @@ window.onFbSignIn = async function (user) {
 };
 
 window.onFbSignOut = function () {
-  localStorage.removeItem("bingoBreakState2");
-  window.location.reload();
+  if (localStorage.getItem("bingoBreakState2")) {
+    localStorage.removeItem("bingoBreakState2");
+    window.location.reload();
+  } else {
+    renderAuthUI();
+    _setSyncStatus("");
+  }
 };
 
 // ===== AUTH ACTIONS =====
