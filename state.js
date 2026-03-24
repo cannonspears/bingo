@@ -220,18 +220,24 @@ function loadState() {
     state.workBingoAcknowledged = false;
     state.focusedTaskIndex = -1;
   } else {
-    // Same-day: check for 4-hour lapse focus session reset
+    // Same-day: check for 2-hour lapse focus session reset
     const hoursInactive = state.lastActivityAt
       ? (Date.now() - state.lastActivityAt) / 3_600_000
       : Infinity;
-    if (hoursInactive >= 4) {
+    if (hoursInactive >= 2) {
       const sessionWork = state.scoreWorkToday - (state.scoreBankedWorkToday || 0);
       const sessionBrk  = state.scoreBreakToday - (state.scoreBankedBreakToday || 0);
       if (sessionWork > 0 || sessionBrk > 0 || state.pomoCount > 0 || state.breakCount > 0)
         state.sessionsToday.push({ work: sessionWork, brk: sessionBrk, pomos: state.pomoCount || 0, breaks: state.breakCount || 0 });
 
-      state.scoreBankedWorkToday = state.scoreWorkToday;
-      state.scoreBankedBreakToday = state.scoreBreakToday;
+      state.scoreWorkAllTimeBase  = Math.max(state.scoreWorkAllTimeBase  || 0, state.scoreWorkToday);
+      state.scoreBreakAllTimeBase = Math.max(state.scoreBreakAllTimeBase || 0, state.scoreBreakToday);
+      state.scoreWorkAllTime  = state.scoreWorkAllTimeBase;
+      state.scoreBreakAllTime = state.scoreBreakAllTimeBase;
+      state.scoreWorkToday        = 0;
+      state.scoreBreakToday       = 0;
+      state.scoreBankedWorkToday  = 0;
+      state.scoreBankedBreakToday = 0;
 
       // Reset grids (keep tiles, clear counts) and remove completed tasks
       TABS.forEach((tab) => {

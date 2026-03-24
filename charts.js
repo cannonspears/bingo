@@ -96,6 +96,7 @@ function toggleCell(index) {
   const cell = cells[index];
   const prevCount = cell.count;
   if (prevCount >= 5) return;
+  state.lastActivityAt = Date.now();
 
   cell.count = prevCount + 1;
   const pts =

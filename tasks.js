@@ -106,6 +106,7 @@ function buildTaskItem(cell, idx, isDone) {
       // Complete task
       const pts = pointsForTask(state.workCells[idx]);
       state.workCells[idx].count = 1;
+      state.lastActivityAt = Date.now();
       window.cloudLogTask?.({ text: state.workCells[idx].text, difficulty: state.workCells[idx].difficulty, points: pts });
       addScore(pts, true);
       showScorePopup(`+${pts} pts ✓`);
