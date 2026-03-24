@@ -8,12 +8,15 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  deleteUser,
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import {
   getFirestore,
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  deleteDoc,
   collection,
   addDoc,
   serverTimestamp,
@@ -42,7 +45,9 @@ window.fbGetDoc = getDoc;
 window.fbCollection = collection;
 window.fbAddDoc = addDoc;
 window.fbServerTimestamp = serverTimestamp;
-window.fbAuthFns = { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut };
+window.fbDeleteDoc = deleteDoc;
+window.fbGetDocs = getDocs;
+window.fbAuthFns = { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, deleteUser };
 
 // Auth state changes — calls into cloud.js callbacks once they're defined
 onAuthStateChanged(auth, (user) => {

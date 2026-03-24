@@ -321,6 +321,19 @@ function initSettings() {
     });
   }
 
+  // Wipe today's score only
+  const btnWipeTodayScore = document.getElementById("btn-wipe-today-score");
+  if (btnWipeTodayScore) {
+    btnWipeTodayScore.addEventListener("click", () => {
+      if (confirm("Wipe today's work and break scores? This cannot be undone.")) {
+        state.scoreWorkToday = state.scoreBreakToday = 0;
+        state.scoreBankedWorkToday = state.scoreBankedBreakToday = 0;
+        saveState();
+        updateScoreUI();
+      }
+    });
+  }
+
   // Reset all scores
   const btnResetScores = document.getElementById("btn-reset-scores");
   if (btnResetScores) {
@@ -373,16 +386,63 @@ function initSettings() {
   // Wipe all data (scores, tasks, break activities, everything)
   const btnWipeAllData = document.getElementById("btn-wipe-all-data");
   if (btnWipeAllData) {
-    btnWipeAllData.addEventListener("click", () => {
+    btnWipeAllData.addEventListener("click", async () => {
       if (
-        confirm(
+        !confirm(
           "This will delete EVERYTHING — all scores, tasks, bingo boards, and settings. This cannot be undone. Are you sure?",
         )
-      ) {
+      ) return;
+      if (window.fbUser) {
+        await _deleteUserCloudData(window.fbUser.uid);
+      }
+      localStorage.removeItem("bingoBreakState2");
+      window.location.reload();
+    });
+  }
+
+  // Delete account (wipe cloud data + delete auth user)
+  const btnDeleteAccount = document.getElementById("btn-delete-account");
+  if (btnDeleteAccount) {
+    btnDeleteAccount.addEventListener("click", async () => {
+      if (!window.fbUser) {
+        alert("No account is signed in.");
+        return;
+      }
+      if (
+        !confirm(
+          "This will permanently delete your account and ALL data. You will be signed out and cannot undo this. Are you sure?",
+        )
+      ) return;
+      try {
+        await _deleteUserCloudData(window.fbUser.uid);
+        await window.fbAuthFns.deleteUser(window.fbUser);
         localStorage.removeItem("bingoBreakState2");
         window.location.reload();
+      } catch (e) {
+        if (e.code === "auth/requires-recent-login") {
+          alert("For security, please sign out and sign back in before deleting your account.");
+        } else {
+          alert("Failed to delete account: " + e.message);
+        }
       }
     });
+  }
+}
+
+async function _deleteUserCloudData(uid) {
+  try {
+    const subcolls = ["completedTasks", "completedBreakItems"];
+    for (const name of subcolls) {
+      const snap = await window.fbGetDocs(
+        window.fbCollection(window.fbDb, "users", uid, name)
+      );
+      for (const d of snap.docs) {
+        await window.fbDeleteDoc(d.ref);
+      }
+    }
+    await window.fbDeleteDoc(window.fbDoc(window.fbDb, "users", uid));
+  } catch (e) {
+    console.warn("Cloud data deletion failed:", e);
   }
 }
 
