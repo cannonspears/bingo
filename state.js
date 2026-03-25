@@ -219,6 +219,8 @@ function loadState() {
     state.bingoAcknowledged = false;
     state.workBingoAcknowledged = false;
     state.focusedTaskIndex = -1;
+    state.pomoCount = 0;
+    state.breakCount = 0;
   } else {
     // Same-day: check for 2-hour lapse focus session reset
     const hoursInactive = state.lastActivityAt
