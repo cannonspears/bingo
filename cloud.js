@@ -75,8 +75,13 @@ function _applyCloudState(cloudData) {
   // Merge into global state (defined in state.js)
   state = { ...state, ...cleanState, running: false };
   if (state.timeLeft <= 0) resetTimer(false);
-  // Persist merged state locally
+  // Persist merged state locally, then re-run date/inactivity checks so a
+  // midnight rollover or 2-hour lapse that happened while offline is applied
+  // even though the cloud copy still has the old date's data.
   localStorage.setItem("bingoBreakState2", JSON.stringify(state));
+  loadState();
+  // Push the (possibly reset) state back to cloud so it stays in sync
+  saveState();
   // Re-render dynamic UI
   updateTimerUI();
   updatePomoCount();
