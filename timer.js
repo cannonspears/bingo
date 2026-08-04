@@ -173,6 +173,7 @@ function phaseComplete() {
 
   if (completedPhase === "work") {
     state.pomoCount++;
+    addScore(25, true);
     const isLongBreak = state.longBreak && state.pomoCount % 4 === 0;
     state.phase = "break";
     state.timeLeft = breakMinutes() * (isLongBreak ? 3 : 1) * 60;

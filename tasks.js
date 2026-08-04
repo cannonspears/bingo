@@ -1,6 +1,6 @@
 // ===== DIFFICULTY HELPERS =====
 function pointsForTask(cell) {
-  const map = { easy: 10, medium: 20, hard: 30 };
+  const map = { easy: 5, medium: 10, hard: 15 };
   return map[cell.difficulty || "easy"];
 }
 
