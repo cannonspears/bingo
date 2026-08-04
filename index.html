@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v4.6.1</h1>
+        <h1>Bingo Break v4.7</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -83,6 +83,13 @@
                       style="flex-direction: row; align-items: center; gap: 6px"
                     >
                       <button
+                        id="btn-toggle-recurring-view"
+                        class="header-edit-btn"
+                        title="Daily recurring tasks"
+                      >
+                        ↻
+                      </button>
+                      <button
                         id="btn-sort-tasks"
                         class="header-edit-btn"
                         title="Sort by difficulty"
@@ -144,6 +151,51 @@
                   <div id="work-task-list" class="work-task-list"></div>
                 </div>
 
+                <!-- DAILY RECURRING VIEW -->
+                <div id="work-recurring-view" class="work-tasklist-view hidden">
+                  <div class="grid-header-row">
+                    <div class="grid-header-left">
+                      <span class="grid-label">Daily Recurring</span>
+                      <span class="grid-hint"
+                        >tap to focus · resets every day</span
+                      >
+                    </div>
+                    <div
+                      class="grid-header-right"
+                      style="flex-direction: row; align-items: center; gap: 6px"
+                    >
+                      <button
+                        id="btn-back-to-tasks"
+                        class="header-edit-btn"
+                        title="Back to today's tasks"
+                      >
+                        ← Tasks
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Inline add row -->
+                  <div class="work-add-row" id="recurring-add-row">
+                    <div class="work-add-icon">+</div>
+                    <input
+                      type="text"
+                      id="recurring-add-input"
+                      class="work-add-input"
+                      placeholder="Add a daily task…"
+                      maxlength="80"
+                      autocomplete="off"
+                    />
+                    <button
+                      id="recurring-add-btn"
+                      class="work-add-submit"
+                      title="Add recurring task"
+                    >
+                      ↵
+                    </button>
+                  </div>
+                  <!-- Recurring task list -->
+                  <div id="work-recurring-list" class="work-task-list"></div>
+                </div>
+
                 <!-- FOCUS MODE VIEW (when a task is focused) -->
                 <div id="work-focus-view" class="work-focus-view hidden">
                   <button id="btn-exit-focus" class="exit-focus-btn">
@@ -154,6 +206,12 @@
                   </div>
                   <div class="focus-task-hint">
                     Stay focused. You've got this.
+                  </div>
+                  <div
+                    id="focus-streak-indicator"
+                    class="focus-streak-indicator hidden"
+                  >
+                    🔥 <span id="focus-streak-count">0</span> day streak
                   </div>
                   <button
                     id="btn-complete-focus-task"

@@ -4,6 +4,140 @@ function pointsForTask(cell) {
   return map[cell.difficulty || "easy"];
 }
 
+// ===== RECURRING TASKS =====
+// Streak displayed as 0 (without mutating stored state) once a day has been
+// skipped — the chain only actually resets in state when the task is next completed.
+function effectiveStreak(task) {
+  const today = localDateString();
+  const yesterday = localDateString(-1);
+  if (task.lastCompletedDate === today || task.lastCompletedDate === yesterday) {
+    return task.streak || 0;
+  }
+  return 0;
+}
+
+function completeRecurringTask(id) {
+  const task = state.recurringTasks.find((t) => t.id === id);
+  if (!task || task.lastCompletedDate === localDateString()) return;
+  task.streak =
+    effectiveStreak(task) + (task.lastCompletedDate === localDateString(-1) ? 1 : 0) || 1;
+  task.lastCompletedDate = localDateString();
+  const pts = pointsForTask(task);
+  state.lastActivityAt = Date.now();
+  window.cloudLogTask?.({
+    text: task.text,
+    difficulty: task.difficulty,
+    points: pts,
+    recurring: true,
+  });
+  addScore(pts, true);
+  showScorePopup(`+${pts} pts ✓`);
+  saveState();
+  renderRecurringTaskList();
+}
+
+function undoRecurringTask(id) {
+  const task = state.recurringTasks.find((t) => t.id === id);
+  if (!task || task.lastCompletedDate !== localDateString()) return;
+  task.streak = Math.max(0, task.streak - 1);
+  task.lastCompletedDate = task.streak > 0 ? localDateString(-1) : null;
+  recalculateScore();
+  saveState();
+  renderRecurringTaskList();
+}
+
+function renderRecurringTaskList() {
+  const container = document.getElementById("work-recurring-list");
+  if (!container) return;
+  container.innerHTML = "";
+
+  state.recurringTasks.forEach((task) => {
+    const isDone = task.lastCompletedDate === localDateString();
+    container.appendChild(buildRecurringTaskItem(task, isDone));
+  });
+}
+
+function buildRecurringTaskItem(task, isDone) {
+  const item = document.createElement("div");
+  item.className = "work-task-item" + (isDone ? " completed" : "");
+  item.dataset.difficulty = task.difficulty || "easy";
+
+  const icon = document.createElement("div");
+  icon.className = "task-item-icon";
+  icon.textContent = isDone ? "✓" : "";
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (isDone) undoRecurringTask(task.id);
+    else completeRecurringTask(task.id);
+  });
+  item.appendChild(icon);
+
+  const text = document.createElement("span");
+  text.className = "task-item-text";
+  text.textContent = task.text || "Unnamed task";
+  item.appendChild(text);
+
+  const diffBadge = document.createElement("span");
+  const diff = task.difficulty || "easy";
+  diffBadge.className = `task-diff-badge task-diff-badge--${diff}`;
+  const dotCount = { easy: 1, medium: 2, hard: 3 }[diff];
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement("span");
+    dot.className = "task-diff-dot";
+    diffBadge.appendChild(dot);
+  }
+  if (!isDone) {
+    diffBadge.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const order = ["easy", "medium", "hard"];
+      task.difficulty = order[(order.indexOf(diff) + 1) % 3];
+      saveState();
+      renderRecurringTaskList();
+    });
+  }
+
+  if (!isDone) {
+    const hint = document.createElement("span");
+    hint.className = "task-item-focus-hint";
+    hint.textContent = "Focus →";
+    item.appendChild(hint);
+  }
+
+  item.appendChild(diffBadge);
+
+  if (!isDone) {
+    item.addEventListener("click", () => enterRecurringFocusMode(task.id));
+
+    item.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const idx = state.recurringTasks.indexOf(task);
+      if (idx === -1) return;
+      state.recurringTasks.splice(idx, 1);
+      if (state.focusedRecurringId === task.id) exitFocusMode();
+      recalculateScore();
+      saveState();
+      renderRecurringTaskList();
+    });
+  }
+
+  return item;
+}
+
+function addRecurringTask(text) {
+  const trimmed = text?.trim();
+  if (!trimmed) return;
+  state.recurringTasks.push({
+    id: state.nextRecurringId++,
+    text: trimmed,
+    difficulty: "easy",
+    lastCompletedDate: null,
+    streak: 0,
+  });
+  saveState();
+  renderRecurringTaskList();
+}
+
 // ===== WORK TASK LIST RENDERER =====
 function renderWorkTaskList() {
   const container = document.getElementById("work-task-list");
@@ -208,8 +342,21 @@ function startEditingTask(idx, textElement) {
 }
 
 // ===== FOCUS MODE =====
+function setFocusStreakIndicator(streak) {
+  const indicator = document.getElementById("focus-streak-indicator");
+  const countEl = document.getElementById("focus-streak-count");
+  if (!indicator) return;
+  if (streak == null) {
+    indicator.classList.add("hidden");
+  } else {
+    if (countEl) countEl.textContent = streak;
+    indicator.classList.remove("hidden");
+  }
+}
+
 function enterFocusMode(taskIdx) {
   state.focusedTaskIndex = taskIdx;
+  state.focusedRecurringId = null;
   saveState();
 
   const task = state.workCells[taskIdx];
@@ -220,22 +367,56 @@ function enterFocusMode(taskIdx) {
   if (focusName) focusName.textContent = task.text || "Unnamed task";
   const ptsLabel = document.getElementById("complete-pts-label");
   if (ptsLabel) ptsLabel.textContent = `+${pointsForTask(task)} pts`;
+  setFocusStreakIndicator(null);
   if (listView) listView.classList.add("hidden");
+  if (focusView) focusView.classList.remove("hidden");
+}
+
+function enterRecurringFocusMode(id) {
+  const task = state.recurringTasks.find((t) => t.id === id);
+  if (!task) return;
+  state.focusedTaskIndex = -1;
+  state.focusedRecurringId = id;
+  saveState();
+
+  const focusView = document.getElementById("work-focus-view");
+  const recurringView = document.getElementById("work-recurring-view");
+  const focusName = document.getElementById("focus-task-name");
+
+  if (focusName) focusName.textContent = task.text || "Unnamed task";
+  const ptsLabel = document.getElementById("complete-pts-label");
+  if (ptsLabel) ptsLabel.textContent = `+${pointsForTask(task)} pts`;
+  setFocusStreakIndicator(effectiveStreak(task));
+  if (recurringView) recurringView.classList.add("hidden");
   if (focusView) focusView.classList.remove("hidden");
 }
 
 function exitFocusMode() {
   state.focusedTaskIndex = -1;
+  state.focusedRecurringId = null;
   saveState();
 
   const focusView = document.getElementById("work-focus-view");
   const listView = document.getElementById("work-tasklist-view");
+  const recurringView = document.getElementById("work-recurring-view");
+  setFocusStreakIndicator(null);
   if (focusView) focusView.classList.add("hidden");
-  if (listView) listView.classList.remove("hidden");
-  renderWorkTaskList();
+  if (state.workListView === "recurring") {
+    if (recurringView) recurringView.classList.remove("hidden");
+    renderRecurringTaskList();
+  } else {
+    if (listView) listView.classList.remove("hidden");
+    renderWorkTaskList();
+  }
 }
 
 function completeCurrentFocusTask() {
+  if (state.focusedRecurringId != null) {
+    completeRecurringTask(state.focusedRecurringId);
+    exitFocusMode();
+    return;
+  }
+
   const idx = state.focusedTaskIndex;
   if (idx < 0 || idx >= state.workCells.length) return;
   const cell = state.workCells[idx];
@@ -255,6 +436,9 @@ function recalculateScore() {
     breakPts = 0;
   state.workCells.forEach((c) => {
     if (c.count >= 1) workPts += pointsForTask(c);
+  });
+  state.recurringTasks.forEach((t) => {
+    if (t.lastCompletedDate === localDateString()) workPts += pointsForTask(t);
   });
   const TABS = ["all", "body", "mind", "home"];
   TABS.forEach((tab) => {
@@ -312,6 +496,33 @@ function initInlineTaskAdd() {
   });
 
   // Stop card drag when interacting with input
+  input?.addEventListener("mousedown", (e) => e.stopPropagation());
+  input?.addEventListener("touchstart", (e) => e.stopPropagation(), {
+    passive: true,
+  });
+}
+
+function initRecurringTaskAdd() {
+  const input = document.getElementById("recurring-add-input");
+  const btn = document.getElementById("recurring-add-btn");
+
+  function addTask() {
+    addRecurringTask(input?.value);
+    if (input) input.value = "";
+    input?.focus();
+  }
+
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTask();
+    }
+  });
+  btn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    addTask();
+  });
+
   input?.addEventListener("mousedown", (e) => e.stopPropagation());
   input?.addEventListener("touchstart", (e) => e.stopPropagation(), {
     passive: true,

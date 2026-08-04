@@ -11,6 +11,8 @@ let state = {
   // Legacy single array kept for migration; tabs replace it
   breakCells: [],
   workCells: [],
+  recurringTasks: [],
+  nextRecurringId: 1,
 
   // Break tabs: body / mind / home
   breakTabs: { all: [], body: [], mind: [], home: [] },
@@ -19,6 +21,8 @@ let state = {
 
   // Work focus mode
   focusedTaskIndex: -1,
+  focusedRecurringId: null,
+  workListView: "tasks", // "tasks" | "recurring" — which Work-card list is showing
   showDoneTasks: false,
   taskSortDir: null,
   longBreak: true,
@@ -104,6 +108,22 @@ function loadState() {
     text: c.text,
     count: typeof c.count === "number" ? c.count : (c.completed ? 1 : 0),
     difficulty: c.difficulty || "easy",
+  }));
+
+  // Recurring tasks — text/difficulty/streak persist across days; "completed
+  // today" is derived from lastCompletedDate, so no rollover logic touches this.
+  if (!Array.isArray(state.recurringTasks)) {
+    state.recurringTasks = [];
+  }
+  if (typeof state.nextRecurringId !== "number") {
+    state.nextRecurringId = 1;
+  }
+  state.recurringTasks = state.recurringTasks.map((t) => ({
+    id: t.id ?? state.nextRecurringId++,
+    text: t.text,
+    difficulty: t.difficulty || "easy",
+    lastCompletedDate: t.lastCompletedDate || null,
+    streak: typeof t.streak === "number" ? t.streak : 0,
   }));
 
   // Break tabs — migrate from legacy single breakCells if needed

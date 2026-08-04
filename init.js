@@ -36,6 +36,29 @@ function init() {
 
   // Inline task add
   initInlineTaskAdd();
+  initRecurringTaskAdd();
+
+  // Toggle daily recurring view
+  document
+    .getElementById("btn-toggle-recurring-view")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.workListView = "recurring";
+      saveState();
+      document.getElementById("work-tasklist-view")?.classList.add("hidden");
+      document.getElementById("work-recurring-view")?.classList.remove("hidden");
+      renderRecurringTaskList();
+    });
+  document
+    .getElementById("btn-back-to-tasks")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.workListView = "tasks";
+      saveState();
+      document.getElementById("work-recurring-view")?.classList.add("hidden");
+      document.getElementById("work-tasklist-view")?.classList.remove("hidden");
+      renderWorkTaskList();
+    });
 
   // Sort tasks by difficulty
   document.getElementById("btn-sort-tasks")?.addEventListener("click", (e) => {
@@ -198,15 +221,32 @@ function init() {
   updateScoreUI();
   renderBreakGrid();
   renderWorkTaskList();
+  renderRecurringTaskList();
+
+  // Restore work-list view (tasks vs recurring)
+  if (state.workListView === "recurring") {
+    document.getElementById("work-tasklist-view")?.classList.add("hidden");
+    document.getElementById("work-recurring-view")?.classList.remove("hidden");
+  }
 
   // Restore focus mode if was active
   if (
+    state.focusedRecurringId != null &&
+    state.recurringTasks.some(
+      (t) =>
+        t.id === state.focusedRecurringId &&
+        t.lastCompletedDate !== localDateString(),
+    )
+  ) {
+    enterRecurringFocusMode(state.focusedRecurringId);
+  } else if (
     state.focusedTaskIndex >= 0 &&
     state.workCells[state.focusedTaskIndex]?.count === 0
   ) {
     enterFocusMode(state.focusedTaskIndex);
   } else {
     state.focusedTaskIndex = -1;
+    state.focusedRecurringId = null;
   }
 }
 

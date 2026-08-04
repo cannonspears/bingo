@@ -2398,6 +2398,17 @@ body.dark .bnav {
   letter-spacing: 0.3px;
 }
 
+.focus-streak-indicator {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--c-work);
+  background: color-mix(in srgb, var(--c-work) 12%, transparent);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  margin-bottom: 16px;
+}
+
 .btn-complete-task {
   display: flex;
   align-items: center;
