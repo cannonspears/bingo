@@ -583,10 +583,10 @@ body.dark .card-title {
   margin-bottom: 12px;
 }
 
-/* ===== BREAK BINGO GRID (4×4) ===== */
+/* ===== BREAK BINGO GRID (3×3) ===== */
 .bingo-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 5px;
   margin-bottom: 8px;
   padding: 8px 6px 6px;

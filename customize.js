@@ -40,10 +40,10 @@ function openCustomizeModal(isWork, breakTabKey) {
     : cells.map((c) => c.text);
 
   if (!isWork) {
-    // 2-column grid: 8 rows × 2 inputs = 16 cells
+    // 3-column grid: 3 rows × 3 inputs = 9 cells
     list.style.display = "grid";
     list.style.width = "100%";
-    list.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
+    list.style.gridTemplateColumns = "repeat(3, minmax(0, 1fr))";
     list.style.gap = "5px";
     rowTexts.forEach((text, i) => {
       list.appendChild(buildCustomizeCell(i, text, false));

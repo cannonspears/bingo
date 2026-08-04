@@ -114,7 +114,7 @@ function loadState() {
   TABS.forEach((tab) => {
     if (
       !Array.isArray(state.breakTabs[tab]) ||
-      state.breakTabs[tab].length !== 16
+      state.breakTabs[tab].length !== DEFAULT_BREAK_TABS[tab].length
     ) {
       state.breakTabs[tab] = DEFAULT_BREAK_TABS[tab].map((text) => ({
         text,
