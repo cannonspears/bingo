@@ -10,7 +10,10 @@ function pointsForTask(cell) {
 function effectiveStreak(task) {
   const today = localDateString();
   const yesterday = localDateString(-1);
-  if (task.lastCompletedDate === today || task.lastCompletedDate === yesterday) {
+  if (
+    task.lastCompletedDate === today ||
+    task.lastCompletedDate === yesterday
+  ) {
     return task.streak || 0;
   }
   return 0;
@@ -20,7 +23,8 @@ function completeRecurringTask(id) {
   const task = state.recurringTasks.find((t) => t.id === id);
   if (!task || task.lastCompletedDate === localDateString()) return;
   task.streak =
-    effectiveStreak(task) + (task.lastCompletedDate === localDateString(-1) ? 1 : 0) || 1;
+    effectiveStreak(task) +
+      (task.lastCompletedDate === localDateString(-1) ? 1 : 0) || 1;
   task.lastCompletedDate = localDateString();
   const pts = pointsForTask(task);
   state.lastActivityAt = Date.now();
@@ -52,8 +56,12 @@ function renderRecurringTaskList() {
   container.innerHTML = "";
 
   const today = localDateString();
-  const active = state.recurringTasks.filter((t) => t.lastCompletedDate !== today);
-  const done = state.recurringTasks.filter((t) => t.lastCompletedDate === today);
+  const active = state.recurringTasks.filter(
+    (t) => t.lastCompletedDate !== today,
+  );
+  const done = state.recurringTasks.filter(
+    (t) => t.lastCompletedDate === today,
+  );
 
   const toggleBtn = document.getElementById("btn-toggle-done-recurring");
   const sectionLabel = document.getElementById("work-recurring-section-label");
@@ -104,16 +112,19 @@ function renderRecurringTaskList() {
     const hasDone = done.length > 0;
     const canToggle = hasDone || state.showDoneRecurringTasks;
     toggleBtn.disabled = !canToggle;
-    toggleBtn.textContent = state.showDoneRecurringTasks ? "☐" : "☑";
+    toggleBtn.textContent = state.showDoneRecurringTasks ? "☑" : "☐";
     toggleBtn.style.opacity = canToggle ? "1" : "0.3";
     toggleBtn.style.color = state.showDoneRecurringTasks ? "var(--c-work)" : "";
-    toggleBtn.style.borderColor = state.showDoneRecurringTasks ? "var(--c-work)" : "";
+    toggleBtn.style.borderColor = state.showDoneRecurringTasks
+      ? "var(--c-work)"
+      : "";
   }
 
   const sortBtn = document.getElementById("btn-sort-recurring");
   if (sortBtn) {
     const hasSortable = active.length > 1;
-    sortBtn.textContent = state.recurringSortDir === "easy" ? "Sort △" : "Sort ▽";
+    sortBtn.textContent =
+      state.recurringSortDir === "easy" ? "Sort △" : "Sort ▽";
     sortBtn.classList.toggle("active", state.recurringSortDir != null);
     sortBtn.disabled = !hasSortable;
     sortBtn.style.opacity = hasSortable ? "1" : "0.3";
@@ -264,7 +275,7 @@ function renderWorkTaskList() {
     const hasDone = done.length > 0;
     const canToggle = hasDone || state.showDoneTasks;
     toggleBtn.disabled = !canToggle;
-    toggleBtn.textContent = state.showDoneTasks ? "☐" : "☑";
+    toggleBtn.textContent = state.showDoneTasks ? "☑" : "☐";
     toggleBtn.style.opacity = canToggle ? "1" : "0.3";
     toggleBtn.style.color = state.showDoneTasks ? "var(--c-work)" : "";
     toggleBtn.style.borderColor = state.showDoneTasks ? "var(--c-work)" : "";
@@ -304,7 +315,11 @@ function buildTaskItem(cell, idx, isDone) {
       const pts = pointsForTask(state.workCells[idx]);
       state.workCells[idx].count = 1;
       state.lastActivityAt = Date.now();
-      window.cloudLogTask?.({ text: state.workCells[idx].text, difficulty: state.workCells[idx].difficulty, points: pts });
+      window.cloudLogTask?.({
+        text: state.workCells[idx].text,
+        difficulty: state.workCells[idx].difficulty,
+        points: pts,
+      });
       addScore(pts, true);
       showScorePopup(`+${pts} pts ✓`);
       saveState();
@@ -487,7 +502,11 @@ function completeCurrentFocusTask() {
 
   const pts = pointsForTask(cell);
   cell.count = 1;
-  window.cloudLogTask?.({ text: cell.text, difficulty: cell.difficulty, points: pts });
+  window.cloudLogTask?.({
+    text: cell.text,
+    difficulty: cell.difficulty,
+    points: pts,
+  });
   addScore(pts, true);
   showScorePopup(`+${pts} pts ✓`);
   saveState();
