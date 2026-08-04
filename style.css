@@ -2076,7 +2076,9 @@ body.dark .bnav {
 }
 #btn-toggle-done-tasks,
 #btn-sort-tasks,
-#btn-edit-break-tab {
+#btn-edit-break-tab,
+#btn-toggle-done-recurring,
+#btn-sort-recurring {
   width: auto;
   padding: 0 8px;
   font-size: 0.54rem;
@@ -2086,12 +2088,14 @@ body.dark .bnav {
   text-transform: uppercase;
   font-weight: 600;
 }
-#btn-toggle-done-tasks {
+#btn-toggle-done-tasks,
+#btn-toggle-done-recurring {
   font-size: 0.9rem;
   letter-spacing: 0;
   text-indent: 0;
 }
-#btn-sort-tasks.active {
+#btn-sort-tasks.active,
+#btn-sort-recurring.active {
   color: var(--c-work);
   border-color: var(--c-work);
 }

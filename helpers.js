@@ -152,10 +152,12 @@ function renderPtsCard() {
 }
 
 function updateScoreUI() {
-  // Minimal inline score on Work card
+  // Minimal inline score on Work card (shown on both the Tasks and Recurring views)
   const workInline = document.getElementById("work-score-inline");
+  const workRecurringInline = document.getElementById("work-recurring-score-inline");
   const breakInline = document.getElementById("break-score-inline");
   if (workInline) workInline.textContent = state.scoreWorkToday;
+  if (workRecurringInline) workRecurringInline.textContent = state.scoreWorkToday;
   if (breakInline) breakInline.textContent = state.scoreBreakToday;
 
   renderPtsCard();

@@ -13,7 +13,7 @@
 
     <div id="app-zone">
       <header id="main-header">
-        <h1>Bingo Break v4.7</h1>
+        <h1>Bingo Break v4.7.1</h1>
         <p class="tagline">A Pomodoro Method Productivity Game</p>
       </header>
 
@@ -169,8 +169,37 @@
                         class="header-edit-btn"
                         title="Back to today's tasks"
                       >
-                        ← Tasks
+                        →
                       </button>
+                      <button
+                        id="btn-sort-recurring"
+                        class="header-edit-btn"
+                        title="Sort by difficulty"
+                      >
+                        Sort ▽
+                      </button>
+                      <button
+                        id="btn-toggle-done-recurring"
+                        class="header-edit-btn"
+                        title="Show/hide completed tasks"
+                      >
+                        ☑
+                      </button>
+                      <div
+                        style="
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-end;
+                          gap: 1px;
+                        "
+                      >
+                        <span
+                          class="grid-pts-value score-value--work"
+                          id="work-recurring-score-inline"
+                          >0</span
+                        >
+                        <span class="grid-pts-label">pts today</span>
+                      </div>
                     </div>
                   </div>
                   <!-- Inline add row -->
@@ -191,6 +220,14 @@
                     >
                       ↵
                     </button>
+                  </div>
+                  <!-- Pinned section label (Incomplete / Completed) -->
+                  <div
+                    id="work-recurring-section-label"
+                    class="work-task-done-divider"
+                    style="display: none"
+                  >
+                    <span></span>
                   </div>
                   <!-- Recurring task list -->
                   <div id="work-recurring-list" class="work-task-list"></div>

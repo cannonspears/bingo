@@ -25,6 +25,8 @@ let state = {
   workListView: "tasks", // "tasks" | "recurring" — which Work-card list is showing
   showDoneTasks: false,
   taskSortDir: null,
+  showDoneRecurringTasks: false,
+  recurringSortDir: null,
   longBreak: true,
 
   bingoAcknowledged: false,

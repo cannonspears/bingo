@@ -87,6 +87,40 @@ function init() {
       renderWorkTaskList();
     });
 
+  // Sort recurring tasks by difficulty
+  document
+    .getElementById("btn-sort-recurring")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const diffOrder = { hard: 0, medium: 1, easy: 2 };
+      if (state.recurringSortDir !== "hard") {
+        state.recurringSortDir = "hard";
+        state.recurringTasks.sort(
+          (a, b) => (diffOrder[a.difficulty] ?? 2) - (diffOrder[b.difficulty] ?? 2),
+        );
+      } else {
+        state.recurringSortDir = "easy";
+        state.recurringTasks.sort(
+          (a, b) => (diffOrder[b.difficulty] ?? 2) - (diffOrder[a.difficulty] ?? 2),
+        );
+      }
+      saveState();
+      renderRecurringTaskList();
+    });
+
+  // Toggle done recurring tasks
+  document
+    .getElementById("btn-toggle-done-recurring")
+    ?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const today = localDateString();
+      const hasDone = state.recurringTasks.some((t) => t.lastCompletedDate === today);
+      if (!hasDone && !state.showDoneRecurringTasks) return;
+      state.showDoneRecurringTasks = !state.showDoneRecurringTasks;
+      saveState();
+      renderRecurringTaskList();
+    });
+
   // Focus mode
   document.getElementById("btn-exit-focus")?.addEventListener("click", (e) => {
     e.stopPropagation();

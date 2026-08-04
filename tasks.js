@@ -51,10 +51,73 @@ function renderRecurringTaskList() {
   if (!container) return;
   container.innerHTML = "";
 
-  state.recurringTasks.forEach((task) => {
-    const isDone = task.lastCompletedDate === localDateString();
-    container.appendChild(buildRecurringTaskItem(task, isDone));
+  const today = localDateString();
+  const active = state.recurringTasks.filter((t) => t.lastCompletedDate !== today);
+  const done = state.recurringTasks.filter((t) => t.lastCompletedDate === today);
+
+  const toggleBtn = document.getElementById("btn-toggle-done-recurring");
+  const sectionLabel = document.getElementById("work-recurring-section-label");
+
+  if (active.length === 0 && done.length === 0) {
+    if (toggleBtn) {
+      toggleBtn.style.opacity = "0.3";
+      toggleBtn.disabled = true;
+    }
+    const sortBtnEarly = document.getElementById("btn-sort-recurring");
+    if (sortBtnEarly) {
+      sortBtnEarly.disabled = true;
+      sortBtnEarly.style.opacity = "0.3";
+    }
+    if (sectionLabel) sectionLabel.style.display = "none";
+    return;
+  }
+
+  // Update pinned section label
+  if (sectionLabel) {
+    if (state.showDoneRecurringTasks && done.length > 0) {
+      sectionLabel.querySelector("span").textContent =
+        `Completed (${done.length})`;
+      sectionLabel.style.display = "flex";
+    } else if (!state.showDoneRecurringTasks && active.length > 0) {
+      sectionLabel.querySelector("span").textContent =
+        `Incomplete (${active.length})`;
+      sectionLabel.style.display = "flex";
+    } else {
+      sectionLabel.style.display = "none";
+    }
+  }
+
+  active.forEach((task) => {
+    const item = buildRecurringTaskItem(task, false);
+    item.style.display = state.showDoneRecurringTasks ? "none" : "flex";
+    container.appendChild(item);
   });
+
+  done.forEach((task) => {
+    const item = buildRecurringTaskItem(task, true);
+    item.style.display = state.showDoneRecurringTasks ? "flex" : "none";
+    item.dataset.isDone = "1";
+    container.appendChild(item);
+  });
+
+  if (toggleBtn) {
+    const hasDone = done.length > 0;
+    const canToggle = hasDone || state.showDoneRecurringTasks;
+    toggleBtn.disabled = !canToggle;
+    toggleBtn.textContent = state.showDoneRecurringTasks ? "☐" : "☑";
+    toggleBtn.style.opacity = canToggle ? "1" : "0.3";
+    toggleBtn.style.color = state.showDoneRecurringTasks ? "var(--c-work)" : "";
+    toggleBtn.style.borderColor = state.showDoneRecurringTasks ? "var(--c-work)" : "";
+  }
+
+  const sortBtn = document.getElementById("btn-sort-recurring");
+  if (sortBtn) {
+    const hasSortable = active.length > 1;
+    sortBtn.textContent = state.recurringSortDir === "easy" ? "Sort △" : "Sort ▽";
+    sortBtn.classList.toggle("active", state.recurringSortDir != null);
+    sortBtn.disabled = !hasSortable;
+    sortBtn.style.opacity = hasSortable ? "1" : "0.3";
+  }
 }
 
 function buildRecurringTaskItem(task, isDone) {
