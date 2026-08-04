@@ -589,7 +589,7 @@ body.dark .card-title {
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
   margin-bottom: 8px;
-  padding: 8px 6px 6px;
+  padding: 8px 0 6px;
 }
 
 /* ===== SHARED CELL STYLES ===== */
